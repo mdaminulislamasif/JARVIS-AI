@@ -435,6 +435,48 @@ class OfflineBrain:
         
         print(f"\n[JARVIS OFFLINE BRAIN] Processing: {user_input}")
         
+        # ===== API KEY DIRECT INPUT DETECTION =====
+        try:
+            from core.brain import detect_key_type
+            key_type = detect_key_type(user_input)
+            if key_type != "Invalid":
+                print(f"[OFFLINE BRAIN] Direct API key detected: {key_type}")
+                from core.auth import auto_apply_key_to_config
+                applied = auto_apply_key_to_config(user_input)
+                if applied:
+                    return {
+                        'status': 'success',
+                        'response': f"🔑 **[API KEY DETECTED]**\nI have detected and successfully configured your **{key_type} API Key**!\nIt has been applied and secured in your configuration.\n\n🔑 **{key_type} API Key** সনাক্ত করা হয়েছে এবং কনফিগার করা হয়েছে, স্যার!",
+                        'type': 'api_key_setup'
+                    }
+        except Exception as e:
+            print(f"[OFFLINE BRAIN] Direct API Key detection error: {e}")
+
+        # ===== API KEY PAGE URL DETECTION =====
+        try:
+            urls = self._extract_urls(user_input)
+            if urls:
+                api_pages = {
+                    "aistudio.google.com": ("Google AI Studio", "Gemini"),
+                    "platform.openai.com": ("OpenAI Platform", "OpenAI"),
+                    "console.anthropic.com": ("Anthropic Console", "Claude / Anthropic"),
+                    "console.groq.com": ("Groq Console", "Groq"),
+                    "console.cohere.com": ("Cohere Console", "Cohere"),
+                    "console.mistral.ai": ("Mistral Console", "Mistral"),
+                    "developer.deepseek.com": ("DeepSeek Console", "DeepSeek"),
+                }
+                for url in urls:
+                    url_lower = url.lower()
+                    for domain_pattern, (platform_name, provider_name) in api_pages.items():
+                        if domain_pattern in url_lower:
+                            return {
+                                'status': 'success',
+                                'response': f"🌐 **[API KEY PAGE DETECTED]**\nI see you visited the **{platform_name}** page.\nIf you want to configure your **{provider_name} API Key**, please copy the key from that page and paste it directly in this chat, and I will automatically set it up for you!\n\n🌐 **{platform_name}** এর লিঙ্ক সনাক্ত করা হয়েছে। আপনি যদি আপনার **{provider_name} API Key** সেটআপ করতে চান, তাহলে কী-টি কপি করে সরাসরি এখানে পেস্ট করুন, স্যার! আমি তা কনফিগার করে নেব।",
+                                'type': 'api_key_page_guide'
+                            }
+        except Exception as e:
+            print(f"[OFFLINE BRAIN] API Key page detection error: {e}")
+        
         # ===== SMART SUGGESTIONS - Show suggestions if available =====
         if self.smart_suggestions and len(user_input) >= 3:
             suggestions = self.smart_suggestions.get_suggestions(user_input, limit=3)
@@ -2486,6 +2528,25 @@ Type 'help' to see all commands!
         print(f"🌐 URL সনাক্ত করা হয়েছে: {url}")
         
         try:
+            # ===== API KEY PAGE DETECTION =====
+            url_lower = url.lower()
+            api_pages = {
+                "aistudio.google.com": ("Google AI Studio", "Gemini"),
+                "platform.openai.com": ("OpenAI Platform", "OpenAI"),
+                "console.anthropic.com": ("Anthropic Console", "Claude / Anthropic"),
+                "console.groq.com": ("Groq Console", "Groq"),
+                "console.cohere.com": ("Cohere Console", "Cohere"),
+                "console.mistral.ai": ("Mistral Console", "Mistral"),
+                "developer.deepseek.com": ("DeepSeek Console", "DeepSeek"),
+            }
+            for domain_pattern, (platform_name, provider_name) in api_pages.items():
+                if domain_pattern in url_lower:
+                    return {
+                        'status': 'success',
+                        'response': f"🌐 **[API KEY PAGE DETECTED]**\nI see you visited the **{platform_name}** page.\nIf you want to configure your **{provider_name} API Key**, please copy the key from that page and paste it directly in this chat, and I will automatically set it up for you!\n\n🌐 **{platform_name}** এর লিঙ্ক সনাক্ত করা হয়েছে। আপনি যদি আপনার **{provider_name} API Key** সেটআপ করতে চান, তাহলে কী-টি কপি করে সরাসরি এখানে পেস্ট করুন, স্যার! আমি তা কনফিগার করে নেব।",
+                        'type': 'api_key_page_guide'
+                    }
+
             # Extract domain name from URL
             domain = url.replace('https://', '').replace('http://', '').replace('www.', '')
             
