@@ -15,7 +15,7 @@ try:
     from direct.showbase.ShowBase import ShowBase
     from direct.task import Task
     from direct.actor.Actor import Actor
-    # GLTF support is automatic in panda3d-gltf
+    import gltf
 except ImportError as e:
     print(f"[!] CRITICAL: Missing libraries. Please run: pip install panda3d panda3d-gltf")
     print(f"Error detail: {e}")
@@ -24,12 +24,8 @@ except ImportError as e:
 
 
 def _to_panda_path(win_path: str) -> str:
-    """Convert a Windows absolute path to a Panda3D-safe forward-slash path.
-    Avoids Filename.fromOsSpecific which turns 'C:\\foo' into '/c/foo'.
-    """
-    p = os.path.abspath(win_path)
-    # Use forward slashes; keep the drive letter with its colon intact
-    return p.replace('\\', '/')
+    """Convert a Windows absolute path to a Panda3D-safe forward-slash path."""
+    return Filename.fromOsSpecific(os.path.abspath(win_path)).getFullpath()
 
 # --- 2. LITE PERFORMANCE CONFIG ---
 loadPrcFileData("", "window-title JARVIS Neural Face (FIXED)")
@@ -50,7 +46,7 @@ class FaceApp(ShowBase):
             self.state_path = state_path
             
             self.setBackgroundColor(0, 0, 0, 1)
-            # gltf.patch_loader is not needed - panda3d-gltf works automatically
+            
             
             # Load Model
             print(f">> Attempting to load: {model_path}")
