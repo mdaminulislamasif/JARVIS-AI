@@ -3073,7 +3073,10 @@ IMPORTANT:
                         res = stream_think(self.brain, query, history, self._stream_to_terminal, image_path=image_path)
                         self.after(0, lambda: self.terminal.insert("end", "\n"))
                     else:
-                        res = self.brain.think(query, history, image_path=image_path)
+                        if image_path:
+                            res = self.brain.think(query, history, image_path=image_path)
+                        else:
+                            res = self.multi_brain.think(query, history)
                         # If brain quota exceeded, use offline brain
                         if "QUOTA_EXCEEDED_USE_OFFLINE" in str(res) or "all API keys have hit today's free quota" in str(res):
                             if hasattr(self, '_offline_brain') and self._offline_brain:

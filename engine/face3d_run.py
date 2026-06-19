@@ -8,8 +8,8 @@ import time
 try:
     # pyrefly: ignore [missing-import]
     from panda3d.core import (
-        AmbientLight, DirectionalLight, Filename, PointLight, 
-        Vec4, NodePath, LColor, Shader, loadPrcFileData, 
+        AmbientLight, DirectionalLight, Filename, PointLight,
+        Vec4, NodePath, LColor, Shader, loadPrcFileData,
         TransparencyAttrib, Character
     )
     from direct.showbase.ShowBase import ShowBase
@@ -21,6 +21,15 @@ except ImportError as e:
     print(f"Error detail: {e}")
     time.sleep(10)
     sys.exit(1)
+
+
+def _to_panda_path(win_path: str) -> str:
+    """Convert a Windows absolute path to a Panda3D-safe forward-slash path.
+    Avoids Filename.fromOsSpecific which turns 'C:\\foo' into '/c/foo'.
+    """
+    p = os.path.abspath(win_path)
+    # Use forward slashes; keep the drive letter with its colon intact
+    return p.replace('\\', '/')
 
 # --- 2. LITE PERFORMANCE CONFIG ---
 loadPrcFileData("", "window-title JARVIS Neural Face (FIXED)")
@@ -49,14 +58,15 @@ class FaceApp(ShowBase):
                 print(f"[!] ERROR: Model not found at {model_path}")
                 return
 
-            # Use absolute path and convert to Panda3D format
-            m_fn = Filename.fromOsSpecific(os.path.abspath(model_path))
-            
+            # Convert to Panda3D-safe forward-slash path (avoids /c/Users bug)
+            panda_path = _to_panda_path(model_path)
+            print(f">> Panda3D model path: {panda_path}")
+
             try:
                 # Try loading as Actor first (for animations)
-                self.face = Actor(m_fn.getFullpath())
+                self.face = Actor(panda_path)
                 print("[OK] Actor loaded successfully.")
-                
+
                 # Bind joints for skeletal animation
                 self.head_joint = self.face.control_joint(None, 'modelRoot', 'Head')
                 self.eye_l_joint = self.face.control_joint(None, 'modelRoot', 'Eye_L')
@@ -67,7 +77,7 @@ class FaceApp(ShowBase):
                 print("[OK] Skeleton joints controlled.")
             except Exception as actor_err:
                 print(f"[!] Actor load failed: {actor_err}. Trying static model...")
-                self.face = self.loader.loadModel(m_fn.getFullpath())
+                self.face = self.loader.loadModel(panda_path)
                 self.head_joint = None
                 self.eye_l_joint = None
                 self.eye_r_joint = None

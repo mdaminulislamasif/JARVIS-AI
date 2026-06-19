@@ -242,6 +242,11 @@ All available knowledge saved and ready to use!
     
     def _search_in_chrome(self, topic):
         """Open Chrome and search Google"""
+        # Bypassing browser popups in test or diagnostic environments
+        if os.environ.get('JARVIS_NO_DIAGNOSIS') == '1' or os.environ.get('JARVIS_TESTING') == '1':
+            print(f"[INFO] Bypassing Chrome open for search '{topic}' (Test/Diagnostic mode)")
+            return
+            
         try:
             search_url = f"https://www.google.com/search?q={topic.replace(' ', '+')}"
             
