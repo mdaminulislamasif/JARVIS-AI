@@ -57,17 +57,25 @@ ai/
 
 ---
 
-## 🔑 API Keys Setup
+## 🔑 API Keys Setup & Smart Auto-Detection
 
-Create `jarvis_config.txt` in the project root (one key per line):
+Create `jarvis_config.txt` in the project root and add any of your API keys (one key per line). 
+
+💡 **Smart Auto-Detection**: You don't need to specify which key is for which provider. JARVIS's brain dynamically detects the key type by its prefix/structure (e.g., `AIza` or `AQ.` for Gemini, `sk-ant-` for Claude, `sk-` for OpenAI/DeepSeek, `gsk_` for Groq) and automatically routes request traffic to the correct AI client!
+
+### Direct Chat Configuration
+You can also **directly paste any API key into the chat interface** or **input an API console URL** (like Google AI Studio or OpenAI API key page), and JARVIS will automatically detect, extract, and configure it for you instantly!
+
 ```
-AIza...          ← Gemini key
-sk-ant-...       ← Claude/Anthropic key
-sk-proj-...      ← OpenAI key
-gsk_...          ← Groq key
+AIza...          ← Gemini key (Auto-detected)
+sk-ant-...       ← Claude/Anthropic key (Auto-detected)
+sk-proj-...      ← OpenAI key (Auto-detected)
+gsk_...          ← Groq key (Auto-detected)
 ```
 
-> ⚠️ Never commit your API keys. `jarvis_config.txt` is in `.gitignore`.
+> ⚠️ **Strict Privacy & Security Guarantee**:
+> - Never commit your API keys. `jarvis_config.txt` is fully excluded in `.gitignore`.
+> - All local SQLite memory databases (`*.db`), chat histories, offline brain configurations, and runtime credentials are strictly `.gitignore`d and **NEVER** uploaded to GitHub to ensure your personal data stays 100% private and secure on your machine.
 
 ---
 
