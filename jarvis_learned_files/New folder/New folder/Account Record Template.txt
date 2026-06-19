@@ -1,0 +1,12 @@
+Account Record
+====================
+Account Name:
+Recovery Email:
+Phone Number:
+Username or Gmail Address:
+Last Updated:
+Notes:
+
+Security Note:
+Do not store passwords in plain text files.
+Use a password manager or Windows Credential Manager instead.

@@ -1,0 +1,245 @@
+================================================================================
+  🔍 JARVIS OFFLINE BRAIN - WEB SEARCH GUIDE
+  🔍 JARVIS অফলাইন ব্রেইন - ওয়েব সার্চ গাইড
+================================================================================
+
+✅ JARVIS offline brain এখন web searching support করে!
+✅ JARVIS offline brain now supports web searching!
+
+কোনো API key লাগবে না! / No API key needed!
+
+
+🚀 কিভাবে ব্যবহার করবেন / HOW TO USE
+---------------------------------------
+
+JARVIS এ যেকোনো search command টাইপ করুন:
+Just type any search command in JARVIS:
+
+
+📋 SEARCH COMMANDS / সার্চ কমান্ড
+----------------------------------
+
+🔍 Google Search (Default):
+   search Python
+   search JavaScript tutorial
+   search how to code
+   
+   → Opens Google search / Google search খুলবে
+
+
+🎥 YouTube Search:
+   search youtube Python tutorial
+   search video Python
+   
+   → Opens YouTube search / YouTube search খুলবে
+
+
+📚 Wikipedia Search:
+   search wikipedia Python
+   search wiki Albert Einstein
+   
+   → Opens Wikipedia / Wikipedia খুলবে
+
+
+💻 GitHub Search:
+   search github Python projects
+   search code React
+   
+   → Opens GitHub search / GitHub search খুলবে
+
+
+❓ Stack Overflow Search:
+   search stackoverflow Python error
+   search stack overflow JavaScript
+   
+   → Opens Stack Overflow / Stack Overflow খুলবে
+
+
+🖼️ Image Search:
+   search image cat
+   search picture Python logo
+   search photo nature
+   
+   → Opens Google Images / Google Images খুলবে
+
+
+📰 News Search:
+   search news Bangladesh
+   search খবর Python
+   
+   → Opens Google News / Google News খুলবে
+
+
+🗺️ Map Search:
+   search map Dhaka
+   search location New York
+   search place Paris
+   
+   → Opens Google Maps / Google Maps খুলবে
+
+
+🛒 Amazon Search:
+   search amazon laptop
+   search shopping phone
+   
+   → Opens Amazon search / Amazon search খুলবে
+
+
+🐦 Twitter Search:
+   search twitter Python
+   search tweet JavaScript
+   
+   → Opens Twitter search / Twitter search খুলবে
+
+
+🔴 Reddit Search:
+   search reddit Python
+   
+   → Opens Reddit search / Reddit search খুলবে
+
+
+💡 EXAMPLES / উদাহরণ
+---------------------
+
+Example 1: Simple Google search
+সাধারণ Google search:
+
+   Type in JARVIS: search Python tutorial
+   Result: Opens Google with "Python tutorial" search
+   ফলাফল: Google এ "Python tutorial" search খুলবে
+
+
+Example 2: YouTube video search
+YouTube video search:
+
+   Type in JARVIS: search youtube how to code
+   Result: Opens YouTube with "how to code" search
+   ফলাফল: YouTube এ "how to code" search খুলবে
+
+
+Example 3: Find images
+ছবি খুঁজুন:
+
+   Type in JARVIS: search image beautiful sunset
+   Result: Opens Google Images with "beautiful sunset"
+   ফলাফল: Google Images এ "beautiful sunset" খুলবে
+
+
+Example 4: Search for code
+Code খুঁজুন:
+
+   Type in JARVIS: search github Python web scraping
+   Result: Opens GitHub with "Python web scraping" search
+   ফলাফল: GitHub এ "Python web scraping" search খুলবে
+
+
+Example 5: Find location
+Location খুঁজুন:
+
+   Type in JARVIS: search map Dhaka University
+   Result: Opens Google Maps with "Dhaka University"
+   ফলাফল: Google Maps এ "Dhaka University" খুলবে
+
+
+🎯 SMART DETECTION / স্মার্ট ডিটেকশন
+--------------------------------------
+
+JARVIS automatically detects what you want to search:
+JARVIS automatically detect করে আপনি কি খুঁজতে চান:
+
+✅ Contains "youtube" or "video" → YouTube search
+✅ Contains "wikipedia" or "wiki" → Wikipedia search
+✅ Contains "github" or "code" → GitHub search
+✅ Contains "stackoverflow" → Stack Overflow search
+✅ Contains "image", "picture", "photo" → Image search
+✅ Contains "news" or "খবর" → News search
+✅ Contains "map", "location", "place" → Map search
+✅ Contains "amazon" or "shopping" → Amazon search
+✅ Contains "twitter" or "tweet" → Twitter search
+✅ Contains "reddit" → Reddit search
+✅ Otherwise → Google search (default)
+
+
+📖 FULL HELP / সম্পূর্ণ সাহায্য
+--------------------------------
+
+Type in JARVIS: help
+
+এটা দেখাবে সব commands including web search!
+This will show all commands including web search!
+
+
+✅ VERIFICATION / যাচাই
+------------------------
+
+Web search tested and working! ✅
+ওয়েব সার্চ টেস্ট করা হয়েছে এবং কাজ করছে! ✅
+
+Test results:
+  ✅ Google search working
+  ✅ YouTube search working
+  ✅ Wikipedia search working
+  ✅ GitHub search working
+  ✅ Stack Overflow search working
+  ✅ Image search working
+  ✅ News search working
+  ✅ Map search working
+  ✅ Amazon search working
+  ✅ Twitter search working
+  ✅ Reddit search working
+  ✅ Bengali text support working
+
+
+🔧 TROUBLESHOOTING / সমস্যা সমাধান
+-----------------------------------
+
+Problem: Search না হচ্ছে
+Solution: 
+  - Check internet connection / Internet connection check করুন
+  - Make sure browser installed / Browser installed আছে কিনা দেখুন
+  - Try: search test
+
+Problem: Wrong website খুলছে
+Solution:
+  - Be more specific / আরো specific হন
+  - Example: "search youtube Python" instead of "search Python"
+
+
+📁 FILES MODIFIED / পরিবর্তিত ফাইল
+-----------------------------------
+
+✅ jarvis_offline_brain.py
+   - Enhanced do_search() function
+   - Added support for 11+ platforms
+   - Added Bengali language support
+   - Updated help text
+
+
+🎉 SUCCESS! / সফল!
+-------------------
+
+✅ JARVIS offline brain can now search the web!
+✅ JARVIS offline brain এখন web search করতে পারে!
+
+✅ Supports 11+ platforms!
+✅ 11+ platforms support করে!
+
+✅ Works WITHOUT API keys!
+✅ API key ছাড়াই কাজ করে!
+
+✅ Bengali and English support!
+✅ Bengali এবং English support!
+
+
+================================================================================
+  🎊 ENJOY WEB SEARCHING WITH JARVIS OFFLINE BRAIN!
+  🎊 JARVIS অফলাইন ব্রেইন দিয়ে ওয়েব সার্চ উপভোগ করুন!
+================================================================================
+
+Date: 2026-05-06
+Status: ✅ COMPLETE AND TESTED
+অবস্থা: ✅ সম্পূর্ণ এবং টেস্ট করা
+
+Now type in JARVIS: search Python tutorial
+এখন JARVIS এ টাইপ করুন: search Python tutorial
+

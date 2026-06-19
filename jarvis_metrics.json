@@ -1,0 +1,40 @@
+{
+  "current_metrics": {
+    "cpu_percent": 0.0,
+    "memory_mb": 16.1796875,
+    "memory_percent": 0.06614050209934616,
+    "avg_response_time": 0.325,
+    "avg_learning_speed": 19.0,
+    "cache_hit_rate": 53.96428571428571
+  },
+  "statistics": {
+    "duration": 5.045377,
+    "total_requests": 10,
+    "total_learning_tasks": 10,
+    "total_cache_hits": 6,
+    "total_cache_misses": 4,
+    "errors": 0,
+    "alerts_count": 1
+  },
+  "health_status": {
+    "status": "EXCELLENT",
+    "score": 90.0,
+    "emoji": "\ud83d\udfe2",
+    "metrics": {
+      "cpu_percent": 0.0,
+      "memory_mb": 16.1796875,
+      "memory_percent": 0.06614050209934616,
+      "avg_response_time": 0.325,
+      "avg_learning_speed": 19.0,
+      "cache_hit_rate": 53.96428571428571
+    }
+  },
+  "alerts": [
+    {
+      "type": "LOW_CACHE",
+      "message": "Cache hit rate is low: 0.0%",
+      "timestamp": "2026-05-09T09:22:31.383990"
+    }
+  ],
+  "timestamp": "2026-05-09T09:22:36.317952"
+}

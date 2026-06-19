@@ -1,0 +1,180 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    JARVIS KEYBOARD SHORTCUTS                                 ║
+║                    জার্ভিস কীবোর্ড শর্টকাট                                  ║
+║                    QUICK REFERENCE CARD                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ FUNCTION KEYS (F1-F12) | ফাংশন কী                                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ F1  → Help              │ F7  → Memory Info                                  │
+│ F2  → Screenshot        │ F8  → Processes                                    │
+│ F3  → Web Search        │ F9  → Network Scan                                 │
+│ F4  → Translate         │ F10 → WiFi Scan                                    │
+│ F5  → System Clean      │ F11 → Firewall                                     │
+│ F6  → Disk Info         │ F12 → System Monitor                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ CTRL + KEY | Ctrl + কী                                                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Ctrl+N → Network Scan   │ Ctrl+P → Processes                                 │
+│ Ctrl+W → WiFi Scan      │ Ctrl+L → Lock Computer                             │
+│ Ctrl+S → Screenshot     │ Ctrl+T → Translate                                 │
+│ Ctrl+C → System Clean   │ Ctrl+G → AI Generate                               │
+│ Ctrl+D → Disk Info      │ Ctrl+H → Show Shortcuts Help ⭐                    │
+│ Ctrl+M → Memory Info    │                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ALT + KEY | Alt + কী                                                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Alt+N → Notepad         │ Alt+T → Task Manager                               │
+│ Alt+B → Browser         │ Alt+V → Volume Control                             │
+│ Alt+C → Calculator      │ Alt+S → System Settings                            │
+│ Alt+E → File Explorer   │                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ CTRL + SHIFT + KEY (Learning & Generation) | শেখা এবং জেনারেশন              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Ctrl+Shift+L → Auto Learn       │ Ctrl+Shift+G → Generate Image            │
+│ Ctrl+Shift+S → Search & Learn   │ Ctrl+Shift+V → Generate Video            │
+│ Ctrl+Shift+A → Learn Article    │ Ctrl+Shift+M → Generate Audio            │
+│ Ctrl+Shift+T → Translate        │                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ CTRL + ALT + KEY (Elite Tools) | এলিট টুলস                                  │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Ctrl+Alt+K → Kali Mode          │ Ctrl+Alt+P → Virus Purge                 │
+│ Ctrl+Alt+F → Flipper Mode       │ Ctrl+Alt+R → Remote Console              │
+│ Ctrl+Alt+A → Alien Mode         │ Ctrl+Alt+S → Screen Share                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ SPECIAL COMBINATIONS | বিশেষ সমন্বয়                                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Ctrl+Alt+Del → Task Manager                                                  │
+│ Win+L        → Lock Computer                                                 │
+│ Win+E        → File Explorer                                                 │
+│ Win+R        → Run Dialog                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ ⭐ MOST IMPORTANT SHORTCUT | সবচেয়ে গুরুত্বপূর্ণ শর্টকাট                    ║
+║                                                                              ║
+║                         Press Ctrl+H                                         ║
+║                    To show this help anytime!                                ║
+║                  যেকোনো সময় এই সাহায্য দেখতে!                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 🚀 QUICK START | দ্রুত শুরু                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+1. Start JARVIS → Shortcuts automatically activated
+   JARVIS শুরু করুন → Shortcuts স্বয়ংক্রিয়ভাবে সক্রিয়
+
+2. Press Ctrl+H → See all shortcuts
+   Ctrl+H চাপুন → সব shortcuts দেখুন
+
+3. Try F2 → Take screenshot
+   F2 চেষ্টা করুন → স্ক্রিনশট নিন
+
+4. Explore more shortcuts!
+   আরো shortcuts অন্বেষণ করুন!
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 💡 TIPS | টিপস                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✓ Shortcuts work when JARVIS window is active
+  JARVIS window active থাকলে shortcuts কাজ করে
+
+✓ Use shortcuts for speed, voice for complex tasks
+  দ্রুততার জন্য shortcuts, জটিল কাজের জন্য voice ব্যবহার করুন
+
+✓ Practice daily to build muscle memory
+  muscle memory তৈরি করতে প্রতিদিন অনুশীলন করুন
+
+✓ Combine shortcuts for powerful workflows
+  শক্তিশালী workflows এর জন্য shortcuts একত্রিত করুন
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 🎯 TOP 10 MOST USEFUL SHORTCUTS | শীর্ষ 10 সবচেয়ে উপযোগী শর্টকাট          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+1.  Ctrl+H         → Show Help (MOST IMPORTANT!)
+2.  F2             → Screenshot
+3.  F5             → System Clean
+4.  F12            → System Monitor
+5.  Ctrl+N         → Network Scan
+6.  Ctrl+L         → Lock Computer
+7.  Alt+E          → File Explorer
+8.  Ctrl+Shift+L   → Auto Learn
+9.  Ctrl+Shift+G   → Generate Image
+10. Ctrl+Alt+P     → Virus Purge
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 📊 BENEFITS | সুবিধা                                                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+⚡ 10x FASTER    → Execute commands instantly
+                  তাৎক্ষণিকভাবে commands execute করুন
+
+🎯 100x EFFICIENT → No need to search for buttons
+                   বাটন খোঁজার দরকার নেই
+
+🧠 PRODUCTIVE   → Keep hands on keyboard
+                  keyboard এ হাত রাখুন
+
+🎨 CUSTOMIZABLE → Add your own shortcuts
+                  নিজের shortcuts যোগ করুন
+
+🌍 UNIVERSAL    → Works across all JARVIS features
+                  সব JARVIS features এ কাজ করে
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 🐛 TROUBLESHOOTING | সমস্যা সমাধান                                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Problem: Shortcuts not working
+সমস্যা: Shortcuts কাজ করছে না
+
+Solution:
+সমাধান:
+1. Check if JARVIS window has focus
+   দেখুন JARVIS window focus এ আছে কিনা
+
+2. Look for "✅ Keyboard Shortcuts activated!" message
+   "✅ Keyboard Shortcuts activated!" message খুঁজুন
+
+3. Restart JARVIS
+   JARVIS restart করুন
+
+4. Check if another program is using the same shortcut
+   দেখুন অন্য program একই shortcut ব্যবহার করছে কিনা
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ 📞 SUPPORT | সহায়তা                                                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+• Press Ctrl+H in JARVIS for shortcuts list
+  shortcuts list এর জন্য JARVIS এ Ctrl+H চাপুন
+
+• Check console for error messages
+  error messages এর জন্য console দেখুন
+
+• Read JARVIS_KEYBOARD_SHORTCUTS_GUIDE.md for detailed info
+  বিস্তারিত তথ্যের জন্য JARVIS_KEYBOARD_SHORTCUTS_GUIDE.md পড়ুন
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    JARVIS ANTIGRAVITY PRIME V11                              ║
+║                    KEYBOARD SHORTCUTS SYSTEM                                 ║
+║                    VERSION 1.0.0                                             ║
+║                    STATUS: ✅ FULLY OPERATIONAL                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Print this card and keep it near your computer for quick reference!
+এই card প্রিন্ট করুন এবং দ্রুত রেফারেন্সের জন্য আপনার computer এর কাছে রাখুন!

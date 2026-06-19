@@ -1,0 +1,17 @@
+pyttsx3
+SpeechRecognition
+google-generativeai
+customtkinter
+psutil
+pyautogui
+googletrans==4.0.0-rc1
+gTTS
+playsound==1.2.2
+python-dotenv
+wikipedia-api
+requests
+beautifulsoup4
+newsapi-python
+comtypes
+pycaw
+screen_brightness_control

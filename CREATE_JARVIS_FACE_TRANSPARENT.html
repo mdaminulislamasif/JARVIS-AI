@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS 3D Face - Transparent Background</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            color: #00ffff;
+            overflow: hidden;
+        }
+        
+        /* Checkered pattern to show transparency */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+                linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
+                linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            max-width: 400px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 3px solid #00ffff;
+            border-radius: 5px;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00ffff 0%, #0080ff 100%);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .shape-key-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .shape-key-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #00ffff;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 255, 255, 0.1);
+            border-top: 4px solid #00ffff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .transparent-badge {
+            display: inline-block;
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="loading">
+        <div class="spinner"></div>
+        <h2>Creating JARVIS Face...</h2>
+        <p>With Transparent Background</p>
+    </div>
+    
+    <div id="info">
+        <h1>🤖 JARVIS 3D Face <span class="transparent-badge">TRANSPARENT</span></h1>
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Initializing...</span>
+        </div>
+        <div class="status">
+            <strong>Features:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li>✅ Transparent background</li>
+                <li>✅ Cybernetic skin (cyan glow)</li>
+                <li>✅ Glowing eyes</li>
+                <li>✅ Lip sync animations</li>
+                <li>✅ Export with transparency</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <h3 style="margin: 0 0 10px 0;">Controls</h3>
+        <button onclick="exportGLB()">💾 Export GLB (Transparent)</button>
+        <button onclick="toggleAnimation()">▶️ Toggle Animation</button>
+        <button onclick="resetView()">🔄 Reset View</button>
+        <button onclick="toggleBackground()">🎨 Toggle Background</button>
+        
+        <div class="shape-key-controls">
+            <button class="shape-key-btn" onclick="playShapeKey('A')">A - Open (আ)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('E')">E - Smile (ই)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('O')">O - Round (ও)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('U')">U - Pucker (উ)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('M')">M - Closed (ম)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('F')">F - Teeth (ফ)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('S')">S - Teeth (স)</button>
+            <button class="shape-key-btn" onclick="playShapeKey('Blink')">👁️ Blink</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    
+    <script>
+        let scene, camera, renderer, controls;
+        let head, leftEye, rightEye, leftEyelid, rightEyelid;
+        let animationRunning = false;
+        let currentShapeKey = null;
+        let showBackground = true;
+        
+        // Initialize Three.js scene
+        function init() {
+            updateStatus('Creating transparent scene...');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = null; // Transparent background
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(
+                50,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 0, 3);
+            
+            // Renderer with alpha (transparency)
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                preserveDrawingBuffer: true // For screenshots
+            });
+            renderer.setClearColor(0x000000, 0); // Fully transparent
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Lights
+            createLights();
+            
+            // Create JARVIS face
+            createJarvisFace();
+            
+            // Hide loading
+            document.getElementById('loading').style.display = 'none';
+            updateStatus('Ready! Background is transparent 🎉');
+            
+            // Animation loop
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        function createLights() {
+            // Ambient light
+            const ambient = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambient);
+            
+            // Key light
+            const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            keyLight.position.set(2, 2, 3);
+            scene.add(keyLight);
+            
+            // Fill light
+            const fillLight = new THREE.DirectionalLight(0x00ffff, 0.4);
+            fillLight.position.set(-2, 1, 2);
+            scene.add(fillLight);
+            
+            // Rim light
+            const rimLight = new THREE.DirectionalLight(0x00ffff, 0.6);
+            rimLight.position.set(0, -2, -2);
+            scene.add(rimLight);
+        }
+        
+        function createJarvisFace() {
+            updateStatus('Creating head mesh...');
+            
+            // Create head
+            const headGeometry = new THREE.SphereGeometry(1, 32, 32);
+            
+            // Modify geometry for face shape
+            const positions = headGeometry.attributes.position;
+            for (let i = 0; i < positions.count; i++) {
+                const x = positions.getX(i);
+                const y = positions.getY(i);
+                const z = positions.getZ(i);
+                
+                // Flatten back of head
+                if (z < -0.3) {
+                    positions.setZ(i, z * 0.7);
+                }
+                
+                // Scale for head proportions
+                positions.setX(i, x * 0.8);
+                positions.setZ(i, z * 1.1);
+            }
+            
+            headGeometry.attributes.position.needsUpdate = true;
+            headGeometry.computeVertexNormals();
+            
+            // JARVIS skin material (with transparency support)
+            const skinMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x99d9f0,
+                metalness: 0.3,
+                roughness: 0.4,
+                clearcoat: 0.5,
+                clearcoatRoughness: 0.3,
+                emissive: 0x0088ff,
+                emissiveIntensity: 0.3,
+                transparent: false, // Skin is not transparent
+                opacity: 1.0
+            });
+            
+            head = new THREE.Mesh(headGeometry, skinMaterial);
+            scene.add(head);
+            
+            updateStatus('Creating eyes...');
+            
+            // Create eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+            const eyeMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                emissive: 0x00ffff,
+                emissiveIntensity: 2
+            });
+            
+            leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(0.35, 0.3, 0.85);
+            scene.add(leftEye);
+            
+            rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(-0.35, 0.3, 0.85);
+            scene.add(rightEye);
+            
+            updateStatus('Creating eyelids...');
+            
+            // Create eyelids
+            const eyelidGeometry = new THREE.BoxGeometry(0.3, 0.05, 0.15);
+            const eyelidMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x99d9f0,
+                metalness: 0.3,
+                roughness: 0.4
+            });
+            
+            leftEyelid = new THREE.Mesh(eyelidGeometry, eyelidMaterial);
+            leftEyelid.position.set(0.35, 0.38, 0.85);
+            scene.add(leftEyelid);
+            
+            rightEyelid = new THREE.Mesh(eyelidGeometry, eyelidMaterial);
+            rightEyelid.position.set(-0.35, 0.38, 0.85);
+            scene.add(rightEyelid);
+            
+            updateStatus('Adding glow effects...');
+            
+            // Add glow to eyes
+            const glowGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.3
+            });
+            
+            const leftGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            leftGlow.position.copy(leftEye.position);
+            scene.add(leftGlow);
+            
+            const rightGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            rightGlow.position.copy(rightEye.position);
+            scene.add(rightGlow);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            controls.update();
+            
+            // Auto-rotate if animation is running
+            if (animationRunning) {
+                head.rotation.y += 0.005;
+                leftEye.rotation.y += 0.005;
+                rightEye.rotation.y += 0.005;
+            }
+            
+            // Render
+            renderer.render(scene, camera);
+        }
+        
+        function playShapeKey(key) {
+            updateStatus(`Playing: ${key}`);
+            
+            // Reset previous animation
+            if (currentShapeKey) {
+                clearTimeout(currentShapeKey);
+            }
+            
+            switch(key) {
+                case 'A': // Open mouth
+                    animateJaw(0.3, 500);
+                    break;
+                case 'E': // Smile
+                    animateSmile(500);
+                    break;
+                case 'O': // Round mouth
+                    animateJaw(0.2, 500);
+                    break;
+                case 'U': // Pucker
+                    animateJaw(0.15, 500);
+                    break;
+                case 'M': // Closed
+                    animateJaw(0, 300);
+                    break;
+                case 'F': // Teeth
+                    animateJaw(0.1, 400);
+                    break;
+                case 'S': // Teeth smile
+                    animateSmile(400);
+                    animateJaw(0.05, 400);
+                    break;
+                case 'Blink':
+                    animateBlink();
+                    break;
+            }
+            
+            // Reset after animation
+            currentShapeKey = setTimeout(() => {
+                animateJaw(0, 300);
+                updateStatus('Ready! Background is transparent 🎉');
+            }, 1000);
+        }
+        
+        function animateJaw(targetY, duration) {
+            const startY = head.scale.y;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                head.scale.y = startY + (targetY - startY) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            update();
+        }
+        
+        function animateSmile(duration) {
+            const startScale = head.scale.x;
+            const targetScale = startScale * 1.1;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                head.scale.x = startScale + (targetScale - startScale) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    // Reset
+                    setTimeout(() => {
+                        head.scale.x = startScale;
+                    }, 500);
+                }
+            }
+            
+            update();
+        }
+        
+        function animateBlink() {
+            const duration = 150;
+            const startY = leftEyelid.position.y;
+            const targetY = startY - 0.15;
+            const startTime = Date.now();
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentY = startY + (targetY - startY) * Math.sin(progress * Math.PI);
+                leftEyelid.position.y = currentY;
+                rightEyelid.position.y = currentY;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            update();
+        }
+        
+        function toggleAnimation() {
+            animationRunning = !animationRunning;
+            updateStatus(animationRunning ? 'Animation ON' : 'Animation OFF');
+        }
+        
+        function resetView() {
+            camera.position.set(0, 0, 3);
+            controls.reset();
+            head.rotation.set(0, 0, 0);
+            updateStatus('View reset');
+        }
+        
+        function toggleBackground() {
+            showBackground = !showBackground;
+            const bodyBefore = document.querySelector('body::before');
+            if (showBackground) {
+                document.body.style.setProperty('--bg-opacity', '0.3');
+                updateStatus('Background pattern ON');
+            } else {
+                document.body.style.setProperty('--bg-opacity', '0');
+                updateStatus('Background pattern OFF (fully transparent)');
+            }
+        }
+        
+        function exportGLB() {
+            updateStatus('Exporting transparent GLB...');
+            
+            const exporter = new THREE.GLTFExporter();
+            
+            exporter.parse(
+                scene,
+                function(result) {
+                    const blob = new Blob([result], { type: 'application/octet-stream' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'jarvis_face_transparent.glb';
+                    link.click();
+                    
+                    updateStatus('Transparent GLB exported! ✅');
+                },
+                { 
+                    binary: true,
+                    onlyVisible: true
+                }
+            );
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>

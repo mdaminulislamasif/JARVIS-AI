@@ -1,0 +1,102 @@
+
+================================================================================
+  HOW TO BUILD PORTABLE JARVIS.EXE
+  পোর্টেবল JARVIS.exe কিভাবে তৈরি করবেন
+================================================================================
+
+STEP 1: Install PyInstaller (if not already installed)
+        PyInstaller ইনস্টল করুন (যদি ইতিমধ্যে না থাকে)
+        
+        Command: pip install pyinstaller
+
+STEP 2: Run the build script
+        বিল্ড স্ক্রিপ্ট চালান
+        
+        Command: build_jarvis.bat
+        
+        Or manually: pyinstaller --clean --onefile --console jarvis_launcher.py --name JARVIS
+
+STEP 3: Find your portable JARVIS
+        আপনার পোর্টেবল JARVIS খুঁজুন
+        
+        Location: JARVIS_Portable folder
+        স্থান: JARVIS_Portable ফোল্ডার
+
+STEP 4: Copy to any computer
+        যেকোনো কম্পিউটারে কপি করুন
+        
+        - Copy the entire JARVIS_Portable folder
+        - সম্পূর্ণ JARVIS_Portable ফোল্ডার কপি করুন
+        
+        - Can be copied to:
+          - USB drive
+          - External hard drive
+          - Network share
+          - Cloud storage
+          
+        - কপি করা যায়:
+          - USB ড্রাইভে
+          - এক্সটার্নাল হার্ড ড্রাইভে
+          - নেটওয়ার্ক শেয়ারে
+          - ক্লাউড স্টোরেজে
+
+STEP 5: Run on any Windows computer
+        যেকোনো Windows কম্পিউটারে চালান
+        
+        - No installation needed!
+        - Just double-click JARVIS.exe
+        
+        - কোনো ইনস্টলেশন লাগবে না!
+        - শুধু JARVIS.exe তে ডাবল ক্লিক করুন
+
+================================================================================
+  WHAT WILL BE INCLUDED
+  কি অন্তর্ভুক্ত থাকবে
+================================================================================
+
+✅ JARVIS.exe (standalone executable)
+✅ jarvis_memory.db (complete database with 100 entries)
+✅ jarvis_config.txt (configuration file)
+✅ core/ folder (all core modules)
+✅ engine/ folder (all engine modules)
+✅ All documentation files
+
+✅ JARVIS.exe (স্বতন্ত্র এক্সিকিউটেবল)
+✅ jarvis_memory.db (100 এন্ট্রি সহ সম্পূর্ণ ডাটাবেস)
+✅ jarvis_config.txt (কনফিগারেশন ফাইল)
+✅ core/ ফোল্ডার (সব মূল মডিউল)
+✅ engine/ ফোল্ডার (সব ইঞ্জিন মডিউল)
+✅ সব ডকুমেন্টেশন ফাইল
+
+================================================================================
+  ADVANTAGES
+  সুবিধা
+================================================================================
+
+✅ No Python installation required on target computer
+✅ No dependency installation needed
+✅ Works offline (except for AI features)
+✅ Can run from USB drive
+✅ Complete database included
+✅ Easy to share with others
+✅ No registry modifications
+✅ No admin rights needed
+
+✅ টার্গেট কম্পিউটারে Python ইনস্টলেশন লাগবে না
+✅ কোনো ডিপেন্ডেন্সি ইনস্টলেশন লাগবে না
+✅ অফলাইনে কাজ করে (AI ফিচার ছাড়া)
+✅ USB ড্রাইভ থেকে চালানো যায়
+✅ সম্পূর্ণ ডাটাবেস অন্তর্ভুক্ত
+✅ অন্যদের সাথে শেয়ার করা সহজ
+✅ কোনো রেজিস্ট্রি পরিবর্তন নেই
+✅ অ্যাডমিন অধিকার লাগবে না
+
+================================================================================
+  FILE SIZE
+  ফাইল সাইজ
+================================================================================
+
+Approximate size: 50-100 MB (depending on included modules)
+আনুমানিক সাইজ: 50-100 MB (অন্তর্ভুক্ত মডিউলের উপর নির্ভর করে)
+
+================================================================================

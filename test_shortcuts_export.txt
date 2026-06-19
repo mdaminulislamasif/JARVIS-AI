@@ -1,0 +1,141 @@
+JARVIS KEYBOARD SHORTCUTS
+============================================================
+
+ALT+B                → Open Browser
+                       Command: browser
+
+ALT+C                → Calculator
+                       Command: calculator
+
+ALT+E                → File Explorer
+                       Command: explorer
+
+ALT+N                → Open Notepad
+                       Command: notepad
+
+ALT+S                → System Settings
+                       Command: settings
+
+ALT+T                → Task Manager
+                       Command: task manager
+
+ALT+V                → Volume Control
+                       Command: volume
+
+CTRL+ALT+A           → Alien Mode
+                       Command: alien
+
+CTRL+ALT+DEL         → Task Manager
+                       Command: task manager
+
+CTRL+ALT+F           → Flipper Mode
+                       Command: flipper
+
+CTRL+ALT+K           → Kali Mode
+                       Command: kali
+
+CTRL+ALT+P           → Virus Purge
+                       Command: purge
+
+CTRL+ALT+R           → Remote Console
+                       Command: remote
+
+CTRL+ALT+S           → Screen Share
+                       Command: share
+
+CTRL+C               → System Clean
+                       Command: clean
+
+CTRL+D               → Disk Info
+                       Command: disk
+
+CTRL+G               → AI Generate
+                       Command: generate
+
+CTRL+L               → Lock Computer
+                       Command: lock
+
+CTRL+M               → Memory Info
+                       Command: memory
+
+CTRL+N               → Network Scan
+                       Command: network scan
+
+CTRL+P               → Processes
+                       Command: processes
+
+CTRL+S               → Screenshot
+                       Command: screenshot
+
+CTRL+SHIFT+A         → Learn Article
+                       Command: article learn
+
+CTRL+SHIFT+G         → Generate Image
+                       Command: gen image
+
+CTRL+SHIFT+L         → Auto Learn
+                       Command: learn
+
+CTRL+SHIFT+M         → Generate Audio
+                       Command: gen audio
+
+CTRL+SHIFT+S         → Search & Learn
+                       Command: search learn
+
+CTRL+SHIFT+T         → Translate
+                       Command: translate
+
+CTRL+SHIFT+V         → Generate Video
+                       Command: gen video
+
+CTRL+T               → Translate
+                       Command: translate
+
+CTRL+W               → WiFi Scan
+                       Command: wifi scan
+
+F1                   → Show Help
+                       Command: help
+
+F10                  → WiFi Scan
+                       Command: wifi
+
+F11                  → Firewall
+                       Command: firewall
+
+F12                  → System Monitor
+                       Command: monitor
+
+F2                   → Take Screenshot
+                       Command: screenshot
+
+F3                   → Web Search
+                       Command: search
+
+F4                   → Translate
+                       Command: translate
+
+F5                   → System Clean
+                       Command: clean
+
+F6                   → Disk Info
+                       Command: disk
+
+F7                   → Memory Info
+                       Command: memory
+
+F8                   → Show Processes
+                       Command: processes
+
+F9                   → Network Scan
+                       Command: recon
+
+WIN+E                → File Explorer
+                       Command: explorer
+
+WIN+L                → Lock Computer
+                       Command: lock
+
+WIN+R                → Run Dialog
+                       Command: run
+

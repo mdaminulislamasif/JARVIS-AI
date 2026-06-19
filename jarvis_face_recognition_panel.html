@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - Face Recognition Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #00ffff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .main-panel {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Left Side - Animated Face */
+        .face-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            border-right: 2px solid #00ffff;
+            position: relative;
+        }
+        
+        .jarvis-face {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Face Circle */
+        .face-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.2) 0%, rgba(0, 128, 255, 0.1) 100%);
+            border: 3px solid #00ffff;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.2); }
+            50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.8), inset 0 0 50px rgba(0, 255, 255, 0.4); }
+        }
+        
+        /* Eyes */
+        .eye {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00ffff;
+            animation: blink 4s infinite;
+        }
+        
+        .eye.left { top: 35%; left: 30%; }
+        .eye.right { top: 35%; right: 30%; }
+        
+        @keyframes blink {
+            0%, 48%, 52%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        
+        /* Mouth */
+        .mouth {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40px;
+            border: 3px solid #00ffff;
+            border-top: none;
+            border-radius: 0 0 80px 80px;
+            animation: talk 1s ease-in-out infinite;
+        }
+        
+        @keyframes talk {
+            0%, 100% { height: 40px; }
+            50% { height: 50px; }
+        }
+        
+        /* Scan Lines */
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .face-title {
+            margin-top: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
+            letter-spacing: 2px;
+        }
+        
+        .face-status {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #00ff00;
+            animation: statusBlink 1.5s infinite;
+        }
+        
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Right Side - Info Panel */
+        .info-section {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .info-header {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 15px #00ffff;
+        }
+        
+        .upload-area {
+            width: 100%;
+            height: 200px;
+            border: 3px dashed #00ffff;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 255, 255, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: #00ff00;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        /* Preview Image */
+        .preview-container {
+            display: none;
+            margin-bottom: 30px;
+        }
+        
+        .preview-image {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 15px;
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            margin: 0 auto;
+            display: block;
+        }
+        
+        /* Results */
+        .results-container {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-card {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .result-card:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+        
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-size: 16px;
+            line-height: 1.8;
+            padding-left: 30px;
+        }
+        
+        .social-link {
+            color: #00ffff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .social-link:hover {
+            background: #00ffff;
+            color: #000;
+            transform: scale(1.05);
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 255, 255, 0.2);
+            border-top: 4px solid #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: 2px solid #00ffff;
+            background: transparent;
+            color: #00ffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #00ffff;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        
+        /* Hidden Button (Secret Feature) */
+        .hidden-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .hidden-button:hover {
+            opacity: 0.3;
+        }
+        
+        /* Scrollbar */
+        .info-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .info-section::-webkit-scrollbar-track {
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .info-section::-webkit-scrollbar-thumb {
+            background: #00ffff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-panel">
+        <!-- Left Side - Animated Face -->
+        <div class="face-section">
+            <div class="jarvis-face">
+                <div class="face-circle">
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                    <div class="mouth"></div>
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            <div class="face-title">JARVIS</div>
+            <div class="face-status">● ONLINE - Face Recognition Active</div>
+        </div>
+        
+        <!-- Right Side - Info Panel -->
+        <div class="info-section">
+            <div class="info-header">🔍 Face Recognition System</div>
+            
+            <!-- Upload Area -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">
+                    <strong>Click or Drag Photo Here</strong><br>
+                    Upload a photo to identify person and find social media
+                </div>
+            </div>
+            
+            <input type="file" id="fileInput" accept="image/*">
+            
+            <!-- Preview -->
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="Preview">
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div style="font-size: 18px;">Analyzing face and searching social media...</div>
+                <div style="font-size: 14px; margin-top: 10px; color: #00ff00;">
+                    Scanning facial features...<br>
+                    Searching databases...<br>
+                    Finding social media accounts...
+                </div>
+            </div>
+            
+            <!-- Results -->
+            <div class="results-container" id="results">
+                <div class="result-card">
+                    <div class="result-title">
+                        👤 Person Identified
+                    </div>
+                    <div class="result-content" id="personInfo">
+                        <strong>Name:</strong> <span id="personName">-</span><br>
+                        <strong>Age:</strong> <span id="personAge">-</span><br>
+                        <strong>Location:</strong> <span id="personLocation">-</span><br>
+                        <strong>Confidence:</strong> <span id="confidence">-</span>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-title">
+                        📱 Social Media Accounts
+                    </div>
+                    <div class="result-content" id="socialMedia">
+                        <!-- Social media links will be added here -->
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-title">
+                        ℹ️ Additional Information
+                    </div>
+                    <div class="result-content" id="additionalInfo">
+                        <!-- Additional info will be added here -->
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="resetSearch()">🔄 New Search</button>
+                    <button class="btn" onclick="exportResults()">💾 Export Results</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden Button (Secret Feature) -->
+        <button class="hidden-button" id="hiddenButton" title="Secret Feature"></button>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const hiddenButton = document.getElementById('hiddenButton');
+        
+        // Upload Area Click
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Drag and Drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#00ff00';
+            uploadArea.style.background = 'rgba(0, 255, 0, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#00ffff';
+            uploadArea.style.background = 'rgba(0, 255, 255, 0.05)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#00ffff';
+            uploadArea.style.background = 'rgba(0, 255, 255, 0.05)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        // File Input Change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Handle File Upload
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file!');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                uploadArea.style.display = 'none';
+                
+                // Start analysis
+                analyzeFace(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Analyze Face (Simulated)
+        function analyzeFace(imageData) {
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            // Simulate API call (2-3 seconds)
+            setTimeout(() => {
+                // Generate mock results
+                const mockResults = generateMockResults();
+                displayResults(mockResults);
+                
+                loading.style.display = 'none';
+                results.style.display = 'block';
+            }, 3000);
+        }
+        
+        // Generate Mock Results (Demo)
+        function generateMockResults() {
+            const names = ['John Smith', 'Sarah Johnson', 'Mike Wilson', 'Emma Davis', 'Alex Brown'];
+            const locations = ['New York, USA', 'London, UK', 'Tokyo, Japan', 'Sydney, Australia', 'Toronto, Canada'];
+            
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomAge = Math.floor(Math.random() * 30) + 20;
+            const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+            const confidence = (Math.random() * 20 + 80).toFixed(1);
+            
+            return {
+                name: randomName,
+                age: randomAge,
+                location: randomLocation,
+                confidence: confidence + '%',
+                socialMedia: {
+                    facebook: `https://facebook.com/${randomName.toLowerCase().replace(' ', '.')}`,
+                    instagram: `https://instagram.com/${randomName.toLowerCase().replace(' ', '_')}`,
+                    twitter: `https://twitter.com/${randomName.toLowerCase().replace(' ', '_')}`,
+                    linkedin: `https://linkedin.com/in/${randomName.toLowerCase().replace(' ', '-')}`,
+                    tiktok: `https://tiktok.com/@${randomName.toLowerCase().replace(' ', '_')}`
+                },
+                additionalInfo: {
+                    occupation: 'Software Engineer',
+                    education: 'Bachelor of Computer Science',
+                    interests: 'Technology, Travel, Photography',
+                    lastSeen: 'Online 2 hours ago'
+                }
+            };
+        }
+        
+        // Display Results
+        function displayResults(data) {
+            // Person Info
+            document.getElementById('personName').textContent = data.name;
+            document.getElementById('personAge').textContent = data.age + ' years old';
+            document.getElementById('personLocation').textContent = data.location;
+            document.getElementById('confidence').textContent = data.confidence;
+            
+            // Social Media
+            const socialMediaDiv = document.getElementById('socialMedia');
+            socialMediaDiv.innerHTML = '';
+            
+            for (const [platform, url] of Object.entries(data.socialMedia)) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.className = 'social-link';
+                link.innerHTML = `
+                    ${getPlatformIcon(platform)} ${platform.charAt(0).toUpperCase() + platform.slice(1)}
+                `;
+                socialMediaDiv.appendChild(link);
+            }
+            
+            // Additional Info
+            const additionalInfoDiv = document.getElementById('additionalInfo');
+            additionalInfoDiv.innerHTML = `
+                <strong>Occupation:</strong> ${data.additionalInfo.occupation}<br>
+                <strong>Education:</strong> ${data.additionalInfo.education}<br>
+                <strong>Interests:</strong> ${data.additionalInfo.interests}<br>
+                <strong>Last Seen:</strong> ${data.additionalInfo.lastSeen}
+            `;
+        }
+        
+        // Get Platform Icon
+        function getPlatformIcon(platform) {
+            const icons = {
+                facebook: '📘',
+                instagram: '📷',
+                twitter: '🐦',
+                linkedin: '💼',
+                tiktok: '🎵'
+            };
+            return icons[platform] || '🔗';
+        }
+        
+        // Reset Search
+        function resetSearch() {
+            uploadArea.style.display = 'flex';
+            previewContainer.style.display = 'none';
+            results.style.display = 'none';
+            fileInput.value = '';
+        }
+        
+        // Export Results
+        function exportResults() {
+            const name = document.getElementById('personName').textContent;
+            const age = document.getElementById('personAge').textContent;
+            const location = document.getElementById('personLocation').textContent;
+            const confidence = document.getElementById('confidence').textContent;
+            
+            const socialLinks = Array.from(document.querySelectorAll('.social-link'))
+                .map(link => `${link.textContent.trim()}: ${link.href}`)
+                .join('\n');
+            
+            const exportData = `
+JARVIS Face Recognition Report
+================================
+
+Person Information:
+- Name: ${name}
+- Age: ${age}
+- Location: ${location}
+- Confidence: ${confidence}
+
+Social Media Accounts:
+${socialLinks}
+
+Generated: ${new Date().toLocaleString()}
+            `.trim();
+            
+            // Download as text file
+            const blob = new Blob([exportData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `face_recognition_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Hidden Button (Secret Feature)
+        hiddenButton.addEventListener('click', () => {
+            alert('🔓 Secret Feature Activated!\n\nThis is a hidden button for advanced features.\nYou can add special functionality here!');
+        });
+        
+        // Easter Egg: Double-click on JARVIS face
+        document.querySelector('.jarvis-face').addEventListener('dblclick', () => {
+            alert('🤖 JARVIS: "Hello! I am ready to assist you with face recognition!"');
+        });
+    </script>
+</body>
+</html>

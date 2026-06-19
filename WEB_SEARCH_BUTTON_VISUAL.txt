@@ -1,0 +1,242 @@
+================================================================================
+  🔍 WEB SEARCH BUTTON - VISUAL GUIDE
+  🔍 ওয়েব সার্চ বাটন - ভিজ্যুয়াল গাইড
+================================================================================
+
+JARVIS PANEL LAYOUT / JARVIS প্যানেল লেআউট:
+----------------------------------------------
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        JARVIS AI STUDIO                                     │
+│  [G] User Name                                    [LOGOUT]  [COPY ALL]      │
+└─────────────────────────────────────────────────────────────────────────────┘
+│                                                                             │
+│                                                                             │
+│                         TERMINAL / CHAT AREA                                │
+│                                                                             │
+│  [07:45:00] [SYSTEM]> AI STUDIO ENVIRONMENT LOADED                         │
+│  [07:45:15] [ROOT]> Python programming                                     │
+│  [07:45:16] [JARVIS]> 🔍 Searched Google for: 'Python programming'        │
+│  [07:45:16] [JARVIS]> 💡 I understand you want to search for...           │
+│                                                                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+│                                                                             │
+│  ┌──────┐  ┌──────┐  ┌─────────────────────────────────────┐  ┌────────┐ │
+│  │  📁  │  │  🔍  │  │  Type your search query here...     │  │ LISTEN │ │
+│  │UPLOAD│  │ WEB  │  │                                     │  │        │ │
+│  └──────┘  └──────┘  └─────────────────────────────────────┘  └────────┘ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+BUTTON DETAILS / বাটনের বিবরণ:
+--------------------------------
+
+┌──────────────────────────────────────────────────────────────┐
+│  🔍 WEB SEARCH BUTTON                                        │
+├──────────────────────────────────────────────────────────────┤
+│  Color / রঙ:           Green (#006644)                      │
+│  Size / আকার:          80px × 55px                          │
+│  Position / অবস্থান:   Between Upload and Chat Box         │
+│  Text / লেখা:          "🔍 WEB"                             │
+│  Font / ফন্ট:          Courier New, Bold, 12pt             │
+└──────────────────────────────────────────────────────────────┘
+
+HOW IT WORKS / কিভাবে কাজ করে:
+--------------------------------
+
+STEP 1: TYPE IN CHAT BOX
+┌─────────────────────────────────────────────────────────────┐
+│  Type: "Python programming"                                 │
+│  টাইপ করুন: "Python programming"                           │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+
+STEP 2: CLICK WEB BUTTON
+┌──────┐
+│  🔍  │  ← Click here / এখানে ক্লিক করুন
+│ WEB  │
+└──────┘
+                    ↓
+
+STEP 3: JARVIS SEARCHES
+┌─────────────────────────────────────────────────────────────┐
+│  [JARVIS]> 🔍 Searched Google for: 'Python programming'    │
+│  [JARVIS]> 💡 I understand you want to search for          │
+│            information about: Python programming            │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+
+STEP 4: BROWSER OPENS
+┌─────────────────────────────────────────────────────────────┐
+│  🌐 Google Chrome / Firefox / Edge                          │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ Google Search: Python programming                     │ │
+│  └───────────────────────────────────────────────────────┘ │
+│  Search results appear here...                              │
+└─────────────────────────────────────────────────────────────┘
+
+INTELLIGENT PLATFORM DETECTION / বুদ্ধিমান প্ল্যাটফর্ম সনাক্তকরণ:
+--------------------------------------------------------------------
+
+INPUT                          →  PLATFORM DETECTED  →  RESULT
+─────────────────────────────────────────────────────────────────
+"Python programming"           →  🔍 Google          →  Google Search
+"youtube Python tutorial"      →  🎥 YouTube         →  YouTube Search
+"github Python projects"       →  💻 GitHub          →  GitHub Search
+"wikipedia Python"             →  📚 Wikipedia       →  Wikipedia Search
+"stackoverflow Python error"   →  ❓ Stack Overflow  →  SO Search
+"amazon laptop"                →  🛒 Amazon          →  Amazon Search
+"twitter Python"               →  🐦 Twitter         →  Twitter Search
+"reddit Python"                →  🔴 Reddit          →  Reddit Search
+"image cat"                    →  🖼️ Images          →  Google Images
+"news Bangladesh"              →  📰 News            →  Google News
+"map Dhaka"                    →  🗺️ Maps            →  Google Maps
+
+EXAMPLE CONVERSATION / উদাহরণ কথোপকথন:
+----------------------------------------
+
+USER TYPES:
+┌─────────────────────────────────────────────────────────────┐
+│  "youtube Python tutorial"                                  │
+└─────────────────────────────────────────────────────────────┘
+
+USER CLICKS:
+┌──────┐
+│  🔍  │
+│ WEB  │
+└──────┘
+
+JARVIS RESPONDS:
+┌─────────────────────────────────────────────────────────────┐
+│  [ROOT]> 🔍 WEB SEARCH: youtube Python tutorial            │
+│  [SYSTEM]> NEURAL REQUEST SENT. AWAITING BRAIN...          │
+│  [JARVIS]> [WEB SEARCH] 🎥 Searching YouTube for:          │
+│            Python tutorial                                  │
+│  [JARVIS]> 🎥 Searched YouTube for videos about:           │
+│            'Python tutorial'                                │
+│  [JARVIS]> 🎥 YouTube এ ভিডিও খুঁজেছি: 'Python tutorial'  │
+│  [JARVIS]> 💡 I understand you want to watch videos        │
+│            about: Python tutorial                           │
+│  [JARVIS]> 💡 আমি বুঝেছি আপনি এই বিষয়ে ভিডিও দেখতে চান: │
+│            Python tutorial                                  │
+└─────────────────────────────────────────────────────────────┘
+
+BROWSER OPENS:
+┌─────────────────────────────────────────────────────────────┐
+│  🌐 YouTube                                                 │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ Search: Python tutorial                               │ │
+│  └───────────────────────────────────────────────────────┘ │
+│  📹 Python Tutorial for Beginners                          │
+│  📹 Learn Python in 1 Hour                                 │
+│  📹 Python Full Course                                     │
+└─────────────────────────────────────────────────────────────┘
+
+COMPARISON / তুলনা:
+--------------------
+
+OLD WAY (Before button):
+┌─────────────────────────────────────────────────────────────┐
+│  1. Type: "search Python"                                   │
+│  2. Press Enter                                             │
+│  3. JARVIS searches                                         │
+│  4. Browser opens                                           │
+└─────────────────────────────────────────────────────────────┘
+
+NEW WAY (With button):
+┌─────────────────────────────────────────────────────────────┐
+│  1. Type: "Python"                                          │
+│  2. Click: 🔍 WEB                                           │
+│  3. JARVIS understands + searches                           │
+│  4. Browser opens                                           │
+│  5. JARVIS explains what it understood                      │
+└─────────────────────────────────────────────────────────────┘
+
+ADVANTAGES:
+✅ No need to type "search" keyword
+✅ One-click operation
+✅ Intelligent platform detection
+✅ JARVIS explains search intent
+✅ Better user experience
+
+BUTTON STATES / বাটনের অবস্থা:
+--------------------------------
+
+NORMAL STATE:
+┌──────┐
+│  🔍  │  Green color (#006644)
+│ WEB  │  Ready to search
+└──────┘
+
+HOVER STATE:
+┌──────┐
+│  🔍  │  Lighter green (#008866)
+│ WEB  │  Mouse over button
+└──────┘
+
+CLICKED STATE:
+┌──────┐
+│  🔍  │  Searching...
+│ WEB  │  Processing query
+└──────┘
+
+ERROR STATE (Empty chat box):
+┌─────────────────────────────────────────────────────────────┐
+│  [SYSTEM]> ❌ Please type something in the chat box!       │
+│  [SYSTEM]> ❌ চ্যাট বক্সে কিছু টাইপ করুন!                 │
+└─────────────────────────────────────────────────────────────┘
+
+KEYBOARD LAYOUT / কীবোর্ড লেআউট:
+----------------------------------
+
+Bottom of JARVIS Panel:
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  [📁 UPLOAD]  [🔍 WEB]  [_____CHAT BOX_____]  [LISTEN]       │
+│      ↑           ↑              ↑                ↑            │
+│   Upload      Search         Type here        Voice           │
+│   files       web            commands          input          │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+QUICK REFERENCE / দ্রুত রেফারেন্স:
+-----------------------------------
+
+🔍 GOOGLE:        Just type your query
+🎥 YOUTUBE:       Add "youtube" or "video"
+💻 GITHUB:        Add "github" or "code"
+📚 WIKIPEDIA:     Add "wikipedia" or "wiki"
+❓ STACKOVERFLOW: Add "stackoverflow"
+🛒 AMAZON:        Add "amazon" or "shopping"
+🐦 TWITTER:       Add "twitter" or "tweet"
+🔴 REDDIT:        Add "reddit"
+🖼️ IMAGES:        Add "image", "picture", or "photo"
+📰 NEWS:          Add "news" or "খবর"
+🗺️ MAPS:          Add "map", "location", or "place"
+
+TIPS / টিপস:
+-------------
+
+✅ Be specific for better results
+   নির্দিষ্ট হন ভালো ফলাফলের জন্য
+
+✅ Add platform name for targeted search
+   নির্দিষ্ট search এর জন্য platform নাম যোগ করুন
+
+✅ Use Bengali or English - both work!
+   বাংলা বা ইংরেজি ব্যবহার করুন - দুটোই কাজ করে!
+
+✅ Chat box clears after search
+   Search এর পর chat box পরিষ্কার হয়
+
+✅ Works offline (no API key needed)
+   অফলাইনে কাজ করে (API key লাগে না)
+
+================================================================================
+  🎉 WEB SEARCH BUTTON - READY TO USE!
+  🎉 ওয়েব সার্চ বাটন - ব্যবহারের জন্য প্রস্তুত!
+  
+  Type → Click 🔍 WEB → JARVIS searches intelligently!
+  টাইপ করুন → 🔍 WEB ক্লিক করুন → JARVIS বুদ্ধিমানভাবে search করে!
+================================================================================

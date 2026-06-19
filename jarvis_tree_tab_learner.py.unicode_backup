@@ -1,0 +1,482 @@
+"""
+JARVIS TREE TAB LEARNER
+Browser Tree Function - Links open in Tree Structure
+
+Features:
+- Search results open করে (Level 0)
+- প্রতিটা result এর links open করে (Level 1)
+- প্রতিটা Level 1 link এর links open করে (Level 2)
+- Tree structure এ infinite depth পর্যন্ত যায়
+- Browser এর মতো Tree Function!
+
+FIXED VERSION - Uses webbrowser (no Selenium needed!)
+"""
+
+import time
+import threading
+import webbrowser
+import sqlite3
+from datetime import datetime
+import re
+import requests
+from bs4 import BeautifulSoup
+
+class TreeTabLearner:
+    """Tree structure tab learning - Browser Tree Function (FIXED VERSION)"""
+    
+    def __init__(self):
+        self.db_path = 'jarvis_memory.db.fixed-20260504-091901'
+        self.conn = None
+        self.opened_urls = set()  # Track opened URLs (NO DUPLICATES)
+        self.tree_structure = {}  # Store tree structure
+        self.is_learning = False
+        self.max_depth = 3  # Maximum tree depth (reduced for stability)
+        self.max_children_per_node = 5  # Maximum children per node (reduced for stability)
+        self.delay_between_tabs = 2  # Delay between opening tabs (seconds)
+        self.setup_database()
+        
+        print("🌳 JARVIS TREE TAB LEARNER INITIALIZED (FIXED)!")
+        print("🌳 JARVIS ট্রি ট্যাব শিক্ষার্থী চালু হয়েছে (ঠিক করা)!")
+        print("🌳 Browser Tree Function Active!")
+        print("✅ No Selenium needed - uses built-in webbrowser!")
+    
+    def setup_database(self):
+        """Setup database"""
+        try:
+            self.conn = sqlite3.connect(self.db_path)
+            cursor = self.conn.cursor()
+            
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tree_learned (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    url TEXT NOT NULL,
+                    parent_url TEXT,
+                    depth_level INTEGER,
+                    title TEXT,
+                    content TEXT,
+                    children_count INTEGER,
+                    learned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            self.conn.commit()
+            print("✅ Tree Learner database ready!")
+            
+        except Exception as e:
+            print(f"⚠️ Database error: {e}")
+    
+    def start_tree_learning(self, search_query):
+        """
+        Start tree learning (FIXED VERSION):
+        
+        Level 0: Search Results (opens Google search)
+        Level 1: Links from each result (opens in new tabs)
+        Level 2: Links from each Level 1 link
+        Level 3: Links from each Level 2 link
+        ...
+        
+        Tree Structure এ depth পর্যন্ত!
+        """
+        print(f"\n🌳 STARTING TREE LEARNING FOR: {search_query}")
+        print(f"🌳 ট্রি শেখা শুরু হচ্ছে: {search_query}")
+        
+        self.is_learning = True
+        
+        try:
+            # Level 0: Open Google Search
+            print(f"\n🔍 LEVEL 0: Opening Google Search...")
+            search_url = f"https://www.google.com/search?q={search_query.replace(' ', '+')}"
+            webbrowser.open(search_url)
+            time.sleep(3)
+            
+            # Get search results from Google
+            print(f"🔍 Fetching search results...")
+            search_results = self._get_search_results_from_google(search_query)
+            
+            print(f"\n✅ LEVEL 0: Found {len(search_results)} search results")
+            if search_results:
+                print(f"   Results: {', '.join([r['name'] for r in search_results[:5]])}...")
+            
+            # Build tree structure
+            self.tree_structure = {
+                'root': {
+                    'url': search_url,
+                    'name': search_query,
+                    'children': search_results,
+                    'depth': 0
+                }
+            }
+            
+            # Open all Level 0 results in new tabs
+            print(f"\n📂 Opening Level 0 results in new tabs...")
+            for i, result in enumerate(search_results, 1):
+                if not self.is_learning:
+                    break
+                
+                print(f"   [{i}/{len(search_results)}] Opening: {result['name']} → {result['url'][:60]}...")
+                webbrowser.open(result['url'])
+                time.sleep(self.delay_between_tabs)
+            
+            # Process tree level by level
+            print(f"\n🌳 Processing tree structure...")
+            self._process_tree_level(search_results, depth=1, parent_name='Search')
+            
+            print(f"\n✅ TREE LEARNING COMPLETE!")
+            print(f"✅ Total URLs opened: {len(self.opened_urls)}")
+            print(f"✅ Check your browser for all opened tabs!")
+            
+        except Exception as e:
+            print(f"❌ Error in tree learning: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def _get_search_results_from_google(self, search_query):
+        """Get search results from Google (using requests)"""
+        results = []
+        
+        try:
+            # Google search URL
+            url = f"https://www.google.com/search?q={search_query.replace(' ', '+')}"
+            
+            # Headers to mimic browser
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            
+            # Get search results
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Find search result links
+                search_divs = soup.find_all('div', class_='g')
+                
+                for i, div in enumerate(search_divs[:self.max_children_per_node], 1):
+                    try:
+                        # Find link
+                        a_tag = div.find('a', href=True)
+                        if a_tag:
+                            href = a_tag['href']
+                            
+                            # Only HTTP/HTTPS
+                            if href.startswith('http'):
+                                normalized = self._normalize_url(href)
+                                
+                                if normalized not in self.opened_urls:
+                                    # Get title
+                                    h3_tag = div.find('h3')
+                                    title = h3_tag.text if h3_tag else f"Result {i}"
+                                    
+                                    results.append({
+                                        'url': href,
+                                        'normalized': normalized,
+                                        'name': chr(96 + i) if i <= 26 else str(i),  # a, b, c... or numbers
+                                        'title': title,
+                                        'depth': 0
+                                    })
+                                    self.opened_urls.add(normalized)
+                    except Exception as e:
+
+                        print(f"⚠️ Error: {e}")
+                        continue
+            
+            # Fallback: If no results, create some popular sites
+            if not results:
+                print("⚠️ Could not fetch Google results, using fallback...")
+                fallback_sites = [
+                    ('https://en.wikipedia.org/wiki/' + search_query.replace(' ', '_'), 'Wikipedia'),
+                    ('https://www.youtube.com/results?search_query=' + search_query.replace(' ', '+'), 'YouTube'),
+                    ('https://stackoverflow.com/search?q=' + search_query.replace(' ', '+'), 'Stack Overflow'),
+                    ('https://github.com/search?q=' + search_query.replace(' ', '+'), 'GitHub'),
+                ]
+                
+                for i, (url, name) in enumerate(fallback_sites, 1):
+                    normalized = self._normalize_url(url)
+                    if normalized not in self.opened_urls:
+                        results.append({
+                            'url': url,
+                            'normalized': normalized,
+                            'name': chr(96 + i),
+                            'title': name,
+                            'depth': 0
+                        })
+                        self.opened_urls.add(normalized)
+        
+        except Exception as e:
+            print(f"⚠️ Error fetching search results: {e}")
+        
+        return results
+    
+    def _process_tree_level(self, nodes, depth, parent_name):
+        """
+        Process one level of the tree (FIXED VERSION)
+        
+        For each node:
+        1. Fetch page content
+        2. Get all links (children)
+        3. Open children in new tabs
+        4. Recursively process children
+        """
+        if depth > self.max_depth:
+            print(f"\n⚠️ Maximum depth {self.max_depth} reached!")
+            return
+        
+        if not self.is_learning:
+            return
+        
+        print(f"\n{'  ' * depth}🌳 LEVEL {depth}: Processing {len(nodes)} nodes...")
+        
+        for node_index, node in enumerate(nodes, 1):
+            if not self.is_learning:
+                break
+            
+            try:
+                node_name = node.get('name', f'Node{node_index}')
+                node_url = node['url']
+                node_title = node.get('title', node_name)
+                
+                print(f"\n{'  ' * depth}📂 [{node_index}/{len(nodes)}] Processing: {node_name} ({node_title})")
+                print(f"{'  ' * depth}   URL: {node_url[:60]}...")
+                
+                # Find all links on this page (children)
+                children = self._find_children_links(node_url, depth)
+                
+                print(f"{'  ' * depth}   ✅ Found {len(children)} children for {node_name}")
+                
+                if children:
+                    print(f"{'  ' * depth}   Children: {', '.join([c['name'] for c in children[:5]])}{'...' if len(children) > 5 else ''}")
+                    
+                    # Open children in new tabs
+                    print(f"{'  ' * depth}   📂 Opening {len(children)} children in new tabs...")
+                    for i, child in enumerate(children, 1):
+                        if not self.is_learning:
+                            break
+                        
+                        print(f"{'  ' * depth}      [{i}/{len(children)}] Opening: {child['name']} → {child['url'][:50]}...")
+                        webbrowser.open(child['url'])
+                        time.sleep(self.delay_between_tabs)
+                
+                # Save to database
+                self._save_to_database(node_url, node.get('parent_url'), depth, node_title, len(children))
+                
+                # Store in tree structure
+                node['children'] = children
+                
+                # Recursively process children (next level)
+                if children and depth < self.max_depth:
+                    # Add parent_url to children
+                    for child in children:
+                        child['parent_url'] = node_url
+                    
+                    self._process_tree_level(children, depth + 1, node_name)
+                
+            except Exception as e:
+                print(f"{'  ' * depth}   ⚠️ Error processing node: {e}")
+                continue
+    
+    def _find_children_links(self, parent_url, current_depth):
+        """Find all child links on current page (FIXED VERSION)"""
+        children = []
+        
+        try:
+            # Fetch page content
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            
+            response = requests.get(parent_url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                all_links = soup.find_all('a', href=True)
+                
+                child_index = 1
+                for a_tag in all_links:
+                    if len(children) >= self.max_children_per_node:
+                        break
+                    
+                    href = a_tag['href']
+                    
+                    # Convert relative to absolute
+                    if href.startswith('/'):
+                        from urllib.parse import urljoin
+                        href = urljoin(parent_url, href)
+                    
+                    # Only HTTP/HTTPS
+                    if not href.startswith('http'):
+                        continue
+                    
+                    # Normalize
+                    normalized = self._normalize_url(href)
+                    
+                    # Check duplicate
+                    if normalized in self.opened_urls:
+                        continue
+                    
+                    # Get link text
+                    link_text = a_tag.get_text(strip=True)
+                    if not link_text:
+                        link_text = f"Link {child_index}"
+                    
+                    # Add as child
+                    children.append({
+                        'url': href,
+                        'normalized': normalized,
+                        'name': str(child_index),  # 1, 2, 3, 4, 5...
+                        'title': link_text[:50],  # First 50 chars
+                        'depth': current_depth + 1,
+                        'parent_url': parent_url
+                    })
+                    
+                    self.opened_urls.add(normalized)
+                    child_index += 1
+        
+        except Exception as e:
+            print(f"      ⚠️ Error finding children: {e}")
+        
+        return children
+    
+    def _normalize_url(self, url):
+        """Normalize URL to detect duplicates"""
+        if not url:
+            return ""
+        
+        try:
+            url = url.rstrip('/')
+            if '?' in url:
+                url = url.split('?')[0]
+            if '#' in url:
+                url = url.split('#')[0]
+            url = url.lower()
+            return url
+        except Exception as e:
+
+            print(f"⚠️ Error: {e}")
+            return url
+    
+    def _save_to_database(self, url, parent_url, depth, title, children_count):
+        """Save to database"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                INSERT INTO tree_learned (url, parent_url, depth_level, title, children_count)
+                VALUES (?, ?, ?, ?, ?)
+            """, (url, parent_url, depth, title, children_count))
+            self.conn.commit()
+        except Exception as e:
+            print(f"      ⚠️ Database save error: {e}")
+    
+    def stop_learning(self):
+        """Stop tree learning"""
+        print("\n🛑 Stopping tree learning...")
+        self.is_learning = False
+        
+        print(f"✅ Stopped! Total URLs in tree: {len(self.opened_urls)}")
+        print(f"✅ Check your browser - all tabs are still open!")
+    
+    def print_tree_structure(self):
+        """Print tree structure"""
+        print("\n🌳 TREE STRUCTURE:")
+        print("=" * 80)
+        
+        def print_node(node, indent=0):
+            name = node.get('name', 'Node')
+            title = node.get('title', '')
+            url = node.get('url', '')[:40]
+            children = node.get('children', [])
+            
+            print(f"{'  ' * indent}├─ {name}: {title} ({url}...)")
+            
+            for child in children:
+                print_node(child, indent + 1)
+        
+        if 'root' in self.tree_structure:
+            print_node(self.tree_structure['root'])
+        
+        print("=" * 80)
+    
+    def get_statistics(self):
+        """Get tree statistics"""
+        try:
+            cursor = self.conn.cursor()
+            
+            # Total nodes
+            cursor.execute("SELECT COUNT(*) FROM tree_learned")
+            total_nodes = cursor.fetchone()[0]
+            
+            # Nodes by depth
+            cursor.execute("""
+                SELECT depth_level, COUNT(*) 
+                FROM tree_learned 
+                GROUP BY depth_level 
+                ORDER BY depth_level
+            """)
+            depth_stats = cursor.fetchall()
+            
+            # Total children
+            cursor.execute("SELECT SUM(children_count) FROM tree_learned")
+            total_children = cursor.fetchone()[0] or 0
+            
+            stats = f"""
+🌳 TREE LEARNING STATISTICS:
+🌳 ট্রি শেখার পরিসংখ্যান:
+
+📊 Total nodes in tree: {total_nodes}
+📊 মোট ট্রি nodes: {total_nodes}
+
+🌊 Nodes by depth level:
+"""
+            
+            for depth, count in depth_stats:
+                stats += f"   Level {depth}: {count} nodes\n"
+            
+            stats += f"""
+🔗 Total children found: {total_children}
+🔗 মোট children পাওয়া গেছে: {total_children}
+
+📂 Unique URLs opened: {len(self.opened_urls)}
+📂 Unique URLs খোলা হয়েছে: {len(self.opened_urls)}
+"""
+            
+            return {
+                'status': 'success',
+                'response': stats,
+                'type': 'statistics'
+            }
+            
+        except Exception as e:
+            return {
+                'status': 'error',
+                'response': f'Error: {e}',
+                'type': 'statistics'
+            }
+
+
+# Test
+if __name__ == "__main__":
+    print("🌳 TESTING TREE TAB LEARNER...")
+    
+    learner = TreeTabLearner()
+    
+    search_query = input("Enter search query (or press Enter for 'Python'): ").strip()
+    if not search_query:
+        search_query = "Python"
+    
+    print(f"\n🌳 Starting tree learning for: {search_query}")
+    print("⚠️ Press Ctrl+C to stop...")
+    
+    try:
+        learner.start_tree_learning(search_query)
+        
+        # Print tree structure
+        learner.print_tree_structure()
+        
+        # Show statistics
+        stats = learner.get_statistics()
+        print(stats['response'])
+        
+    except KeyboardInterrupt:
+        print("\n\n⚠️ Interrupted by user!")
+        learner.stop_learning()

@@ -1,0 +1,223 @@
+═══════════════════════════════════════════════════════════════════════════════
+📚 HOW TO USE LEARNING - SIMPLE GUIDE 📚
+কিভাবে শিখবেন - সহজ গাইড
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ 2টি সহজ উপায়!
+✅ 2 EASY WAYS!
+
+═══════════════════════════════════════════════════════════════════════════════
+🔥 METHOD 1: MRX BUTTON (সবচেয়ে সহজ!)
+═══════════════════════════════════════════════════════════════════════════════
+
+STEP 1: Chat box এ topic টাইপ করুন
+        Type topic in chat box
+        
+        Example: python
+        
+        ⚠️ Enter চাপবেন না! Don't press Enter!
+
+STEP 2: 🔥 MRX button ক্লিক করুন
+        Click the 🔥 MRX button
+        
+        (Red button next to chat box)
+
+STEP 3: Done! JARVIS সব 4টি system দিয়ে শিখবে!
+        Done! JARVIS will learn using all 4 systems!
+
+═══════════════════════════════════════════════════════════════════════════════
+⌨️ METHOD 2: TYPE FULL COMMAND (পুরো command টাইপ করুন)
+═══════════════════════════════════════════════════════════════════════════════
+
+OPTION 1: Internet Learning (দ্রুত)
+───────────────────────────────────────────────────────────────────────────────
+Type: learn from internet python
+Then: Press Enter
+
+OPTION 2: Ultimate Learning (গভীর)
+───────────────────────────────────────────────────────────────────────────────
+Type: ultimate learn python
+Then: Press Enter
+
+OPTION 3: Auto Learning (বিস্তারিত)
+───────────────────────────────────────────────────────────────────────────────
+Type: auto learn python
+Then: Press Enter
+
+OPTION 4: DevTools Learning (উন্নত)
+───────────────────────────────────────────────────────────────────────────────
+Type: devtools learn python
+Then: Press Enter
+
+═══════════════════════════════════════════════════════════════════════════════
+❌ WRONG WAY / ভুল উপায়
+═══════════════════════════════════════════════════════════════════════════════
+
+DON'T DO THIS:
+───────────────────────────────────────────────────────────────────────────────
+1. Type: python
+2. Press Enter
+3. JARVIS shows suggestions
+4. Type: 1  ← ❌ This doesn't work!
+
+WHY? Because "1" is just a number, not a command.
+কেন? কারণ "1" শুধু একটি number, command নয়।
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ RIGHT WAY / সঠিক উপায়
+═══════════════════════════════════════════════════════════════════════════════
+
+WAY 1: MRX Button (Easiest!)
+───────────────────────────────────────────────────────────────────────────────
+1. Type: python (don't press Enter)
+2. Click: 🔥 MRX button
+3. Done! ✅
+
+WAY 2: Full Command
+───────────────────────────────────────────────────────────────────────────────
+1. Type: learn from internet python
+2. Press: Enter
+3. Done! ✅
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 EXAMPLES / উদাহরণ
+═══════════════════════════════════════════════════════════════════════════════
+
+EXAMPLE 1: Learn Python with MRX
+───────────────────────────────────────────────────────────────────────────────
+Step 1: Type in chat box: python
+Step 2: Click 🔥 MRX button
+Result: All 4 systems learn Python!
+
+EXAMPLE 2: Learn AI with Command
+───────────────────────────────────────────────────────────────────────────────
+Step 1: Type in chat box: learn from internet AI
+Step 2: Press Enter
+Result: Internet Learner learns AI!
+
+EXAMPLE 3: Learn JavaScript with MRX
+───────────────────────────────────────────────────────────────────────────────
+Step 1: Type in chat box: javascript
+Step 2: Click 🔥 MRX button
+Result: All 4 systems learn JavaScript!
+
+EXAMPLE 4: Learn React with Command
+───────────────────────────────────────────────────────────────────────────────
+Step 1: Type in chat box: ultimate learn react
+Step 2: Press Enter
+Result: Ultimate Learner learns React!
+
+═══════════════════════════════════════════════════════════════════════════════
+💡 TIPS / টিপস
+═══════════════════════════════════════════════════════════════════════════════
+
+TIP 1: Use MRX button for ALL systems at once
+       সব systems একসাথে চালাতে MRX button ব্যবহার করুন
+
+TIP 2: Use commands for specific systems
+       নির্দিষ্ট system এর জন্য commands ব্যবহার করুন
+
+TIP 3: Don't type just numbers (1, 2, 3)
+       শুধু numbers (1, 2, 3) টাইপ করবেন না
+
+TIP 4: Type full command or use MRX button
+       পুরো command টাইপ করুন অথবা MRX button ব্যবহার করুন
+
+TIP 5: MRX button is RED and easy to find
+       MRX button লাল রঙের এবং সহজে খুঁজে পাওয়া যায়
+
+═══════════════════════════════════════════════════════════════════════════════
+🎮 BUTTON LOCATION / বাটনের অবস্থান
+═══════════════════════════════════════════════════════════════════════════════
+
+Bottom of screen:
+স্ক্রিনের নিচে:
+
+┌─────────────────────────────────────────────────────────────┐
+│  [📁 UPLOAD]  [🔍 WEB]  [🔥 MRX]  [Chat Box...]  [LISTEN]  │
+└─────────────────────────────────────────────────────────────┘
+                            ↑
+                      MRX Button (RED)
+                      MRX বাটন (লাল)
+
+═══════════════════════════════════════════════════════════════════════════════
+📝 STEP BY STEP / ধাপে ধাপে
+═══════════════════════════════════════════════════════════════════════════════
+
+USING MRX BUTTON:
+───────────────────────────────────────────────────────────────────────────────
+1. Look at chat box (bottom of screen)
+   Chat box দেখুন (স্ক্রিনের নিচে)
+
+2. Click inside chat box
+   Chat box এর ভিতরে ক্লিক করুন
+
+3. Type your topic: python
+   আপনার topic টাইপ করুন: python
+
+4. DON'T press Enter!
+   Enter চাপবেন না!
+
+5. Look for RED button with 🔥 MRX
+   🔥 MRX লেখা লাল বাটন খুঁজুন
+
+6. Click that button
+   সেই বাটনে ক্লিক করুন
+
+7. Watch JARVIS learn!
+   দেখুন JARVIS শিখছে!
+
+USING COMMAND:
+───────────────────────────────────────────────────────────────────────────────
+1. Look at chat box (bottom of screen)
+   Chat box দেখুন (স্ক্রিনের নিচে)
+
+2. Click inside chat box
+   Chat box এর ভিতরে ক্লিক করুন
+
+3. Type full command: learn from internet python
+   পুরো command টাইপ করুন: learn from internet python
+
+4. Press Enter
+   Enter চাপুন
+
+5. Watch JARVIS learn!
+   দেখুন JARVIS শিখছে!
+
+═══════════════════════════════════════════════════════════════════════════════
+🎉 SUCCESS! / সফল!
+═══════════════════════════════════════════════════════════════════════════════
+
+Now you know 2 easy ways to make JARVIS learn:
+এখন আপনি JARVIS কে শেখানোর 2টি সহজ উপায় জানেন:
+
+1. ✅ MRX Button (সবচেয়ে সহজ!)
+   - Type topic
+   - Click 🔥 MRX
+   - Done!
+
+2. ✅ Full Command (নির্দিষ্ট system এর জন্য)
+   - Type: learn from internet [topic]
+   - Press Enter
+   - Done!
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 TRY NOW / এখনই চেষ্টা করুন
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Type in chat box: python
+2. Click 🔥 MRX button
+3. Watch JARVIS learn Python!
+
+OR
+
+1. Type in chat box: learn from internet python
+2. Press Enter
+3. Watch JARVIS learn Python!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 এখন JARVIS শিখতে পারবে! 📚
+📚 NOW JARVIS CAN LEARN! 📚
+
+═══════════════════════════════════════════════════════════════════════════════

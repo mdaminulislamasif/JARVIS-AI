@@ -1,0 +1,231 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                    🤖 HOW TO USE JARVIS - USER GUIDE 🤖                   ║
+║                    🤖 JARVIS কীভাবে ব্যবহার করবেন 🤖                   ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📅 Date: May 5, 2026
+💻 System: Windows 10 Pro
+
+════════════════════════════════════════════════════════════════════════════
+  🚀 QUICK START / দ্রুত শুরু
+════════════════════════════════════════════════════════════════════════════
+
+OPTION 1: Interactive Mode (Recommended)
+─────────────────────────────────────────────────────────────────────────
+1. Open Command Prompt or PowerShell
+2. Navigate to JARVIS folder:
+   cd C:\Users\PHP\Desktop\ai
+
+3. Run JARVIS:
+   python jarvis_working.py
+
+4. Start talking to JARVIS!
+   Example: "open chrome"
+
+OPTION 2: Single Command Mode
+─────────────────────────────────────────────────────────────────────────
+Run a single command:
+   python jarvis_working.py "open notepad"
+   python jarvis_working.py "search Python tutorial"
+   python jarvis_working.py "calculate 10 + 5"
+
+════════════════════════════════════════════════════════════════════════════
+  💬 WHAT JARVIS CAN DO NOW / JARVIS এখন কী করতে পারে
+════════════════════════════════════════════════════════════════════════════
+
+1️⃣ WEB & SEARCH (ওয়েব এবং সার্চ)
+─────────────────────────────────────────────────────────────────────────
+✅ "open chrome" - Open web browser
+✅ "open browser" - Open web browser
+✅ "open youtube" - Open YouTube
+✅ "open facebook" - Open Facebook
+✅ "open gmail" - Open Gmail
+✅ "search Python" - Search on Google
+✅ "find AI tutorial" - Search on Google
+
+2️⃣ APPLICATIONS (অ্যাপ্লিকেশন)
+─────────────────────────────────────────────────────────────────────────
+✅ "open notepad" - Open Notepad
+✅ "open calculator" - Open Calculator
+✅ "open paint" - Open Paint
+✅ "open cmd" - Open Command Prompt
+✅ "open powershell" - Open PowerShell
+✅ "open explorer" - Open File Explorer
+
+3️⃣ FILES & FOLDERS (ফাইল এবং ফোল্ডার)
+─────────────────────────────────────────────────────────────────────────
+✅ "create file" - Create a test file
+✅ "create folder" - Create a test folder
+✅ "list files" - Show files in current directory
+✅ "show files" - Show files in current directory
+
+4️⃣ SYSTEM INFO (সিস্টেম তথ্য)
+─────────────────────────────────────────────────────────────────────────
+✅ "system info" - Show system information
+✅ "computer info" - Show computer information
+✅ "time" - Show current time
+✅ "date" - Show current date
+
+5️⃣ CALCULATIONS (গণনা)
+─────────────────────────────────────────────────────────────────────────
+✅ "calculate 5 + 3" - Addition
+✅ "10 - 2" - Subtraction
+✅ "4 * 5" - Multiplication
+✅ "20 / 4" - Division
+
+6️⃣ HELP & EXIT (সাহায্য এবং প্রস্থান)
+─────────────────────────────────────────────────────────────────────────
+✅ "help" - Show all commands
+✅ "exit" - Exit JARVIS
+✅ "quit" - Exit JARVIS
+✅ "bye" - Exit JARVIS
+
+════════════════════════════════════════════════════════════════════════════
+  📝 EXAMPLE CONVERSATIONS / উদাহরণ কথোপকথন
+════════════════════════════════════════════════════════════════════════════
+
+Example 1: Open YouTube
+─────────────────────────────────────────────────────────────────────────
+👤 You: open youtube
+🤖 JARVIS: Opening YouTube...
+[YouTube opens in browser]
+
+Example 2: Search Something
+─────────────────────────────────────────────────────────────────────────
+👤 You: search Python programming
+🤖 JARVIS: Searching for: Python programming
+[Google search opens]
+
+Example 3: Do Math
+─────────────────────────────────────────────────────────────────────────
+👤 You: calculate 25 + 17
+🤖 JARVIS: 25 + 17 = 42
+
+Example 4: Create File
+─────────────────────────────────────────────────────────────────────────
+👤 You: create file
+🤖 JARVIS: Creating a new file...
+🤖 JARVIS: File created: jarvis_test_file.txt
+
+Example 5: Open Application
+─────────────────────────────────────────────────────────────────────────
+👤 You: open notepad
+🤖 JARVIS: Opening Notepad...
+[Notepad opens]
+
+════════════════════════════════════════════════════════════════════════════
+  🎯 TIPS & TRICKS / টিপস এবং ট্রিকস
+════════════════════════════════════════════════════════════════════════════
+
+✅ Use natural language - JARVIS understands casual speech
+   Example: "open chrome" or "open browser" both work
+
+✅ Be specific when searching
+   Example: "search Python tutorial" is better than just "search"
+
+✅ Try different variations
+   Example: "calculator" or "calc" both work
+
+✅ Use "help" anytime to see all commands
+
+✅ JARVIS is case-insensitive
+   Example: "OPEN CHROME" = "open chrome" = "Open Chrome"
+
+════════════════════════════════════════════════════════════════════════════
+  ⚠️ CURRENT LIMITATIONS / বর্তমান সীমাবদ্ধতা
+════════════════════════════════════════════════════════════════════════════
+
+This is a WORKING VERSION with basic features. More features coming soon!
+
+Currently Working:
+✅ Web browsing
+✅ Opening applications
+✅ File/folder creation
+✅ System info
+✅ Basic calculations
+✅ Search functionality
+
+Coming Soon:
+🔜 Voice recognition (speak to JARVIS)
+🔜 Text-to-speech (JARVIS speaks back)
+🔜 More file operations (copy, move, delete)
+🔜 Email sending
+🔜 Advanced automation
+🔜 AI-powered responses
+🔜 And much more!
+
+════════════════════════════════════════════════════════════════════════════
+  🔧 TROUBLESHOOTING / সমস্যা সমাধান
+════════════════════════════════════════════════════════════════════════════
+
+Problem: "python: command not found"
+Solution: Make sure Python is installed and in PATH
+
+Problem: JARVIS doesn't respond
+Solution: Check if you're in the correct directory (cd C:\Users\PHP\Desktop\ai)
+
+Problem: Application doesn't open
+Solution: Make sure the application is installed on your system
+
+Problem: Permission denied
+Solution: Run Command Prompt as Administrator
+
+════════════════════════════════════════════════════════════════════════════
+  📚 MORE INFORMATION / আরও তথ্য
+════════════════════════════════════════════════════════════════════════════
+
+Database: jarvis_memory.db.fixed-20260504-091901
+  - 391 entries
+  - Common sense knowledge
+  - General knowledge
+  - System information
+
+Files:
+  - jarvis_working.py - Main working JARVIS
+  - jarvis_master_algorithm.py - Framework (for reference)
+  - add_*.py - Scripts that added features to database
+
+Documentation:
+  - HOW_TO_USE_JARVIS.txt - This file
+  - JARVIS_PROJECT_COMPLETE.txt - Complete project info
+  - API_INTEGRATION_GUIDE.txt - API guide
+  - ADVANCED_AI_FEATURES_GUIDE.txt - Advanced features
+  - COMMON_SENSE_KNOWLEDGE_ADDED.txt - Knowledge info
+
+════════════════════════════════════════════════════════════════════════════
+  🎉 START USING JARVIS NOW!
+════════════════════════════════════════════════════════════════════════════
+
+1. Open Command Prompt
+2. cd C:\Users\PHP\Desktop\ai
+3. python jarvis_working.py
+4. Type: help
+5. Start using JARVIS!
+
+Example Session:
+─────────────────────────────────────────────────────────────────────────
+C:\Users\PHP\Desktop\ai> python jarvis_working.py
+
+🤖 JARVIS - WORKING VERSION
+I'm ready to help!
+
+👤 You: help
+🤖 JARVIS: Here's what I can do...
+
+👤 You: open youtube
+🤖 JARVIS: Opening YouTube...
+
+👤 You: calculate 10 + 5
+🤖 JARVIS: 10 + 5 = 15
+
+👤 You: exit
+🤖 JARVIS: Goodbye! Have a great day!
+
+════════════════════════════════════════════════════════════════════════════
+
+ENJOY USING JARVIS! 🚀
+JARVIS ব্যবহার উপভোগ করুন! 🚀
+
+════════════════════════════════════════════════════════════════════════════

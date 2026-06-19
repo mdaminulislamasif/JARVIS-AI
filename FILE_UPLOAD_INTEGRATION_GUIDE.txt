@@ -1,0 +1,216 @@
+
+================================================================================
+  📁 FILE UPLOAD INTEGRATION GUIDE
+  📁 ফাইল আপলোড ইন্টিগ্রেশন গাইড
+================================================================================
+
+HOW TO ADD FILE UPLOAD TO JARVIS CHAT
+জার্ভিস চ্যাটে ফাইল আপলোড কিভাবে যোগ করবেন
+
+================================================================================
+  STEP 1: IMPORT THE MODULES
+  ধাপ ১: মডিউল ইম্পোর্ট করুন
+================================================================================
+
+Add these imports at the top of jarvis_panel.py:
+
+from jarvis_file_handler import handle_file_upload, get_recent_uploads
+from jarvis_upload_ui import add_file_upload_button
+
+
+================================================================================
+  STEP 2: MODIFY THE CMD_ZONE SECTION
+  ধাপ ২: CMD_ZONE সেকশন পরিবর্তন করুন
+================================================================================
+
+In jarvis_panel.py, find the cmd_zone section (around line 505-520).
+
+REPLACE THIS:
+-------------
+self.cmd_zone = ctk.CTkFrame(self.right_panel, fg_color="transparent")
+self.cmd_zone.pack(fill="x", side="bottom", padx=30, pady=20)
+
+self.entry = ctk.CTkEntry(self.cmd_zone, placeholder_text="Awaiting root command...", 
+                          height=55, fg_color="#05080F", border_color=self.neon, 
+                          text_color=self.neon, font=("Courier New", 16))
+self.entry.pack(side="left", fill="x", expand=True, padx=(0, 15))
+self.entry.bind("<Return>", lambda e: self.fire_cmd())
+
+
+WITH THIS:
+----------
+self.cmd_zone = ctk.CTkFrame(self.right_panel, fg_color="transparent")
+self.cmd_zone.pack(fill="x", side="bottom", padx=30, pady=20)
+
+# Add upload button
+self.upload_btn = add_file_upload_button(self.cmd_zone, self.entry, self.log)
+self.upload_btn.pack(side="left", padx=(0, 10))
+
+# Entry field
+self.entry = ctk.CTkEntry(self.cmd_zone, placeholder_text="Awaiting root command...", 
+                          height=55, fg_color="#05080F", border_color=self.neon, 
+                          text_color=self.neon, font=("Courier New", 16))
+self.entry.pack(side="left", fill="x", expand=True, padx=(0, 15))
+self.entry.bind("<Return>", lambda e: self.fire_cmd())
+
+
+================================================================================
+  STEP 3: ADD FILE UPLOAD COMMAND
+  ধাপ ৩: ফাইল আপলোড কমান্ড যোগ করুন
+================================================================================
+
+In the process() method, add file upload handling:
+
+# Add to direct_commands list (around line 972):
+direct_commands = [
+    "clean", "workspace", "screenshot", "recon", "wifi", "users", "devices",
+    "kali", "remote", "flipper", "alien", "purge", "mobile", "share", "send",
+    "disk", "bt", "ducky", "cipher", "signal", "port", "payload", "find",
+    "connect", "firewall", "browser", "window", "battery", "uptime",
+    "upload", "files"  # ADD THESE
+]
+
+# Add file upload command handler (around line 1114):
+elif cmd_root == "upload" or cmd_root == "files":
+    recent = get_recent_uploads(10)
+    if recent:
+        cmd_res = "📁 Recent Uploads:\n\n"
+        for file_id, filename, file_type, file_size, upload_date in recent:
+            cmd_res += f"• {filename} ({file_type}, {file_size} bytes) - {upload_date}\n"
+    else:
+        cmd_res = "No files uploaded yet. Click 📁 UPLOAD button to upload files!"
+
+
+================================================================================
+  STEP 4: TEST THE SYSTEM
+  ধাপ ৪: সিস্টেম টেস্ট করুন
+================================================================================
+
+1. Run JARVIS:
+   python jarvis_panel.py
+
+2. Look for the "📁 UPLOAD" button next to the chat input
+
+3. Click the button and select a file
+
+4. JARVIS will:
+   ✅ Upload the file
+   ✅ Show file info
+   ✅ Extract text if possible
+   ✅ Auto-suggest analysis prompt
+
+5. Type "upload" or "files" to see recent uploads
+
+
+================================================================================
+  FEATURES
+  বৈশিষ্ট্য
+================================================================================
+
+✅ Upload any file type
+   যেকোনো ফাইল টাইপ আপলোড করুন
+
+✅ Automatic file type detection
+   স্বয়ংক্রিয় ফাইল টাইপ সনাক্তকরণ
+
+✅ Text extraction from text/code files
+   টেক্সট/কোড ফাইল থেকে টেক্সট এক্সট্র্যাকশন
+
+✅ Image preview support
+   ছবি প্রিভিউ সমর্থন
+
+✅ File history in database
+   ডাটাবেসে ফাইল ইতিহাস
+
+✅ Duplicate filename handling
+   ডুপ্লিকেট ফাইলনাম হ্যান্ডলিং
+
+✅ Auto-suggest analysis prompts
+   স্বয়ংক্রিয়-সুপারিশ বিশ্লেষণ প্রম্পট
+
+
+================================================================================
+  SUPPORTED FILE TYPES
+  সমর্থিত ফাইল টাইপ
+================================================================================
+
+📷 Images: PNG, JPG, JPEG, GIF, BMP, WEBP, SVG, ICO
+📄 Documents: PDF, DOC, DOCX, TXT, MD, RTF
+💻 Code: PY, JS, HTML, CSS, JSON, XML, JAVA, CPP, C, PHP, RB, GO
+📊 Data: CSV, XLSX, XLS, JSON
+📦 Archives: ZIP, RAR, 7Z, TAR, GZ
+🎵 Audio: MP3, WAV, OGG, FLAC, M4A
+🎬 Video: MP4, AVI, MKV, MOV, WMV, FLV
+📁 Other: Any other file type
+
+
+================================================================================
+  USAGE EXAMPLES
+  ব্যবহারের উদাহরণ
+================================================================================
+
+1. Upload an image:
+   • Click 📁 UPLOAD
+   • Select image file
+   • JARVIS shows preview
+   • Ask: "What's in this image?"
+
+2. Upload a code file:
+   • Click 📁 UPLOAD
+   • Select .py file
+   • JARVIS extracts code
+   • Ask: "Review this code"
+
+3. Upload a document:
+   • Click 📁 UPLOAD
+   • Select .txt or .pdf
+   • JARVIS extracts text
+   • Ask: "Summarize this document"
+
+4. View recent uploads:
+   • Type: "upload" or "files"
+   • See list of recent files
+
+
+================================================================================
+  TROUBLESHOOTING
+  সমস্যা সমাধান
+================================================================================
+
+Problem: Upload button not showing
+Solution: Make sure you imported jarvis_upload_ui correctly
+
+Problem: File not uploading
+Solution: Check jarvis_uploads/ directory exists and has write permissions
+
+Problem: Database error
+Solution: Make sure uploaded_files table exists in database
+
+Problem: Text extraction not working
+Solution: Check file encoding, try UTF-8
+
+
+================================================================================
+  FILES CREATED
+  তৈরি ফাইল
+================================================================================
+
+✅ jarvis_file_handler.py - File processing module
+✅ jarvis_upload_ui.py - UI component
+✅ jarvis_uploads/ - Upload directory
+✅ Database table: uploaded_files
+✅ FILE_UPLOAD_INTEGRATION_GUIDE.txt - This guide
+
+
+================================================================================
+  ✅ FILE UPLOAD SYSTEM READY!
+  ✅ ফাইল আপলোড সিস্টেম প্রস্তুত!
+================================================================================
+
+Now JARVIS can accept file uploads in chat!
+এখন জার্ভিস চ্যাটে ফাইল আপলোড গ্রহণ করতে পারে!
+
+Upload any file and JARVIS will analyze it!
+যেকোনো ফাইল আপলোড করুন এবং জার্ভিস এটি বিশ্লেষণ করবে!
+
+================================================================================

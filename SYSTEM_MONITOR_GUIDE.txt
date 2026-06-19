@@ -1,0 +1,214 @@
+================================================================================
+  🔍 JARVIS SYSTEM MONITOR GUIDE
+  🔍 JARVIS সিস্টেম মনিটর গাইড
+================================================================================
+
+এই feature দিয়ে আপনি দেখতে পারবেন JARVIS আপনার system এ কি করছে!
+This feature lets you see what JARVIS is doing on your system!
+
+
+🚀 কিভাবে ব্যবহার করবেন / HOW TO USE
+---------------------------------------
+
+METHOD 1: JARVIS Panel থেকে (সবচেয়ে সহজ)
+------------------------------------------
+
+1. JARVIS চালু করুন (JARVIS.bat)
+   Start JARVIS (JARVIS.bat)
+
+2. Left sidebar এ "🔍 SYSTEM MONITOR" button এ click করুন
+   Click the "🔍 SYSTEM MONITOR" button in left sidebar
+
+3. অথবা terminal এ টাইপ করুন: monitor
+   Or type in terminal: monitor
+
+4. আপনি দেখবেন:
+   You will see:
+   - CPU, Memory, Disk usage
+   - JARVIS status
+   - Running processes
+   - Recent activities
+
+
+METHOD 2: Standalone Script (আলাদা window এ)
+---------------------------------------------
+
+Option A: Single Snapshot (একবার দেখুন)
+   
+   Double-click: JARVIS_MONITOR.bat
+   Then choose option 1
+
+   অথবা / Or:
+   python jarvis_system_monitor.py
+
+
+Option B: Live Monitor (continuously updates)
+   
+   Double-click: JARVIS_MONITOR.bat
+   Then choose option 2
+
+   অথবা / Or:
+   python jarvis_system_monitor.py live
+
+   (Press Ctrl+C to stop / বন্ধ করতে Ctrl+C চাপুন)
+
+
+📊 কি কি দেখাবে / WHAT IT SHOWS
+---------------------------------
+
+✅ System Resources / সিস্টেম রিসোর্স:
+   - CPU usage (কত % CPU ব্যবহার হচ্ছে)
+   - Memory usage (কত RAM ব্যবহার হচ্ছে)
+   - Disk usage (কত disk space ব্যবহার হচ্ছে)
+
+✅ JARVIS Status / JARVIS অবস্থা:
+   - Brain status (Brain কাজ করছে কিনা)
+   - Voice engine status (Voice engine ready কিনা)
+   - Network status (Internet connected কিনা)
+   - Files status (সব important files আছে কিনা)
+
+✅ Recent Activities / সাম্প্রতিক কার্যক্রম:
+   - JARVIS কি কি করেছে (last 5 activities)
+
+✅ Running Processes / চলমান প্রসেস:
+   - কোন কোন JARVIS processes চলছে
+   - তারা কত CPU/Memory ব্যবহার করছে
+
+
+💡 EXAMPLES / উদাহরণ
+---------------------
+
+Example 1: Check system status from JARVIS
+JARVIS থেকে system status দেখুন:
+
+   1. JARVIS চালু করুন
+   2. টাইপ করুন: monitor
+   3. দেখুন full system report
+
+
+Example 2: Live monitoring while JARVIS works
+JARVIS কাজ করার সময় live monitoring:
+
+   1. JARVIS চালু করুন (একটা window এ)
+   2. JARVIS_MONITOR.bat চালু করুন (আরেকটা window এ)
+   3. Option 2 select করুন (Live Monitor)
+   4. এখন JARVIS এ commands দিন
+   5. Monitor window এ দেখুন কি হচ্ছে!
+
+
+Example 3: Quick system check
+দ্রুত system check:
+
+   Double-click: JARVIS_MONITOR.bat
+   Choose option 1
+   দেখুন current status
+
+
+🎯 কখন ব্যবহার করবেন / WHEN TO USE
+-------------------------------------
+
+✅ যখন JARVIS slow মনে হচ্ছে
+   When JARVIS feels slow
+
+✅ যখন দেখতে চান কত resource ব্যবহার হচ্ছে
+   When you want to see resource usage
+
+✅ যখন check করতে চান সব কিছু ঠিক আছে কিনা
+   When you want to check if everything is OK
+
+✅ যখন debug করতে চান
+   When you want to debug
+
+✅ যখন curious যে JARVIS কি করছে
+   When you're curious what JARVIS is doing
+
+
+📋 OUTPUT EXAMPLE / আউটপুট উদাহরণ
+-----------------------------------
+
+╔══════════════════════════════════════════════════════════════════╗
+║              JARVIS SYSTEM MONITOR                               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+⏰ Current Time: 2026-05-06 00:45:30
+⏱️  Uptime: 00:15:42
+
+╔══════════════════════════════════════════════════════════════════╗
+║  SYSTEM RESOURCES                                                ║
+╚══════════════════════════════════════════════════════════════════╝
+
+🖥️  CPU Usage:
+    [████████████░░░░░░░░░░░░░░░░░░] 35.2%
+
+💾 Memory:
+    Used: 8.5 GB / 16.0 GB
+    [████████████████░░░░░░░░░░░░░░] 53.1%
+
+💿 Disk:
+    Used: 245.3 GB / 500.0 GB
+    [██████████████░░░░░░░░░░░░░░░░] 49.1%
+
+╔══════════════════════════════════════════════════════════════════╗
+║  JARVIS STATUS                                                   ║
+╚══════════════════════════════════════════════════════════════════╝
+
+🧠 Brain Status: ✅ ONLINE (Offline Brain Ready)
+🎤 Voice Engine: ✅ READY
+🌐 Network: ✅ CONNECTED
+📁 Files: ✅ ALL OK (4/4)
+
+╔══════════════════════════════════════════════════════════════════╗
+║  RECENT ACTIVITIES                                               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+    [00:45:25] USER REQUEST: System monitor opened
+    [00:44:10] COMMAND: Opened Chrome browser
+    [00:43:05] CALCULATION: 2+2 = 4
+    [00:42:30] STARTUP: JARVIS initialized
+    [00:42:15] CHECK: System resources checked
+
+╔══════════════════════════════════════════════════════════════════╗
+║  RUNNING PROCESSES                                               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+    PID:  12345 | CPU:  5.2% | MEM:  2.1% | python.exe
+    PID:  12346 | CPU:  1.5% | MEM:  1.8% | python.exe
+
+
+🔧 TROUBLESHOOTING / সমস্যা সমাধান
+-----------------------------------
+
+Problem: Monitor button না দেখা যাচ্ছে
+Solution: JARVIS restart করুন
+
+Problem: "Module not found" error
+Solution: python jarvis_system_monitor.py চালান
+
+Problem: Live monitor কাজ করছে না
+Solution: Ctrl+C চেপে বন্ধ করুন, আবার চালান
+
+
+📚 FILES CREATED / তৈরি করা ফাইল
+----------------------------------
+
+📁 jarvis_system_monitor.py
+   - Main monitoring script
+   - মূল monitoring script
+
+📁 JARVIS_MONITOR.bat
+   - Easy launcher with menu
+   - সহজ launcher menu সহ
+
+📁 SYSTEM_MONITOR_GUIDE.txt (this file)
+   - Complete guide
+   - সম্পূর্ণ গাইড
+
+
+================================================================================
+  ✅ SYSTEM MONITOR READY TO USE!
+  ✅ সিস্টেম মনিটর ব্যবহার করার জন্য প্রস্তুত!
+================================================================================
+
+এখন আপনি দেখতে পারবেন JARVIS কি করছে! 🎉
+Now you can see what JARVIS is doing! 🎉
+

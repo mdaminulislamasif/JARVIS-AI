@@ -1,0 +1,4 @@
+MIC_FOUND
+OS_ERROR
+
+All results: ['MIC_FOUND', 'OS_ERROR']

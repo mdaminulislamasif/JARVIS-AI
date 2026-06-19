@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis Web Learning System - ওয়েব লার্নিং সিস্টেম</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .add-source {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .add-source input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .add-source input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .add-source button {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-source button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .sources-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .source-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .source-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .source-info {
+            flex: 1;
+        }
+        
+        .source-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .source-url {
+            color: #666;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+        
+        .source-status {
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .status-ready {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status-learning {
+            background: #fff3e0;
+            color: #f57c00;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-learned {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .source-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-learn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-learn:hover:not(:disabled) {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .btn-learn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-remove {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-remove:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+        
+        .btn-view {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #388e3c;
+            transform: scale(1.05);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Jarvis Web Learning System</h1>
+        <p class="subtitle">ওয়েব থেকে শিখুন - একটা একটা করে</p>
+        
+        <div class="add-source">
+            <input type="url" id="newSourceUrl" placeholder="Website URL লিখুন (e.g., https://example.com)" />
+            <input type="text" id="newSourceTitle" placeholder="Title (optional)" />
+            <button onclick="addSource()">➕ Add Source</button>
+        </div>
+        
+        <div id="sourcesList" class="sources-list">
+            <!-- Sources will be added here dynamically -->
+        </div>
+        
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h3>কোনো learning source নেই</h3>
+            <p>উপরে URL যোগ করুন শুরু করতে</p>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data structure
+        let sources = [
+            {
+                id: 1,
+                url: 'https://www.wikipedia.org',
+                title: 'Wikipedia',
+                status: 'ready', // ready, learning, learned
+                progress: 0,
+                learnedAt: null
+            },
+            {
+                id: 2,
+                url: 'https://www.python.org',
+                title: 'Python Official',
+                status: 'learned',
+                progress: 100,
+                learnedAt: '2026-05-07 10:30 AM'
+            },
+            {
+                id: 3,
+                url: 'https://developer.mozilla.org',
+                title: 'MDN Web Docs',
+                status: 'ready',
+                progress: 0,
+                learnedAt: null
+            }
+        ];
+        
+        function renderSources() {
+            const container = document.getElementById('sourcesList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (sources.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = sources.map(source => `
+                <div class="source-item">
+                    <div class="source-info">
+                        <div class="source-title">${source.title}</div>
+                        <div class="source-url">${source.url}</div>
+                        <div class="source-status">
+                            <span class="status-badge status-${source.status}">
+                                ${source.status === 'ready' ? '⏳ Ready' : 
+                                  source.status === 'learning' ? '🔄 Learning...' : 
+                                  '✅ Learned'}
+                            </span>
+                            ${source.learnedAt ? `<span style="margin-left: 10px; color: #999;">at ${source.learnedAt}</span>` : ''}
+                        </div>
+                        ${source.status === 'learning' ? `
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${source.progress}%"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn btn-learn" 
+                                onclick="learnSource(${source.id})"
+                                ${source.status === 'learning' ? 'disabled' : ''}>
+                            ${source.status === 'learned' ? '🔄 Re-learn' : '📖 Learn'}
+                        </button>
+                        ${source.status === 'learned' ? `
+                            <button class="btn btn-view" onclick="viewKnowledge(${source.id})">
+                                👁️ View
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-remove" onclick="removeSource(${source.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addSource() {
+            const urlInput = document.getElementById('newSourceUrl');
+            const titleInput = document.getElementById('newSourceTitle');
+            
+            const url = urlInput.value.trim();
+            const title = titleInput.value.trim() || new URL(url).hostname;
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            try {
+                new URL(url); // Validate URL
+            } catch (e) {
+                alert('Invalid URL format');
+                return;
+            }
+            
+            const newSource = {
+                id: Date.now(),
+                url: url,
+                title: title,
+                status: 'ready',
+                progress: 0,
+                learnedAt: null
+            };
+            
+            sources.push(newSource);
+            urlInput.value = '';
+            titleInput.value = '';
+            renderSources();
+        }
+        
+        function learnSource(id) {
+            const source = sources.find(s => s.id === id);
+            if (!source) return;
+            
+            source.status = 'learning';
+            source.progress = 0;
+            renderSources();
+            
+            // Simulate learning progress
+            const interval = setInterval(() => {
+                source.progress += 10;
+                renderSources();
+                
+                if (source.progress >= 100) {
+                    clearInterval(interval);
+                    source.status = 'learned';
+                    source.learnedAt = new Date().toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    renderSources();
+                    
+                    // In real implementation, this would call the backend API
+                    console.log(`Learning completed for: ${source.url}`);
+                }
+            }, 500);
+        }
+        
+        function removeSource(id) {
+            if (confirm('Are you sure you want to remove this source?')) {
+                sources = sources.filter(s => s.id !== id);
+                renderSources();
+            }
+        }
+        
+        function viewKnowledge(id) {
+            const source = sources.find(s => s.id === id);
+            if (!source) return;
+            
+            alert(`Viewing knowledge from: ${source.title}\n\nIn real implementation, this would show:\n- Extracted content\n- Topics learned\n- Entities found\n- Facts discovered\n- Related knowledge`);
+        }
+        
+        // Initial render
+        renderSources();
+    </script>
+</body>
+</html>

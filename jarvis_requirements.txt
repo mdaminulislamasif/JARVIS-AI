@@ -1,0 +1,41 @@
+# JARVIS AI - Complete Requirements
+# Install: pip install -r jarvis_requirements.txt
+
+# Core Dependencies
+customtkinter>=5.2.0
+pillow>=10.0.0
+psutil>=5.9.0
+pyautogui>=0.9.54
+
+# Voice & Speech
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+pyaudio>=0.2.13
+pocketsphinx>=5.0.0
+
+# AI & NLP
+google-generativeai>=0.3.0
+openai>=1.0.0
+
+# Web & Network
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+selenium>=4.15.0
+twilio>=8.10.0
+
+# Database
+sqlite3  # Built-in
+
+# System Control
+pywin32>=306
+comtypes>=1.2.0
+pycaw>=20230407
+screen-brightness-control>=0.20.0
+
+# Audio/Video
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Utilities
+python-dotenv>=1.0.0
+pyperclip>=1.8.2

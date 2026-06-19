@@ -1,0 +1,9 @@
+{
+  "name": "JARVIS Automatic Coding Learning",
+  "version": "1.0.0",
+  "description": "JARVIS learns ALL programming languages and coding skills automatically from internet, GitHub, tutorials, and practice",
+  "status": "ready",
+  "priority": "critical",
+  "specType": "feature",
+  "workflowType": "requirements-first"
+}

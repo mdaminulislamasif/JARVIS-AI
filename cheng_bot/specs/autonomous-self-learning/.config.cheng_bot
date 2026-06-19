@@ -1,0 +1,8 @@
+{
+  "name": "autonomous-self-learning",
+  "displayName": "Autonomous Self-Learning System",
+  "type": "feature",
+  "workflow": "requirements-first",
+  "createdAt": "2026-05-06",
+  "status": "in-progress"
+}

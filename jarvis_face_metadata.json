@@ -1,0 +1,47 @@
+{
+  "fixed": true,
+  "timestamp": "2026-05-11",
+  "optimizations": [
+    "Topology cleaned",
+    "Normals fixed",
+    "Duplicates removed",
+    "Smoothing applied"
+  ],
+  "animations": [
+    {
+      "name": "MouthOpen",
+      "type": "shape_key"
+    },
+    {
+      "name": "EyeBlink",
+      "type": "shape_key"
+    },
+    {
+      "name": "HeadShake",
+      "type": "shape_key"
+    }
+  ],
+  "materials": [
+    {
+      "name": "WhiteCeramic",
+      "type": "metallic_ceramic",
+      "color": [
+        0.95,
+        0.95,
+        0.98
+      ],
+      "roughness": 0.2,
+      "metallic": 0.1
+    },
+    {
+      "name": "CyanGlow",
+      "type": "emissive",
+      "color": [
+        0.0,
+        0.9,
+        1.0
+      ],
+      "emission": 2.0
+    }
+  ]
+}

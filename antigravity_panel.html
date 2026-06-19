@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Antigravity Control Center V11</title>
+    <!-- Google Fonts for High-Tech feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f2ff;
+            --neon-green: #00ff41;
+            --neon-red: #ff3131;
+            --neon-gold: #ffd700;
+            --bg-darker: #02050a;
+            --bg-panel: rgba(10, 16, 30, 0.75);
+            --border-glow: rgba(0, 242, 255, 0.25);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-darker);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(5, 20, 40, 0.4) 0%, transparent 80%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 6px 100%;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 20px;
+        }
+
+        /* Scanline HUD effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 9999;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        header {
+            background: rgba(5, 8, 15, 0.9);
+            border-bottom: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title-container h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.6);
+        }
+
+        .header-title-container p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #88aadd;
+            text-transform: uppercase;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .status-pill {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .hud-grid {
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr 380px;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .hud-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hud-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .hud-panel:hover {
+            border-color: rgba(0, 242, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(0, 242, 255, 0.1);
+        }
+
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+            padding-bottom: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+
+        /* 3D Face Animation */
+        #face-container {
+            width: 100%;
+            height: 250px;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed rgba(0, 242, 255, 0.15);
+        }
+
+        #face-fallback-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* Real-time system monitoring charts */
+        .metric-card {
+            background: rgba(5, 10, 20, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            border-radius: 6px;
+            padding: 12px;
+        }
+        .metric-info {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: #88aadd;
+            margin-bottom: 6px;
+        }
+        .metric-value {
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+        .metric-chart {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        /* Console log */
+        .terminal-log {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 6px;
+            height: 180px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #aaccff;
+        }
+
+        .terminal-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-log::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 2px;
+        }
+
+        .log-entry {
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 3px;
+        }
+        .log-time { color: #5588cc; margin-right: 5px; }
+        .log-tag { font-weight: bold; margin-right: 5px; }
+        .tag-sys { color: var(--neon-gold); }
+        .tag-voice { color: var(--neon-cyan); }
+        .tag-cmd { color: var(--neon-green); }
+        .tag-err { color: var(--neon-red); }
+
+        /* Cellular Uplink Calling Simulator */
+        .phone-mockup {
+            background: #040810;
+            border: 2px solid #004466;
+            border-radius: 20px;
+            padding: 15px;
+            width: 100%;
+            box-shadow: inset 0 0 15px rgba(0, 242, 255, 0.2);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .phone-screen {
+            background: #010307;
+            border: 1px solid #002233;
+            border-radius: 10px;
+            height: 380px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dialer-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .phone-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00f2ff;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--neon-green);
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+
+        .phone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .phone-btn {
+            background: rgba(0, 34, 51, 0.4);
+            border: 1px solid #004466;
+            color: #88ccff;
+            border-radius: 50%;
+            aspect-ratio: 1;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .phone-btn span {
+            font-size: 8px;
+            color: #5588aa;
+        }
+
+        .phone-btn:hover {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(0, 242, 255, 0.3);
+        }
+
+        .call-action-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: auto;
+        }
+
+        .circle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-call {
+            background: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        .btn-hangup {
+            background: var(--neon-red);
+            box-shadow: 0 0 15px rgba(255, 49, 49, 0.4);
+        }
+
+        .circle-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Active Call state visual */
+        .active-call-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            text-align: center;
+        }
+
+        .caller-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #002233;
+            border: 2px solid var(--neon-cyan);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .caller-avatar::after {
+            content: "";
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid rgba(0, 242, 255, 0.4);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite;
+        }
+
+        .call-waveform {
+            width: 100%;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+        }
+
+        /* Dialect Picker */
+        .dialect-container {
+            background: rgba(5, 10, 20, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .dialect-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .dialect-btn {
+            background: rgba(0, 34, 51, 0.3);
+            border: 1px solid #003344;
+            color: #88ccff;
+            border-radius: 4px;
+            padding: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.2s;
+        }
+
+        .dialect-btn.active {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(0, 242, 255, 0.2);
+        }
+
+        /* Browser Simulator */
+        .browser-mockup {
+            background: #080f1e;
+            border: 1px solid #00f2ff;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0, 242, 255, 0.15);
+        }
+
+        .browser-bar {
+            background: #030710;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .browser-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
+        .dot-red { background: var(--neon-red); }
+        .dot-yellow { background: var(--neon-gold); }
+        .dot-green { background: var(--neon-green); }
+
+        .browser-address {
+            flex: 1;
+            background: #010307;
+            border: 1px solid #002233;
+            border-radius: 4px;
+            padding: 4px 10px;
+            color: #88aadd;
+            font-size: 11px;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .browser-content {
+            height: 250px;
+            background: #020509;
+            position: relative;
+            padding: 15px;
+            overflow: hidden;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .youtube-search-ui {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 15px;
+        }
+
+        .youtube-logo {
+            font-size: 32px;
+            color: var(--neon-red);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: -1px;
+        }
+
+        .youtube-search-bar {
+            display: flex;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid #004466;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #010307;
+        }
+
+        .yt-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            color: white;
+            font-family: 'Share Tech Mono', monospace;
+            outline: none;
+        }
+
+        .yt-btn {
+            background: rgba(0, 242, 255, 0.1);
+            border: none;
+            border-left: 1px solid #004466;
+            padding: 8px 15px;
+            color: var(--neon-cyan);
+            cursor: pointer;
+        }
+
+        /* YouTube Results list simulation */
+        .youtube-results-ui {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .video-card {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 242, 255, 0.05);
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .video-card:hover {
+            background: rgba(0, 242, 255, 0.08);
+            border-color: rgba(0, 242, 255, 0.2);
+        }
+
+        .video-thumb {
+            width: 90px;
+            height: 50px;
+            background: #040810;
+            border: 1px solid #003344;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--neon-red);
+            position: relative;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 2px; right: 2px;
+            background: black;
+            font-size: 8px;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        .video-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-title { font-size: 11px; font-weight: bold; color: #ffffff; }
+        .video-channel { font-size: 9px; color: #5588cc; }
+        .video-views { font-size: 8px; color: #666; }
+
+        /* Video Player simulation */
+        .video-player-ui {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .player-canvas-container {
+            flex: 1;
+            background: #000;
+            border: 1px solid #002233;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 8px;
+            font-size: 10px;
+            color: #88aadd;
+        }
+
+        .play-bar {
+            flex: 1;
+            height: 4px;
+            background: #002233;
+            position: relative;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .play-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--neon-red);
+            border-radius: 2px;
+        }
+
+        /* Action Buttons Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-cyber {
+            background: rgba(0, 34, 51, 0.4);
+            border: 1px solid #004466;
+            color: #88ccff;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-cyber:hover {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-cyber:active {
+            transform: scale(0.96);
+        }
+
+        /* Face recognition upload interface */
+        .face-upload-zone {
+            border: 2px dashed rgba(0, 242, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: #88ccff;
+        }
+
+        .face-upload-zone:hover {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: var(--neon-cyan);
+        }
+
+        /* Keyframes */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        /* Dialect text simulator panel */
+        .dialect-speech-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dialect-speech-text {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #003344;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .dialect-speech-text:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .btn-send {
+            background: var(--neon-cyan);
+            border: none;
+            color: black;
+            font-weight: bold;
+            padding: 0 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .btn-send:hover {
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title-container">
+            <h1>JARVIS ANTIGRAVITY PANEL</h1>
+            <p>Unified Simulation & OS Automation Suite [V11]</p>
+        </div>
+        <div class="header-status">
+            <span class="status-pill">
+                <span class="status-dot"></span>
+                <span id="backend-status-text">CONNECTING BACKEND...</span>
+            </span>
+            <div id="live-clock" style="color: var(--neon-cyan); font-weight: bold;">00:00:00</div>
+        </div>
+    </header>
+
+    <div class="hud-grid">
+        <!-- LEFT PANEL: Face Model & System Stats -->
+        <div class="hud-panel">
+            <div class="panel-header">
+                <span>🧠 JARVIS AI CORE</span>
+                <span style="color: var(--neon-cyan); font-size: 10px;">IDLE</span>
+            </div>
+
+            <!-- ThreeJS Rotating Face -->
+            <div id="face-container">
+                <canvas id="face-fallback-canvas"></canvas>
+                <div style="z-index: 5; text-align: center; pointer-events: none; font-family: 'Share Tech Mono', monospace;">
+                    <div style="font-size: 10px; color: var(--neon-cyan); letter-spacing: 2px;">NEURAL MODEL</div>
+                    <div style="font-size: 14px; font-weight: bold;" id="avatar-status-overlay">CORE ONLINE</div>
+                </div>
+            </div>
+
+            <!-- Stats Charts -->
+            <div class="panel-header" style="margin-top: 10px;">
+                <span>📊 SYSTEM METRICS</span>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span>CPU LOAD</span>
+                    <span class="metric-value" id="cpu-val">0%</span>
+                </div>
+                <canvas id="cpu-chart" class="metric-chart"></canvas>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span>RAM UTILITY</span>
+                    <span class="metric-value" id="ram-val">0%</span>
+                </div>
+                <canvas id="ram-chart" class="metric-chart"></canvas>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span>NETWORK I/O</span>
+                    <span class="metric-value" id="net-val">0.00 / 0.00 MB/s</span>
+                </div>
+                <canvas id="net-chart" class="metric-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL: Calling Uplink & Browser Simulator -->
+        <div class="hud-panel" style="gap: 20px;">
+            <div class="panel-header">
+                <span>⚡ CORE AUTOMATION PROTOCOLS</span>
+            </div>
+
+            <!-- Three tab panels: SIM Call, Browser Sim and Wi-Fi Controller -->
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-cyber active" id="tab-btn-call" style="flex: 1;" onclick="switchTab('call')">📞 Cellular Link</button>
+                <button class="btn-cyber" id="tab-btn-browser" style="flex: 1;" onclick="switchTab('browser')">🌐 Browser Sim</button>
+                <button class="btn-cyber" id="tab-btn-wifi" style="flex: 1;" onclick="switchTab('wifi')">📱 Android Controller</button>
+            </div>
+
+            <!-- TAB 1: Cellular SIM Call Simulator -->
+            <div id="tab-content-call" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <!-- Dialer screen -->
+                        <div class="dialer-screen" id="dialer-screen">
+                            <div style="text-align: center; color: var(--neon-cyan); font-size: 11px;">SIM UPLINK CONNECTED</div>
+                            <input type="text" class="phone-input" id="phone-number-input" placeholder="+880" readonly>
+                            <div class="phone-grid">
+                                <button class="phone-btn" onclick="pressKey('1')">1 <span>o o o</span></button>
+                                <button class="phone-btn" onclick="pressKey('2')">2 <span>A B C</span></button>
+                                <button class="phone-btn" onclick="pressKey('3')">3 <span>D E F</span></button>
+                                <button class="phone-btn" onclick="pressKey('4')">4 <span>G H I</span></button>
+                                <button class="phone-btn" onclick="pressKey('5')">5 <span>J K L</span></button>
+                                <button class="phone-btn" onclick="pressKey('6')">6 <span>M N O</span></button>
+                                <button class="phone-btn" onclick="pressKey('7')">7 <span>P R S</span></button>
+                                <button class="phone-btn" onclick="pressKey('8')">8 <span>T U V</span></button>
+                                <button class="phone-btn" onclick="pressKey('9')">9 <span>W X Y</span></button>
+                                <button class="phone-btn" onclick="pressKey('*')">* <span>+</span></button>
+                                <button class="phone-btn" onclick="pressKey('0')">0 <span>#</span></button>
+                                <button class="phone-btn" style="color: var(--neon-red);" onclick="clearPhoneInput()">⌫</button>
+                            </div>
+                            <div class="call-action-row">
+                                <button class="circle-btn btn-call" onclick="startSimulatedCall()">📞</button>
+                            </div>
+                        </div>
+
+                        <!-- Active Call state -->
+                        <div class="active-call-screen" id="active-call-screen">
+                            <div class="caller-avatar">👤</div>
+                            <div>
+                                <h3 id="calling-number-label">+8801773860372</h3>
+                                <p style="color: var(--neon-cyan); font-size: 12px; margin-top: 5px;" id="call-status-label">DIALING...</p>
+                            </div>
+                            <canvas class="call-waveform" id="call-waveform-canvas"></canvas>
+                            <div class="call-action-row">
+                                <button class="circle-btn btn-hangup" onclick="hangupSimulatedCall()">❌</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dialect-based Voice Simulation settings -->
+                <div class="dialect-container">
+                    <div style="font-size: 12px; color: var(--neon-cyan); font-weight: bold;">🗣️ REGIONAL VOICE ASSISTANT DIALECT</div>
+                    <div class="dialect-grid">
+                        <button class="dialect-btn active" id="d-std" onclick="selectDialect('std')">Standard Bangla</button>
+                        <button class="dialect-btn" id="d-ctg" onclick="selectDialect('ctg')">Chittagonian (চাটগাঁইয়া)</button>
+                        <button class="dialect-btn" id="d-syl" onclick="selectDialect('syl')">Sylheti (সিলেটি)</button>
+                        <button class="dialect-btn" id="d-nkh" onclick="selectDialect('nkh')">Noakhailla (নোয়াখালী)</button>
+                    </div>
+                    
+                    <div style="margin-top: 10px; font-size: 11px; color: #88aadd; display: flex; flex-direction: column; gap: 5px;">
+                        <span>Speak or Ask JARVIS in selected dialect:</span>
+                        <div class="dialect-speech-input">
+                            <input type="text" class="dialect-speech-text" id="dialect-input-text" placeholder="Type message in dialect...">
+                            <button class="btn-send" onclick="sendDialectMessage()">Send</button>
+                        </div>
+                        <div id="dialect-quick-phrases" style="margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px;">
+                            <!-- Phrase pills -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Browser Automation Simulator -->
+            <div id="tab-content-browser" style="display: none; flex-direction: column; gap: 15px;">
+                <div class="browser-mockup">
+                    <div class="browser-bar">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="browser-address">
+                            <span style="color: var(--neon-cyan);">🔒 secure</span>
+                            <span id="browser-url-text">https://www.youtube.com</span>
+                        </div>
+                    </div>
+                    <div class="browser-content" id="browser-viewport">
+                        <!-- Simulated YouTube Homepage -->
+                        <div class="youtube-search-ui" id="yt-search-ui">
+                            <div class="youtube-logo">🎥 YouTube</div>
+                            <div class="youtube-search-bar">
+                                <input type="text" class="yt-input" id="yt-search-input" value="" placeholder="Search..." readonly>
+                                <button class="yt-btn">🔍</button>
+                            </div>
+                            <div style="font-size: 10px; color: #5588cc;">SYSTEM AUTOMATION: WAITING FOR QUERY</div>
+                        </div>
+
+                        <!-- Simulated Search Results -->
+                        <div class="youtube-results-ui" id="yt-results-ui">
+                            <div class="video-card" onclick="playSimulatedVideo('আসিফ জিকে - বাংলা General Knowledge')">
+                                <div class="video-thumb">📺<span class="video-duration">12:34</span></div>
+                                <div class="video-info">
+                                    <div class="video-title">আসিফ জিকে - বাংলা General Knowledge BCS Class</div>
+                                    <div class="video-channel">Asif GK Official</div>
+                                    <div class="video-views">1.2M views • 2 weeks ago</div>
+                                </div>
+                            </div>
+                            <div class="video-card" onclick="playSimulatedVideo('Asif GK - General Knowledge Ep 5')">
+                                <div class="video-thumb">📺<span class="video-duration">08:45</span></div>
+                                <div class="video-info">
+                                    <div class="video-title">Asif GK - General Knowledge Ep 5: Science & History</div>
+                                    <div class="video-channel">Asif GK Academy</div>
+                                    <div class="video-views">840K views • 1 month ago</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulated Player -->
+                        <div class="video-player-ui" id="yt-player-ui">
+                            <div class="player-canvas-container">
+                                <canvas class="player-canvas" id="player-animation-canvas"></canvas>
+                            </div>
+                            <div class="player-controls">
+                                <span style="cursor: pointer;" onclick="togglePlayVideo()" id="player-btn-play">⏸️</span>
+                                <div class="play-bar" onclick="seekVideo(event)">
+                                    <div class="play-bar" id="play-bar-track">
+                                        <div class="play-progress" id="player-progress-bar"></div>
+                                    </div>
+                                </div>
+                                <span id="player-timer-text">0:00 / 12:34</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation controls -->
+                <div class="dialect-container" style="background: rgba(10,16,30,0.5);">
+                    <div style="font-size: 12px; color: var(--neon-cyan); font-weight: bold; margin-bottom: 5px;">🤖 SIMULATE BROWSER ACTION</div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-cyber" style="flex: 1;" onclick="triggerSimulatedSearch('আসিফ জিকে')">Search "আসিফ জিকে"</button>
+                        <button class="btn-cyber" style="flex: 1;" onclick="resetBrowserSim()">Reset Sim</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Wi-Fi Connected Device Controller -->
+            <div id="tab-content-wifi" style="display: none; flex-direction: column; gap: 15px;">
+                <div style="background: rgba(10, 20, 40, 0.4); border: 1px solid rgba(0, 242, 255, 0.25); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; font-family: 'Share Tech Mono', monospace;">
+
+                    <!-- ADB DEVICE DISPLAY PANEL -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 242, 255, 0.2); padding-bottom: 8px;">
+                        <span style="color: var(--neon-cyan); font-weight: bold; font-size: 14px;">📱 ADB CONNECTED DEVICES</span>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <span id="adb-refresh-indicator" style="font-size: 9px; color: #5588cc;">AUTO REFRESH</span>
+                            <span id="adb-refresh-dot" style="width: 6px; height: 6px; background: var(--neon-green); border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite;"></span>
+                            <button class="btn-cyber" onclick="refreshAdbDevices()" style="padding: 3px 8px; font-size: 10px;">🔄 REFRESH</button>
+                            <button class="btn-cyber" onclick="restartAdbServer()" style="padding: 3px 8px; font-size: 10px; color: var(--neon-gold);">♻️ RESTART ADB</button>
+                        </div>
+                    </div>
+
+                    <!-- Device cards container -->
+                    <div id="adb-device-cards" style="display: flex; flex-direction: column; gap: 8px; min-height: 60px;">
+                        <div style="color: #5588cc; font-size: 11px; text-align: center; padding: 15px;">
+                            ⏳ Scanning for ADB devices...
+                        </div>
+                    </div>
+
+                    <!-- USB Device Controller Actions -->
+                    <div style="border-top: 1px solid rgba(0, 242, 255, 0.15); padding-top: 10px;">
+                        <div style="color: var(--neon-cyan); font-size: 12px; font-weight: bold; margin-bottom: 8px;">🔌 USB DEVICE CONTROLLER (ATOM 5)</div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+
+                        <button class="btn-cyber" style="flex: 1; min-width: 120px; font-size: 10px;" onclick="mirrorUSBDevice('system')">📺 MIRROR (SYSTEM AUDIO)</button>
+                        <button class="btn-cyber" style="flex: 1; min-width: 120px; font-size: 10px;" onclick="mirrorUSBDevice('mic')">🎤 MIRROR (MIC AUDIO)</button>
+                        <button class="btn-cyber" style="flex: 1; min-width: 120px; font-size: 10px;" onclick="boostUSBDevice()">⚡ BOOST DEVICE</button>
+                        <button class="btn-cyber" style="flex: 1; min-width: 120px; font-size: 10px; border-color: rgba(0,255,65,0.4); color: var(--neon-green);" onclick="grantMicPermission()" id="grant-mic-btn">🔓 GRANT MIC ACCESS</button>
+                        </div><!-- end flex wrap -->
+                    </div><!-- end USB controller actions -->
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 242, 255, 0.2); padding-bottom: 8px;">
+                        <span style="color: var(--neon-cyan); font-weight: bold; font-size: 14px;">📡 LOCAL WI-FI SUBNET CONTROLLER</span>
+                        <button class="btn-cyber" id="scan-net-btn" onclick="scanWifiNetwork()" style="padding: 4px 10px; font-size: 11px;">🔍 SCAN NETWORK</button>
+                    </div>
+
+                    <!-- Scan status / loader animation -->
+                    <div id="net-scan-loader" style="display: none; text-align: center; color: var(--neon-cyan); padding: 10px; font-size: 12px;">
+                        <span class="pulse-text" style="animation: pulse 1.5s infinite;">📡 SCANNING ENTIRE SUBNET... PING SWEEP ACTIVE...</span>
+                    </div>
+
+                    <!-- Discovered devices list -->
+                    <div style="max-height: 250px; overflow-y: auto; border: 1px solid rgba(0, 242, 255, 0.15); border-radius: 4px; background: rgba(5, 10, 20, 0.6); padding: 8px;" id="discovered-devices-list">
+                        <div style="color: #6688aa; text-align: center; padding: 20px; font-size: 12px;">No scan run yet. Click SCAN NETWORK above to discover devices on your Wi-Fi.</div>
+                    </div>
+
+                    <!-- Wireless Command Execution Status -->
+                    <div id="wireless-console" style="background: black; border: 1px solid #113322; border-radius: 4px; padding: 8px; color: var(--neon-green); font-size: 11px; min-height: 50px; font-family: 'Share Tech Mono', monospace; overflow-y: auto; max-height: 80px;">
+                        [WIRELESS CONSOLE READY]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Command execution Console & Social Scanner -->
+        <div class="hud-panel">
+            <div class="panel-header">
+                <span>🤖 OS AUTOMATION UTILITIES</span>
+            </div>
+            
+            <div class="action-grid">
+                <button class="btn-cyber" onclick="triggerCommand('boost')">⚡ Boost CPU</button>
+                <button class="btn-cyber" onclick="triggerCommand('clean')">🗑️ Clean Temp</button>
+                <button class="btn-cyber" onclick="triggerCommand('firewall')">🛡️ Firewall</button>
+                <button class="btn-cyber" onclick="triggerCommand('kali')">😈 Kali Suite</button>
+                <button class="btn-cyber" onclick="triggerCommand('recon')">📡 WiFi Scan</button>
+                <button class="btn-cyber" onclick="triggerCommand('status')">🔍 Self Check</button>
+            </div>
+
+            <div class="panel-header" style="margin-top: 10px;">
+                <span>👁️ TARGET SOCIAL SCANNER</span>
+            </div>
+
+            <div class="face-upload-zone" onclick="simulateImageUpload()">
+                <div style="font-size: 32px; margin-bottom: 8px;">📸</div>
+                <div>CLICK TO UPLOAD FACE IMAGE</div>
+                <div style="font-size: 10px; color: #5588cc; margin-top: 5px;">Simulates Google / Social Lookup</div>
+            </div>
+
+            <div id="social-recon-results" style="display: none; background: rgba(5, 10, 20, 0.6); border: 1px solid rgba(0, 242, 255, 0.15); border-radius: 6px; padding: 12px; font-family: 'Share Tech Mono', monospace; font-size: 11px;">
+                <div style="color: var(--neon-green); font-weight: bold; font-size: 12px; border-bottom: 1px dashed rgba(0,255,65,0.2); padding-bottom: 4px; margin-bottom: 6px;">MATCH FOUND: RECON COMPLETE</div>
+                <div>NAME: <span id="recon-name" style="color: white;">Md. Aminul Islam</span></div>
+                <div>CONFIDENCE: <span id="recon-conf" style="color: var(--neon-green);">98%</span></div>
+                <div>AGE / LOC: <span id="recon-loc" style="color: white;">28 / Natore, Lalpur</span></div>
+                <div>OCCUPATION: <span id="recon-occ" style="color: var(--neon-cyan);">Android Developer</span></div>
+                <div style="margin-top: 8px; font-weight: bold; color: var(--neon-cyan);">LINKED PROFILES:</div>
+                <div id="recon-links" style="display: flex; gap: 8px; margin-top: 4px;">
+                    <!-- Links list -->
+                </div>
+            </div>
+
+            <div class="panel-header" style="margin-top: 10px;">
+                <span>📟 ACTIVE AUDIT STREAM</span>
+            </div>
+            
+            <!-- Terminal Log -->
+            <div class="terminal-log" id="terminal-log-box">
+                <!-- Log entries inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Audio & Core Simulator Logic -->
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            document.getElementById('tab-btn-call').classList.toggle('active', tab === 'call');
+            document.getElementById('tab-btn-browser').classList.toggle('active', tab === 'browser');
+            document.getElementById('tab-btn-wifi').classList.toggle('active', tab === 'wifi');
+            
+            document.getElementById('tab-content-call').style.display = tab === 'call' ? 'flex' : 'none';
+            document.getElementById('tab-content-browser').style.display = tab === 'browser' ? 'flex' : 'none';
+            document.getElementById('tab-content-wifi').style.display = tab === 'wifi' ? 'flex' : 'none';
+            
+            addLog('sys', `Tab switched to: ${tab.toUpperCase()}`);
+        }
+
+        // Clock logic
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        // Terminal Log Utility
+        function addLog(tag, msg) {
+            const box = document.getElementById('terminal-log-box');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.innerText = new Date().toTimeString().split(' ')[0];
+            
+            const tagSpan = document.createElement('span');
+            tagSpan.className = `log-tag tag-${tag}`;
+            tagSpan.innerText = `[${tag.toUpperCase()}]`;
+            
+            const textSpan = document.createElement('span');
+            textSpan.innerText = msg;
+            
+            entry.appendChild(timeSpan);
+            entry.appendChild(tagSpan);
+            entry.appendChild(textSpan);
+            
+            box.appendChild(entry);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Web Audio API Audio Chimes Synthesizer
+        let audioCtx = null;
+        function playChime(freq, type, duration) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.value = freq;
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio not allowed or failed", e);
+            }
+        }
+
+        // API endpoints integration
+        const BACKEND_URL = 'http://localhost:5000';
+        let isBackendOnline = false;
+
+        async function checkBackendStatus() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/status`);
+                if (res.ok) {
+                    isBackendOnline = true;
+                    document.getElementById('backend-status-text').innerText = 'BACKEND ONLINE';
+                    document.getElementById('backend-status-text').parentElement.style.borderColor = 'var(--neon-green)';
+                    document.getElementById('backend-status-text').parentElement.style.color = 'var(--neon-green)';
+                    document.getElementById('backend-status-text').parentElement.querySelector('.status-dot').style.backgroundColor = 'var(--neon-green)';
+                } else {
+                    throw new Error("Offline");
+                }
+            } catch (e) {
+                isBackendOnline = false;
+                document.getElementById('backend-status-text').innerText = 'SIMULATION MODE';
+                document.getElementById('backend-status-text').parentElement.style.borderColor = 'var(--neon-gold)';
+                document.getElementById('backend-status-text').parentElement.style.color = 'var(--neon-gold)';
+                document.getElementById('backend-status-text').parentElement.querySelector('.status-dot').style.backgroundColor = 'var(--neon-gold)';
+            }
+        }
+        setInterval(checkBackendStatus, 5000);
+        checkBackendStatus();
+
+        // Greet user on launch
+        setTimeout(() => {
+            speakJarvis("Unified system control dashboard loaded, boss. Ready for command execution.");
+        }, 1500);
+
+        function speakJarvis(text) {
+            addLog('voice', text);
+            if (isBackendOnline) {
+                fetch(`${BACKEND_URL}/speak`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                }).catch(e => {
+                    speechSynthesisSpeak(text);
+                });
+            } else {
+                speechSynthesisSpeak(text);
+            }
+        }
+
+        function speechSynthesisSpeak(text) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Live stats canvas drawers
+        function drawMetricChart(canvasId, values, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.clientWidth;
+            const h = canvas.height = canvas.clientHeight;
+            
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            
+            ctx.beginPath();
+            const step = w / (values.length - 1);
+            for (let i = 0; i < values.length; i++) {
+                const x = i * step;
+                const y = h - (values[i] / 100) * (h - 6) - 3;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Gradient fill
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, color.replace('1)', '0.15)'));
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+        }
+
+        const statsHistory = {
+            cpu: Array(30).fill(10),
+            ram: Array(30).fill(42),
+            net: Array(30).fill(5)
+        };
+
+        setInterval(async () => {
+            let cpuVal = 10, ramVal = 43, netIn = 5.4, netOut = 1.2;
+            if (isBackendOnline) {
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/system_stats`);
+                    const data = await res.json();
+                    if (data.success) {
+                        cpuVal = data.cpu;
+                        ramVal = data.ram;
+                        netIn = data.net_in;
+                        netOut = data.net_out;
+                    }
+                } catch(e) {}
+            } else {
+                // Mock changes
+                cpuVal = Math.max(5, Math.min(95, statsHistory.cpu[statsHistory.cpu.length - 1] + (Math.random() - 0.5) * 12));
+                ramVal = Math.max(38, Math.min(65, statsHistory.ram[statsHistory.ram.length - 1] + (Math.random() - 0.5) * 3));
+                netIn = Math.max(1.0, Math.min(120.0, statsHistory.net[statsHistory.net.length - 1] + (Math.random() - 0.5) * 20));
+            }
+
+            statsHistory.cpu.push(cpuVal); statsHistory.cpu.shift();
+            statsHistory.ram.push(ramVal); statsHistory.ram.shift();
+            statsHistory.net.push((netIn / 120.0) * 100); statsHistory.net.shift();
+
+            document.getElementById('cpu-val').innerText = `${Math.round(cpuVal)}%`;
+            document.getElementById('ram-val').innerText = `${Math.round(ramVal)}%`;
+            document.getElementById('net-val').innerText = `${netIn.toFixed(2)} / ${netOut.toFixed(2)} MB/s`;
+
+            drawMetricChart('cpu-chart', statsHistory.cpu, 'rgba(0, 242, 255, 1)');
+            drawMetricChart('ram-chart', statsHistory.ram, 'rgba(0, 255, 65, 1)');
+            drawMetricChart('net-chart', statsHistory.net, 'rgba(255, 215, 0, 1)');
+        }, 1000);
+
+        // Simulated Dialer actions
+        let isCalling = false;
+        let callTimer = null;
+        let callWaveformTimer = null;
+
+        function pressKey(key) {
+            playChime(350 + key.charCodeAt(0) * 5, 'sine', 0.1);
+            const input = document.getElementById('phone-number-input');
+            input.value += key;
+        }
+
+        function clearPhoneInput() {
+            playChime(250, 'triangle', 0.05);
+            const input = document.getElementById('phone-number-input');
+            input.value = input.value.slice(0, -1);
+        }
+
+        function startSimulatedCall() {
+            const num = document.getElementById('phone-number-input').value.strip || '+8801773860372';
+            document.getElementById('calling-number-label').innerText = num;
+            document.getElementById('dialer-screen').style.display = 'none';
+            document.getElementById('active-call-screen').style.display = 'flex';
+            document.getElementById('call-status-label').innerText = 'DIALING...';
+            isCalling = true;
+            addLog('cmd', `Initiated simulated SIM call to ${num}`);
+            
+            // Play connection tone sequence
+            playCallToneSequence();
+            
+            let callSeconds = 0;
+            callTimer = setTimeout(() => {
+                document.getElementById('call-status-label').innerText = 'CONNECTED';
+                speakJarvis("Uplink established. Simulated cellular conversation active.");
+                
+                // Keep counting call duration
+                callTimer = setInterval(() => {
+                    callSeconds++;
+                    const m = Math.floor(callSeconds / 60);
+                    const s = callSeconds % 60;
+                    document.getElementById('call-status-label').innerText = `ACTIVE - ${m}:${s.toString().padStart(2, '0')}`;
+                }, 1000);
+            }, 3000);
+
+            drawActiveCallWaveform();
+        }
+
+        function playCallToneSequence() {
+            if (!isCalling) return;
+            playChime(440, 'sine', 0.4);
+            setTimeout(() => { playChime(480, 'sine', 0.4); }, 100);
+            
+            if (document.getElementById('call-status-label').innerText === 'DIALING...') {
+                setTimeout(playCallToneSequence, 2000);
+            }
+        }
+
+        function hangupSimulatedCall() {
+            isCalling = false;
+            clearTimeout(callTimer);
+            clearInterval(callTimer);
+            cancelAnimationFrame(callWaveformTimer);
+            playChime(150, 'sawtooth', 0.3);
+            
+            document.getElementById('active-call-screen').style.display = 'none';
+            document.getElementById('dialer-screen').style.display = 'flex';
+            addLog('sys', 'Cellular call terminated.');
+        }
+
+        function drawActiveCallWaveform() {
+            if (!isCalling) return;
+            const canvas = document.getElementById('call-waveform-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.clientWidth;
+            const h = canvas.height = canvas.clientHeight;
+            
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#00f2ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const isConnected = document.getElementById('call-status-label').innerText.includes('ACTIVE');
+            const amp = isConnected ? 15 : 3;
+            
+            for (let i = 0; i < w; i++) {
+                const angle = (i * 0.08) + (Date.now() * 0.015);
+                const y = h/2 + Math.sin(angle) * Math.cos(angle * 0.3) * amp;
+                if (i === 0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.stroke();
+            callWaveformTimer = requestAnimationFrame(drawActiveCallWaveform);
+        }
+
+        // Dialects Voice Simulation System
+        let currentDialect = 'std';
+        
+        const dialectGreetings = {
+            std: "Hello boss! I am JARVIS. How may I assist you today?",
+            ctg: "আসসালামু আলাইকুম বস্! আঁই জার্ভিস। আঁই অনর লাই কী কইত্তাম পারুম কন ও বস্?",
+            syl: "আসসালামু আলাইকুম বচ! আমি জার্ভিস। আপনারে কিতা সাহায্য করতাম পারি কউকা?",
+            nkh: "হালুম বস্! আঁই জার্ভিস। আঁই আমনেরে কিজ্জা সাহায্য কিত্তাম হারুম কন বস্?"
+        };
+
+        const dialectPhrases = {
+            std: [
+                { text: "থ্রিডি ফেস অন করো", response: "3D Face model active, sir." },
+                { text: "যা মন চায় তাই", response: "Stabilizing performance levels to peak optimization state, boss." },
+                { text: "কাল হোস্ট অ্যাক্টিভ করো", response: "Deploying Kali host recon packages." }
+            ],
+            ctg: [
+                { text: "ফেস চালু গরো", response: "ফেস অন গইযি বস্। চউক্ মেলিয়া চাইয়ুম।" },
+                { text: "যা মন চয় তা গরো", response: "যা মনে লয় তা গরি দিয়ুম বস্! ফুল স্পিড বুস্ট।" },
+                { text: "কালি হোস্ট রেডি গরো", response: "কালি হোস্ট হদ্ গইযি বস্। সিকিউরিটি রেডি।" }
+            ],
+            syl: [
+                { text: "ফেস অন করউক্কা", response: "চউখ মেলিয়া রিং ফেস অন করিলাইচি বচ।" },
+                { text: "মন যে কিতা কয় করতে পারউক্কা", response: "মনো কউক্কা বচ, ফুল বুস্ট মারিলাইমু।" },
+                { text: "কালি হোস্ট একটিভ করউক্কা", response: "কালি হোস্ট রেডি করিলাইচি বচ।" }
+            ],
+            nkh: [
+                { text: "ফেস চালু কইরেন", response: "ফেস চালু কইল্লাম বস্। বেগ্গিন চউক্ষে দেহি।" },
+                { text: "যা মন চায় হেজ্ঞা কইরেন", response: "যা মন চায় হেজ্জা কইল্লাম বস্। বুস্ট হাডাইলাম।" },
+                { text: "কালি হোস্ট সচল কইরেন", response: "কালি হোস্ট রেডি কইল্লাম বস্।" }
+            ]
+        };
+
+        function selectDialect(dialect) {
+            currentDialect = dialect;
+            document.querySelectorAll('.dialect-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `d-${dialect}`);
+            });
+            
+            const greet = dialectGreetings[dialect];
+            speakJarvis(greet);
+            
+            // Update Phrase Pills
+            const container = document.getElementById('dialect-quick-phrases');
+            container.innerHTML = '';
+            dialectPhrases[dialect].forEach(p => {
+                const pill = document.createElement('button');
+                pill.style.cssText = 'background: rgba(0,242,255,0.06); border: 1px solid rgba(0,242,255,0.15); color: #88ccff; border-radius: 12px; padding: 4px 10px; font-size: 10px; cursor: pointer; transition: all 0.2s;';
+                pill.innerText = p.text;
+                pill.onclick = () => {
+                    document.getElementById('dialect-input-text').value = p.text;
+                    sendDialectMessage(p.text, p.response);
+                };
+                container.appendChild(pill);
+            });
+        }
+
+        function sendDialectMessage(customMsg, customResp) {
+            const input = document.getElementById('dialect-input-text');
+            const text = customMsg || input.value.trim();
+            if (!text) return;
+            
+            addLog('sys', `Dialect input: "${text}"`);
+            playChime(600, 'sine', 0.1);
+            
+            const response = customResp || `Processed dialect message: "${text}"`;
+            setTimeout(() => {
+                speakJarvis(response);
+            }, 1000);
+            
+            if (!customMsg) input.value = '';
+        }
+
+        // Trigger dialect standard greeting on start
+        setTimeout(() => selectDialect('std'), 1000);
+
+        // Browser YouTube automation simulation
+        let searchTyperInterval = null;
+        let videoProgressInterval = null;
+
+        function switchBrowserView(viewId) {
+            document.getElementById('yt-search-ui').style.display = viewId === 'search' ? 'flex' : 'none';
+            document.getElementById('yt-results-ui').style.display = viewId === 'results' ? 'flex' : 'none';
+            document.getElementById('yt-player-ui').style.display = viewId === 'player' ? 'flex' : 'none';
+        }
+
+        function triggerSimulatedSearch(query) {
+            switchTab('browser');
+            resetBrowserSim();
+            
+            addLog('cmd', `Simulating browser automation to search YouTube for: "${query}"`);
+            
+            const input = document.getElementById('yt-search-input');
+            let idx = 0;
+            searchTyperInterval = setInterval(() => {
+                if (idx < query.length) {
+                    input.value += query[idx];
+                    playChime(800 + idx * 20, 'sine', 0.05);
+                    idx++;
+                } else {
+                    clearInterval(searchTyperInterval);
+                    setTimeout(() => {
+                        addLog('sys', 'Browser Search Query Submitted.');
+                        playChime(1000, 'triangle', 0.15);
+                        document.getElementById('browser-url-text').innerText = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+                        switchBrowserView('results');
+                        
+                        // Speak confirmation
+                        speakJarvis(`Search complete. Opened results page for ${query}.`);
+                    }, 800);
+                }
+            }, 100);
+        }
+
+        function playSimulatedVideo(title) {
+            addLog('cmd', `Simulating video playback for: "${title}"`);
+            document.getElementById('browser-url-text').innerText = `https://www.youtube.com/watch?v=mock`;
+            switchBrowserView('player');
+            startVideoPlaybackAnimation();
+        }
+
+        // Canvas Video player animation simulator
+        let isPlayingVideo = false;
+        let videoTime = 0;
+        const totalDuration = 754; // 12m 34s
+        let videoCanvasTimer = null;
+
+        function startVideoPlaybackAnimation() {
+            isPlayingVideo = true;
+            videoTime = 0;
+            
+            clearInterval(videoProgressInterval);
+            videoProgressInterval = setInterval(() => {
+                if (isPlayingVideo) {
+                    videoTime++;
+                    if (videoTime >= totalDuration) {
+                        videoTime = 0;
+                    }
+                    updatePlayerProgress();
+                }
+            }, 1000);
+
+            drawVideoPlayerFrames();
+        }
+
+        function togglePlayVideo() {
+            isPlayingVideo = !isPlayingVideo;
+            document.getElementById('player-btn-play').innerText = isPlayingVideo ? '⏸️' : '▶️';
+            addLog('sys', isPlayingVideo ? 'Video Resumed' : 'Video Paused');
+        }
+
+        function updatePlayerProgress() {
+            const pct = (videoTime / totalDuration) * 100;
+            document.getElementById('player-progress-bar').style.width = `${pct}%`;
+            
+            const formatTime = t => {
+                const m = Math.floor(t / 60);
+                const s = Math.floor(t % 60);
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            };
+            
+            document.getElementById('player-timer-text').innerText = `${formatTime(videoTime)} / ${formatTime(totalDuration)}`;
+        }
+
+        function seekVideo(e) {
+            const track = document.getElementById('play-bar-track');
+            const rect = track.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            videoTime = Math.floor(pct * totalDuration);
+            updatePlayerProgress();
+            addLog('sys', `Video seeked to ${Math.round(pct*100)}%`);
+        }
+
+        function drawVideoPlayerFrames() {
+            if (document.getElementById('yt-player-ui').style.display === 'none') return;
+            const canvas = document.getElementById('player-animation-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.clientWidth;
+            const h = canvas.height = canvas.clientHeight;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            if (isPlayingVideo) {
+                // Draw rotating geometric patterns simulating retro video playback
+                ctx.strokeStyle = '#ff3131';
+                ctx.lineWidth = 3;
+                
+                const timeFactor = Date.now() * 0.002;
+                ctx.beginPath();
+                ctx.arc(w/2, h/2, 40 + Math.sin(timeFactor)*15, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#00f2ff';
+                ctx.beginPath();
+                ctx.arc(w/2, h/2, 60 + Math.cos(timeFactor*0.7)*10, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#00ff41';
+                ctx.font = '10px Share Tech Mono';
+                ctx.fillText("VIDEO STREAM ACTIVE", 15, 20);
+                ctx.fillText(`FRAME FLUX: ${Math.round(60 + Math.random()*2)} FPS`, 15, 35);
+            } else {
+                ctx.fillStyle = '#ff3131';
+                ctx.font = '20px Share Tech Mono';
+                ctx.fillText("⏸️ PAUSED", w/2 - 45, h/2);
+            }
+
+            videoCanvasTimer = requestAnimationFrame(drawVideoPlayerFrames);
+        }
+
+        function resetBrowserSim() {
+            clearInterval(searchTyperInterval);
+            clearInterval(videoProgressInterval);
+            cancelAnimationFrame(videoCanvasTimer);
+            isPlayingVideo = false;
+            document.getElementById('yt-search-input').value = '';
+            document.getElementById('browser-url-text').innerText = 'https://www.youtube.com';
+            switchBrowserView('search');
+            addLog('sys', 'Browser simulation state reset.');
+        }
+
+        // Action triggers
+        async function triggerCommand(action) {
+            addLog('cmd', `Triggered automation action: ${action.toUpperCase()}`);
+            if (isBackendOnline) {
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/execute_cmd`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: action })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        addLog('sys', `Response: ${data.response}`);
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (e) {
+                    addLog('err', `Backend Command execution failed: ${e.message}`);
+                    runLocalSimulation(action);
+                }
+            } else {
+                runLocalSimulation(action);
+            }
+        }
+
+        function runLocalSimulation(action) {
+            addLog('sys', `Running offline simulation for: ${action.toUpperCase()}`);
+            playChime(500, 'triangle', 0.25);
+            
+            setTimeout(() => {
+                let text = "";
+                if (action === "boost") {
+                    text = "System optimized. Reallocated unused RAM blocks and stabilized CPU core processes.";
+                } else if (action === "clean") {
+                    text = "System cleanup finished. Discarded 1.4 GB of temporary browser and logs cache.";
+                } else if (action === "firewall") {
+                    text = "Infinity Firewall engaged. Blocked incoming network ports, restricting traffic to local spectrum.";
+                } else if (action === "kali") {
+                    text = "Kali security host activated. Loaded Nmap, Wireshark, and SQLMap modules.";
+                } else if (action === "recon") {
+                    text = "WiFi Recon sweep complete. Identified 8 local nodes in range.";
+                } else {
+                    text = `Self check completed. All local simulated sectors are running at peak efficiency.`;
+                }
+                speakJarvis(text);
+            }, 1000);
+        }
+
+        // Image upload simulation (Social Scanner)
+        function simulateImageUpload() {
+            addLog('cmd', 'Target face photo scanning initiated.');
+            playChime(700, 'sawtooth', 0.2);
+            
+            // Simulating image processing delay
+            let progress = 0;
+            const timer = setInterval(() => {
+                progress += 25;
+                addLog('sys', `Image matrix scan: ${progress}%...`);
+                if (progress >= 100) {
+                    clearInterval(timer);
+                    showSimulationReconResults();
+                }
+            }, 400);
+        }
+
+        function showSimulationReconResults() {
+            document.getElementById('social-recon-results').style.display = 'block';
+            
+            const name = "Md. Aminul Islam";
+            const location = "Natore, Lalpur Thana";
+            const conf = "99%";
+            
+            document.getElementById('recon-name').innerText = name;
+            document.getElementById('recon-conf').innerText = conf;
+            document.getElementById('recon-loc').innerText = `29 / ${location}`;
+            document.getElementById('recon-occ').innerText = "Android Mobile Integrator";
+            
+            const links = document.getElementById('recon-links');
+            links.innerHTML = '';
+            
+            const profiles = [
+                { name: 'Facebook', url: `https://www.facebook.com/search/top/?q=Aminul%20Islam` },
+                { name: 'GitHub', url: 'https://github.com/' },
+                { name: 'LinkedIn', url: 'https://www.linkedin.com/' }
+            ];
+            
+            profiles.forEach(p => {
+                const a = document.createElement('a');
+                a.href = p.url;
+                a.target = '_blank';
+                a.style.cssText = 'background: rgba(0,242,255,0.1); border: 1px solid #00f2ff; color: #00f2ff; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 10px;';
+                a.innerText = p.name;
+                links.appendChild(a);
+            });
+            
+            speakJarvis(`Target scanning complete. Identity match: Md. Aminul Islam, located in Natore, Lalpur.`);
+        }
+
+        // Simple fallback canvas visualizer for 3D face to keep UI dynamic
+        const fCanvas = document.getElementById('face-fallback-canvas');
+        const fCtx = fCanvas.getContext('2d');
+        let fAngle = 0;
+
+        function drawFallbackFace() {
+            const w = fCanvas.width = fCanvas.clientWidth;
+            const h = fCanvas.height = fCanvas.clientHeight;
+            fCtx.clearRect(0,0,w,h);
+            
+            fAngle += 0.02;
+            const cx = w/2;
+            const cy = h/2;
+            
+            fCtx.strokeStyle = 'rgba(0, 242, 255, 0.4)';
+            fCtx.lineWidth = 1;
+            
+            // Draw concentric HUD rings
+            for (let r = 30; r < 90; r += 20) {
+                fCtx.beginPath();
+                fCtx.arc(cx, cy, r + Math.sin(fAngle)*3, 0, Math.PI*2);
+                fCtx.stroke();
+            }
+            
+            // Draw rotating orbits
+            fCtx.strokeStyle = '#00ff41';
+            fCtx.beginPath();
+            fCtx.arc(cx, cy, 75, fAngle, fAngle + Math.PI/3);
+            fCtx.stroke();
+            
+            fCtx.beginPath();
+            fCtx.arc(cx, cy, 75, fAngle + Math.PI, fAngle + Math.PI + Math.PI/3);
+            fCtx.stroke();
+            
+            requestAnimationFrame(drawFallbackFace);
+        }
+        drawFallbackFace();
+
+        // Wi-Fi Connected Device Controller Logic
+        function scanWifiNetwork() {
+            const list = document.getElementById('discovered-devices-list');
+            const loader = document.getElementById('net-scan-loader');
+            const consoleBox = document.getElementById('wireless-console');
+            
+            list.innerHTML = '';
+            loader.style.display = 'block';
+            consoleBox.innerHTML = '[NETWORK SCAN INITIATED...]\n';
+            addLog('sys', 'Initiated Wi-Fi network device scanning');
+            
+            fetch('http://localhost:5000/api/network_scan')
+                .then(res => res.json())
+                .then(data => {
+                    loader.style.display = 'none';
+                    if (data.success && data.devices) {
+                        consoleBox.innerHTML += `[SCAN COMPLETE] Found ${data.devices.length} devices.\n`;
+                        addLog('sys', `Network scan completed. Discovered ${data.devices.length} devices.`);
+                        
+                        if (data.devices.length === 0) {
+                            list.innerHTML = '<div style="color: #6688aa; text-align: center; padding: 20px;">No active devices found.</div>';
+                            return;
+                        }
+                        
+                        let html = '<table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">';
+                        html += '<thead style="border-bottom: 1px solid rgba(0, 242, 255, 0.4); color: var(--neon-cyan);">';
+                        html += '<tr><th style="padding: 6px 4px;">DEVICE NAME</th><th style="padding: 6px 4px;">IP ADDRESS</th><th style="padding: 6px 4px; text-align: right;">ACTIONS</th></tr>';
+                        html += '</thead><tbody>';
+                        
+                        data.devices.forEach(dev => {
+                            html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">`;
+                            html += `<td style="padding: 8px 4px; color: #fff;">${dev.name}</td>`;
+                            html += `<td style="padding: 8px 4px; color: var(--neon-cyan); font-weight: bold;">${dev.ip}</td>`;
+                            html += `<td style="padding: 8px 4px; text-align: right; display: flex; gap: 4px; justify-content: flex-end;">`;
+                            
+                            if (dev.type === 'device') {
+                                html += `<button class="btn-cyber" style="padding: 2px 6px; font-size: 9px;" onclick="connectWirelessDevice('${dev.ip}')">🔗 CONNECT</button>`;
+                                html += `<button class="btn-cyber" style="padding: 2px 6px; font-size: 9px; display: none;" id="mirror-btn-${dev.ip.replace(/\./g, '-')}" onclick="mirrorWirelessDevice('${dev.ip}')">📺 MIRROR</button>`;
+                                html += `<button class="btn-cyber" style="padding: 2px 6px; font-size: 9px; display: none;" id="boost-btn-${dev.ip.replace(/\./g, '-')}" onclick="boostWirelessDevice('${dev.ip}')">⚡ BOOST</button>`;
+                            } else if (dev.type === 'host') {
+                                html += `<span style="color: var(--neon-green); font-size: 9px; padding: 2px 6px;">[HOST PC]</span>`;
+                            } else {
+                                html += `<button class="btn-cyber" style="padding: 2px 6px; font-size: 9px;" onclick="pingDeviceWireless('${dev.ip}')">📡 PING</button>`;
+                            }
+                            
+                            html += `</td></tr>`;
+                        });
+                        
+                        html += '</tbody></table>';
+                        list.innerHTML = html;
+                    } else {
+                        consoleBox.innerHTML += `[SCAN FAILED] ${data.error || 'Unknown error'}\n`;
+                        list.innerHTML = `<div style="color: var(--neon-red); text-align: center; padding: 20px;">Scan failed: ${data.error || 'Server error'}</div>`;
+                    }
+                })
+                .catch(err => {
+                    loader.style.display = 'none';
+                    consoleBox.innerHTML += `[API ERROR] Unable to contact backend. Ensure START_JARVIS_SERVER is running.\n`;
+                    list.innerHTML = '<div style="color: var(--neon-red); text-align: center; padding: 20px;">Backend offline. Start unified server.</div>';
+                });
+        }
+        
+        function connectWirelessDevice(ip) {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[CONNECTING] Connecting to ${ip}:5555 wirelessly...\n`;
+            
+            fetch('http://localhost:5000/api/connect_wireless', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip })
+            })
+            .then(res => res.json())
+            .then(data => {
+                consoleBox.innerHTML += `[RESULT] ${data.msg}\n`;
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+                
+                if (data.connected) {
+                    addLog('sys', `Wireless ADB linked to: ${ip}`);
+                    const safeIp = ip.replace(/\./g, '-');
+                    const mirrorBtn = document.getElementById(`mirror-btn-${safeIp}`);
+                    const boostBtn = document.getElementById(`boost-btn-${safeIp}`);
+                    if (mirrorBtn) mirrorBtn.style.display = 'inline-block';
+                    if (boostBtn) boostBtn.style.display = 'inline-block';
+                }
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] Failed to send wireless connect command.\n`;
+            });
+        }
+        
+        function mirrorWirelessDevice(ip) {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[LAUNCHING MIRROR] Launching scrcpy for ${ip}...\n`;
+            
+            fetch('http://localhost:5000/api/mirror_device', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip })
+            })
+            .then(res => res.json())
+            .then(data => {
+                consoleBox.innerHTML += `[MIRROR STATUS] ${data.msg}\n`;
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] Mirroring request failed.\n`;
+            });
+        }
+        
+        function boostWirelessDevice(ip) {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[BOOSTING WIRELESS] Boosting volume and mic channels for ${ip}...\n`;
+            
+            fetch('http://localhost:5000/api/boost_wireless', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip })
+            })
+            .then(res => res.json())
+            .then(data => {
+                consoleBox.innerHTML += `[BOOST RESULT] ${data.msg}\n`;
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] Boosting request failed.\n`;
+            });
+        }
+
+        function mirrorUSBDevice(audioSource) {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[USB MIRROR] Launching scrcpy over USB (audio: ${audioSource})...\n`;
+            
+            fetch('http://localhost:5000/api/mirror_device', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audio_source: audioSource })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    consoleBox.innerHTML += `[MIRROR STATUS] ${data.msg}\n`;
+                    addLog('sys', `USB mirror launched (audio: ${audioSource})`);
+                } else {
+                    consoleBox.innerHTML += `[MIRROR ERROR] ${data.error}\n`;
+                    addLog('err', `Mirror failed: ${data.error}`);
+                }
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] USB Mirroring request failed.\n`;
+            });
+        }
+        
+        function boostUSBDevice() {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[USB BOOST] Boosting volume levels over USB...\n`;
+            
+            fetch('http://localhost:5000/api/boost_wireless', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    consoleBox.innerHTML += `[BOOST STATUS] ${data.msg}\n`;
+                    addLog('sys', `USB volume channels boosted`);
+                } else {
+                    consoleBox.innerHTML += `[BOOST ERROR] ${data.error}\n`;
+                    addLog('err', `Boost failed: ${data.error}`);
+                }
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] Boosting request failed.\n`;
+            });
+        }
+
+        function pingDeviceWireless(ip) {
+            const consoleBox = document.getElementById('wireless-console');
+            consoleBox.innerHTML += `[PING] Pinging node ${ip}...\n`;
+            
+            fetch('http://localhost:5000/api/execute_cmd', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: 'ping ' + ip })
+            })
+            .then(res => res.json())
+            .then(data => {
+                consoleBox.innerHTML += `[PING RESULT] ${data.response}\n`;
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            })
+            .catch(err => {
+                consoleBox.innerHTML += `[ERROR] Ping request failed.\n`;
+            });
+        }
+        // ── ADB DEVICE DISPLAY ───────────────────────────────────────────
+        let adbAutoRefreshTimer = null;
+
+        function renderAdbDeviceCards(devices) {
+            const container = document.getElementById('adb-device-cards');
+            if (!container) return;
+
+            if (!devices || devices.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 20px; color: #5588aa; font-size: 11px;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">📵</div>
+                        <div>No ADB devices detected</div>
+                        <div style="color: #334466; margin-top: 4px; font-size: 10px;">Connect your phone via USB and authorize ADB debugging</div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = devices.map(dev => {
+                const stateColor = dev.state === 'device'       ? 'var(--neon-green)'
+                                 : dev.state === 'unauthorized' ? 'var(--neon-gold)'
+                                 : 'var(--neon-red)';
+                const stateLabel = dev.state === 'device'       ? '✅ ONLINE'
+                                 : dev.state === 'unauthorized' ? '⚠️ UNAUTHORIZED'
+                                 : dev.state === 'offline'      ? '❌ OFFLINE'
+                                 : dev.state.toUpperCase();
+
+                const transportBadge = dev.transport === 'Wi-Fi'
+                    ? `<span style="background: rgba(0,242,255,0.12); border: 1px solid rgba(0,242,255,0.35); color: var(--neon-cyan); border-radius: 3px; padding: 1px 5px; font-size: 9px;">📡 Wi-Fi</span>`
+                    : `<span style="background: rgba(0,255,65,0.1); border: 1px solid rgba(0,255,65,0.3); color: var(--neon-green); border-radius: 3px; padding: 1px 5px; font-size: 9px;">🔌 USB</span>`;
+
+                let batteryHtml = '';
+                if (dev.battery !== null && dev.battery !== undefined) {
+                    const bat = dev.battery;
+                    const batColor = bat >= 60 ? 'var(--neon-green)' : bat >= 25 ? 'var(--neon-gold)' : 'var(--neon-red)';
+                    const batIcon  = bat >= 80 ? '🔋' : bat >= 40 ? '🪫' : '⚡';
+                    batteryHtml = `
+                        <div style="display:flex; align-items:center; gap:6px; margin-top:5px;">
+                            <span style="font-size:10px;">${batIcon}</span>
+                            <div style="flex:1; height:5px; background: rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
+                                <div style="width:${bat}%; height:100%; background:${batColor}; border-radius:3px; transition: width 0.5s;"></div>
+                            </div>
+                            <span style="font-size:10px; color:${batColor}; min-width:32px;">${bat}%</span>
+                        </div>`;
+                }
+
+                const actionBtns = dev.state === 'device' ? `
+                    <div style="display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;">
+                        <button class="btn-cyber" style="padding:2px 7px; font-size:9px;" onclick="mirrorUSBDevice('system')">📺 Mirror</button>
+                        <button class="btn-cyber" style="padding:2px 7px; font-size:9px;" onclick="mirrorUSBDevice('mic')">🎤 Mic Mirror</button>
+                        <button class="btn-cyber" style="padding:2px 7px; font-size:9px;" onclick="boostUSBDevice()">⚡ Boost</button>
+                        <button class="btn-cyber" style="padding:2px 7px; font-size:9px; color:var(--neon-gold);" onclick="grantMicPermission()">🔓 Mic Perm</button>
+                    </div>` : (dev.state === 'unauthorized' ? `
+                    <div style="margin-top:6px; font-size:10px; color:var(--neon-gold);">
+                        ⚠️ Tap "Allow USB Debugging" on your phone screen
+                    </div>` : '');
+
+                return `
+                    <div style="background: rgba(0,10,25,0.6); border: 1px solid rgba(0,242,255,0.2); border-radius: 8px; padding: 12px; transition: border-color 0.2s;"
+                         onmouseover="this.style.borderColor='rgba(0,242,255,0.5)'"
+                         onmouseout="this.style.borderColor='rgba(0,242,255,0.2)'">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:14px; font-weight:bold; color:#fff; letter-spacing:1px;">
+                                    📱 ${dev.model || 'Unknown Device'}
+                                </div>
+                                <div style="font-size:9px; color:#5588aa; margin-top:2px; font-family:'Share Tech Mono',monospace;">
+                                    SN: ${dev.serial}
+                                </div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                                <span style="font-size:10px; font-weight:bold; color:${stateColor};">${stateLabel}</span>
+                                ${transportBadge}
+                            </div>
+                        </div>
+                        ${batteryHtml}
+                        ${actionBtns}
+                    </div>`;
+            }).join('');
+        }
+
+        async function refreshAdbDevices() {
+            const dot = document.getElementById('adb-refresh-dot');
+            if (dot) dot.style.background = 'var(--neon-gold)';
+
+            try {
+                const res = await fetch('http://localhost:5000/api/adb_devices');
+                const data = await res.json();
+                if (data.success) {
+                    renderAdbDeviceCards(data.devices);
+                    if (dot) dot.style.background = 'var(--neon-green)';
+                    // Update header count
+                    const ind = document.getElementById('adb-refresh-indicator');
+                    if (ind) ind.textContent = `${data.count} DEVICE${data.count !== 1 ? 'S' : ''} • AUTO`;
+                } else {
+                    renderAdbDeviceCards([]);
+                    if (dot) dot.style.background = 'var(--neon-red)';
+                }
+            } catch (e) {
+                // Backend offline - show graceful message
+                const container = document.getElementById('adb-device-cards');
+                if (container) container.innerHTML = `
+                    <div style="text-align:center; padding:15px; color:#334466; font-size:11px;">
+                        <div style="font-size:10px;">⚠️ Backend offline — start JARVIS server to enable live ADB display</div>
+                    </div>`;
+                if (dot) dot.style.background = 'var(--neon-red)';
+            }
+        }
+
+        function restartAdbServer() {
+            const consoleBox = document.getElementById('wireless-console');
+            if (consoleBox) consoleBox.innerHTML += '[ADB] Restarting ADB server...\n';
+            addLog('cmd', 'Restarting ADB server (kill-server + start-server)');
+
+            fetch('http://localhost:5000/api/execute_cmd', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: 'cmd adb kill-server && adb start-server' })
+            }).then(() => {
+                setTimeout(() => {
+                    refreshAdbDevices();
+                    if (consoleBox) { consoleBox.innerHTML += '[ADB] Server restarted. Re-scanning devices...\n'; consoleBox.scrollTop = consoleBox.scrollHeight; }
+                }, 2500);
+            }).catch(() => {
+                if (consoleBox) { consoleBox.innerHTML += '[ADB] Could not reach backend.\n'; consoleBox.scrollTop = consoleBox.scrollHeight; }
+            });
+        }
+
+        // Auto-refresh ADB devices every 4 seconds when Android tab is visible
+        function startAdbAutoRefresh() {
+            refreshAdbDevices(); // immediate first load
+            if (adbAutoRefreshTimer) clearInterval(adbAutoRefreshTimer);
+            adbAutoRefreshTimer = setInterval(() => {
+                // Only poll when tab is open
+                const tab = document.getElementById('tab-content-wifi');
+                if (tab && tab.style.display !== 'none') {
+                    refreshAdbDevices();
+                }
+            }, 4000);
+        }
+
+        // Kick off the ADB auto-refresh when the page loads
+        startAdbAutoRefresh();
+
+        function grantMicPermission() {
+            const consoleBox = document.getElementById('wireless-console');
+            const btn = document.getElementById('grant-mic-btn');
+            consoleBox.innerHTML += '[MIC PERMISSION] Granting RECORD_AUDIO to scrcpy on connected device...\n';
+            addLog('cmd', 'Granting microphone access to scrcpy APK via ADB...');
+            if (btn) { btn.style.opacity = '0.5'; btn.disabled = true; }
+
+            fetch('http://localhost:5000/api/grant_mic_permission', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                const status = data.success ? '[GRANTED]' : '[FAILED]';
+                consoleBox.innerHTML += `${status} ${data.msg || data.error}\n`;
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+                addLog(data.success ? 'sys' : 'err', data.msg || data.error);
+                if (btn) {
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                    if (data.success) {
+                        btn.style.borderColor = 'var(--neon-green)';
+                        btn.style.color = 'var(--neon-green)';
+                        btn.textContent = '✅ MIC GRANTED';
+                    }
+                }
+            })
+            .catch(err => {
+                consoleBox.innerHTML += '[ERROR] Could not reach backend. Is the JARVIS server running?\n';
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+                if (btn) { btn.style.opacity = '1'; btn.disabled = false; }
+            });
+        }
+    </script>
+</body>
+</html>

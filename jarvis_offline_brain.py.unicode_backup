@@ -1,0 +1,227 @@
+
+import sys
+import os
+import platform
+import time
+import sqlite3
+
+# Define availability flags (simplified for test/cleanup)
+SUPER_BRAIN_AVAILABLE = True
+AUTONOMOUS_AVAILABLE = True
+INTERNET_LEARNER_AVAILABLE = True
+ULTIMATE_LEARNER_AVAILABLE = True
+AUTO_LEARNER_AVAILABLE = True
+INFINITE_TAB_LEARNER_AVAILABLE = True
+CHROME_DEVTOOLS_AVAILABLE = True
+CHAT_HISTORY_AVAILABLE = True
+SMART_SUGGESTIONS_AVAILABLE = True
+SYSTEM_ANALYZER_AVAILABLE = True
+ULTIMATE_INTELLIGENCE_AVAILABLE = True
+UNIFIED_AUTO_LEARNER_AVAILABLE = True
+INTELLIGENT_ANSWER_ENGINE_AVAILABLE = True
+SELF_HEALING_AVAILABLE = True
+SELF_IMPROVEMENT_AVAILABLE = True
+SELF_BUILDER_AVAILABLE = True
+INFO_GATHERER_AVAILABLE = True
+BANGLA_VOCAB_AVAILABLE = True
+
+try:
+    from jarvis_human_brain import HumanBrain
+    HUMAN_BRAIN_AVAILABLE = True
+except ImportError:
+    HUMAN_BRAIN_AVAILABLE = False
+    print("Human Brain not available")
+
+class OfflineBrain:
+    """JARVIS Brain that works without API keys"""
+    
+    def __init__(self):
+        self.db_path = 'jarvis_memory.db.fixed-20260504-091901'
+        self.system = platform.system()
+        self.conn = None
+        self.knowledge = {}
+        
+        # --- INSTANT SOUL INITIALIZATION (PRIORITY) ---
+        try:
+            from jarvis_ultimate_intelligence import UltimateIntelligence
+            self.ultimate_intelligence = UltimateIntelligence(self)
+            print("JARVIS SUPREME SOUL INITIALIZED!")
+        except Exception as e:
+            self.ultimate_intelligence = None
+            print(f"Soul initialization error: {e}")
+
+        # --- LAZY LOADING PLACEHOLDERS ---
+        self.super_brain = None
+        self.autonomous = None
+        self.internet_learner = None
+        self.ultimate_learner = None
+        self.auto_learner = None
+        self.infinite_tab_learner = None
+        self.tree_tab_learner = None
+        self.tree_auto_learner = None
+        self.chrome_devtools = None
+        self.chat_history = None
+        self.smart_suggestions = None
+        self.system_analyzer = None
+        self.human_brain = None
+        
+        # Load core knowledge
+        self.load_knowledge()
+        
+        # Initialize Human Brain (Priority for emotional awareness)
+        if HUMAN_BRAIN_AVAILABLE:
+            try:
+                from jarvis_human_brain import HumanBrain
+                self.human_brain = HumanBrain(self)
+                print("HUMAN BRAIN INITIALIZED!")
+            except Exception as e:
+                print(f"Human Brain initialization error: {e}")
+
+    def load_knowledge(self):
+        """Load knowledge from database"""
+        try:
+            import sqlite3
+            self.conn = sqlite3.connect(self.db_path)
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT topic, content FROM knowledge_base")
+            self.knowledge = {row[0]: row[1] for row in cursor.fetchall()}
+            print(f"Loaded {len(self.knowledge)} knowledge entries")
+        except Exception as e:
+            print(f"Could not load knowledge: {e}")
+            self.knowledge = {}
+
+    def process_query(self, user_input):
+        """Process query - wrapper for process_command (for compatibility)"""
+        if self.ultimate_intelligence:
+            return self.ultimate_intelligence.process_with_intelligence(user_input)
+        return self.process_command(user_input)
+    
+    def process_command(self, user_input):
+        """Process user command without API - with smart responses!"""
+        user_input = user_input.strip()
+        user_lower = user_input.lower()
+        
+        print(f"\n[JARVIS OFFLINE BRAIN] Processing: {user_input}")
+        
+        # Smart response system - common questions
+        smart_responses = {
+            # Greetings
+            'hi': "Hello! I'm JARVIS. How can I help you?",
+            'hello': "Hello! I'm JARVIS, your AI assistant. What can I do for you?",
+            'hey': "Hey there! JARVIS at your service!",
+            'kamon acho': "Ami bhalo achi! Apni kamon achen?",
+            'kamon achen': "Ami bhalo achi sir! Apnar ki help dorkar?",
+            'apni kamon achen': "Ami valo achi sir, apni kemon achen?",
+            'ki koro': "Ami apnar AI assistant JARVIS. Ami apnake help korte pari programming, system tasks, information - sob kichu te!",
+            'ki korcho': "Ami ready achi apnake help korar jonno! Ki dorkar?",
+            'valo': "Khub bhalo! Ami khushi je apni valo achen. Ami ki help korte pari?",
+            'bhalo': "Asha kori apni valo thakben! Ami ki help korte pari?",
+            
+            # What can you do
+            'tumi ki korte paro': "Ami onek kichu korte pari! System clean, file management, programming help, information provide, network operations, screenshot, automation - aro onek kichu! Apni ki korte chan?",
+            'apni ki korte paren': "Ami apnake help korte pari: Programming questions, System automation, File operations, Network tasks, Information gathering, Screenshot, Clean system - ebong aro onek kichu te! Ki dorkar?",
+            'apni ki ki korta paren': "Ami korte pari: 1) Programming help (Python, JavaScript, etc), 2) System tasks (clean, screenshot, file management), 3) Network operations (scan, ping), 4) Information provide, 5) Automation tasks. Apni ki korte chan?",
+            'ki ki korte paro': "Ami korte pari: System control, Programming help, File management, Network operations, Information gathering, Automation, Screenshot, Clean system, ebong aro onek kichu! Specific ki dorkar?",
+            
+            # Python related
+            'python ki': "Python holo ekta high-level programming language. Eta easy to learn, powerful, ebong onek kaj e use hoy - web development, data science, AI, automation sob kichu te!",
+            'py ki': "Python (py) holo ekta popular programming language. Eta simple syntax, powerful libraries ebong versatile - tai onek developer er favorite!",
+            'python': "Python ekta versatile programming language. Apni ki Python somporke jante chan?",
+            
+            # pip related
+            'pip ki': "pip holo Python er package manager. Eta diye apni Python packages install, update ebong manage korte paren. Example: pip install numpy",
+            'pip': "pip holo Python Package Installer. Eta use kore apni third-party libraries install korte paren.",
+            'ami pip ki jasna dorkar': "pip holo Python er package manager. Eta diye packages install kora jay. Example: pip install requests. Apni ki kono specific package install korte chan?",
+            
+            # Programming concepts
+            'programming ki': "Programming holo computer ke instructions deya - code likhe. Eta diye apni software, apps, websites, games - sob kichu banate paren!",
+            'coding ki': "Coding mane holo programming language use kore computer ke instructions deya. Eta ekta creative ebong powerful skill!",
+            
+            # AI related
+            'ai ki': "AI (Artificial Intelligence) holo machine er intelligence - computer system jeta human er moto think ebong learn korte pare.",
+            'machine learning ki': "Machine Learning holo AI er ekta part jekhane computer data theke automatically learn kore ebong improve hoy.",
+            
+            # JARVIS related
+            'tumi ki': "Ami JARVIS - ekta advanced AI assistant. Ami apnake help korte pari programming, system tasks, information - sob kichu te!",
+            'tumi ke': "Ami JARVIS, apnar personal AI assistant. Ami apnar PC control korte pari, information dite pari, ebong onek kichu korte pari!",
+            'jarvis ki': "Ami JARVIS - Just A Rather Very Intelligent System. Ami apnar AI assistant jeta apnake help kore sob kaj e!",
+            'apni ke': "Ami JARVIS, apnar AI assistant. Ami apnake help korte pari programming, system automation, information - sob kichu te!",
+            'apni ki': "Ami JARVIS, ekta advanced AI assistant. Ami apnar PC er sob kichu control korte pari ebong apnake help korte pari!",
+            
+            # Names and meanings
+            'asif': "Asif ekta Arabic origin er nam jeta 'forgiveness' ba 'pardon' mane. Eta ekta sundor ebong meaningful nam!",
+            'asif nam ar mane ki': "Asif nam er mane holo 'ক্ষমাশীল' ba 'forgiver'. Eta Arabic origin er ekta noble nam jeta kindness ebong compassion represent kore.",
+            'asif nam ar mane': "Asif mane holo 'ক্ষমাশীল' (forgiving/merciful). Eta ekta beautiful Arabic nam jeta positive qualities represent kore.",
+            
+            # Creator/Developer
+            'ai asif apnt nirmata': "Ami JARVIS, ekta AI assistant. Ami apnar help korar jonno create kora hoyeche. Asif jodi apnar developer ba creator hon, tahole ami tar jonno proud! Ami ki help korte pari?",
+            'tumi ke baniyeche': "Ami JARVIS, ekta AI system. Ami create kora hoyeche apnake help korar jonno. Ami ki help korte pari?",
+            'apnar creator ke': "Ami ekta AI assistant. Ami apnake help korar jonno design kora hoyeche. Ki dorkar apnar?",
+            
+            # Help
+            'help': "Ami apnake help korte pari: Programming questions, System tasks, Information, File management, Network operations - ebong aro onek kichu te!",
+            'help koro': "Bolun ki help dorkar! Ami ready achi programming, system tasks, information - sob kichu te help korar jonno!",
+            'amake help koro': "Ami apnake help korte pari! Bolun ki dorkar - programming, system tasks, information, ba onno kichu?",
+        }
+        
+        # Check for exact match first
+        if user_lower in smart_responses:
+            response = smart_responses[user_lower]
+            print(f"✅ Exact match found: {user_lower}")
+            return {'status': 'success', 'response': response, 'type': 'smart_response'}
+        
+        # Check for partial match (more flexible matching)
+        for key, value in smart_responses.items():
+            # Check if key words are in user input
+            key_words = key.split()
+            user_words = user_lower.split()
+            
+            # If all key words are in user input, it's a match
+            if all(word in user_lower for word in key_words):
+                print(f"✅ Partial match found: {key} in {user_lower}")
+                return {'status': 'success', 'response': value, 'type': 'smart_response'}
+            
+            # Or if user input is contained in key
+            if user_lower in key or key in user_lower:
+                print(f"✅ Contains match found: {key} <-> {user_lower}")
+                return {'status': 'success', 'response': value, 'type': 'smart_response'}
+        
+        # Check knowledge base
+        if user_lower in self.knowledge:
+            print(f"✅ Knowledge base match: {user_lower}")
+            return {'status': 'success', 'response': self.knowledge[user_lower], 'type': 'knowledge'}
+        
+        # Try ultimate intelligence if available
+        if self.ultimate_intelligence:
+            try:
+                result = self.ultimate_intelligence.process_with_intelligence(user_input)
+                if result and result.get('response'):
+                    # Check if it's not a generic response
+                    response = result.get('response', '')
+                    generic_phrases = ['ami ekhon offline', 'i am here for you', 'ami apnar pashe']
+                    is_generic = any(phrase in response.lower() for phrase in generic_phrases)
+                    
+                    if not is_generic:
+                        print(f"✅ Ultimate intelligence gave good response")
+                        return result
+                    else:
+                        print(f"⚠️ Ultimate intelligence gave generic response")
+            except Exception as e:
+                print(f"Ultimate intelligence error: {e}")
+        
+        # Final fallback - but make it more helpful
+        print(f"⚠️ No match found, using fallback")
+        return {
+            'status': 'info', 
+            'response': f"Ami '{user_input}' somporke nishchit na. Apni World AI Chat use korte paren better answer er jonno, ba API key add korte paren.",
+            'type': 'fallback'
+        }
+    
+    def close(self):
+        """Close database connection and cleanup resources"""
+        try:
+            if self.conn:
+                self.conn.close()
+                print("✅ OfflineBrain database connection closed")
+        except Exception as e:
+            print(f"⚠️ Error closing OfflineBrain connection: {e}")

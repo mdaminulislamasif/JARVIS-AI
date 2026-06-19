@@ -1,0 +1,3444 @@
+import os
+import sys
+import threading
+import math
+import subprocess
+import time
+import webbrowser
+import psutil
+import pyautogui
+import customtkinter as ctk
+from PIL import Image, ImageTk
+
+# Import Modular JARVIS Components
+from core.brain import JarvisBrain
+from core.database import init_db, save_chat, get_recent_history
+from core.auth import get_session, logout, auto_apply_key_to_config
+from core.login_window import check_and_login
+from engine.voice import VoiceEngine
+from engine.mobile_server import start_server, get_ip
+from engine.face3d import Face3D
+from engine.automation import (
+    clean_system, start_workspace, take_screenshot, scan_network,
+    ping_device, get_system_stats, copy_to_clipboard, control_volume,
+    get_running_processes, get_memory_info, save_note, open_task_manager,
+    lock_computer, shutdown_computer, restart_computer, get_disk_info, open_explorer,
+    run_net_command, get_network_users, boost_game, android_boost, setup_kali_mode,
+    setup_remote_desktop, start_remote_connection, auto_collect_info, scan_for_viruses,
+    force_kill_process, empty_recycle_bin, set_brightness, media_control, deploy_bot,
+    create_screen_share, scan_wifi, share_files, deep_port_scan, generate_payload,
+    scan_bluetooth, ducky_deploy, alien_cipher, signal_scan, find_and_connect, manage_device,
+    neutralize_badshah, setup_infinity_firewall, browser_control, control_window,
+    scan_router_devices, router_connect, web_security_audit, app_control, self_check
+)
+# New engine modules
+from engine.generator import (
+    generate_text, generate_image, generate_audio, generate_video,
+    generate_3d_model, generate_file, generate_photo, list_generated, open_generated,
+    GEN_DIR,
+)
+from engine.streaming import stream_think, detect_bugs, AutoController, start_super_host
+from engine.multi_brain import MultiBrain
+
+# File Upload System
+from jarvis_file_handler import handle_file_upload, get_recent_uploads
+from jarvis_upload_ui import add_file_upload_button
+
+# Search Learning System
+from jarvis_search_learner import SearchLearner
+
+# Article Learning System
+from jarvis_article_learner import ArticleLearner
+
+# Translation System
+from jarvis_translator import JarvisTranslator
+
+# All Functions Panel
+from jarvis_all_functions_panel import open_all_functions_panel
+
+# Natural Interface
+from jarvis_natural_interface import NaturalInterface
+
+# Keyboard Shortcuts
+from jarvis_keyboard_shortcuts import KeyboardShortcuts
+
+# World AI Chat (Fallback when API keys don't work)
+from jarvis_world_ai_chat import WorldAIChat
+
+# Direct AI Chat (JARVIS chats automatically - no browser needed!)
+from jarvis_direct_ai_chat import DirectAIChat
+
+# Voice Control Panel (Advanced voice settings!)
+from jarvis_voice_control_panel import open_voice_control_panel
+
+# Auto AI Learner (JARVIS learns automatically!)
+from jarvis_auto_ai_learner import AutoAILearner
+
+# =============================================================================
+# ANTIGRAVITY MASTER ENGINE CONFIG
+# =============================================================================
+_WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
+_DESKTOP_AI    = os.path.join(os.environ.get('USERPROFILE', ''), 'Desktop', 'ai')
+
+# Prefer workspace-local files; fall back to Desktop/ai/
+def _resolve(filename):
+    ws = os.path.join(_WORKSPACE_DIR, filename)
+    return ws if os.path.exists(ws) else os.path.join(_DESKTOP_AI, filename)
+
+BASE_DIR          = _WORKSPACE_DIR
+CONFIG_PATH       = _resolve('jarvis_config.txt')
+FACE_IMAGE_PATH   = _resolve('jarvis_face.png')
+FACE_GLB_PATH     = _resolve('jarvis_face.glb')
+OPENAI_CONFIG_PATH = os.path.join(_DESKTOP_AI, 'openai_config.txt')
+
+def get_saved_keys():
+    """Load all valid Gemini API keys from config file."""
+    keys = []
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, 'r') as f:
+            keys = [line.strip() for line in f.readlines()
+                    if line.strip().startswith("AIza") and len(line.strip()) > 30]
+    return keys
+
+def get_openai_keys():
+    """Load all valid OpenAI API keys."""
+    keys = []
+    if os.path.exists(OPENAI_CONFIG_PATH):
+        with open(OPENAI_CONFIG_PATH, 'r') as f:
+            keys = [line.strip() for line in f.readlines()
+                    if line.strip().startswith("sk-") and len(line.strip()) > 20]
+    return keys
+
+def save_new_key(key):
+    """Save a new key — auto-detects Gemini vs OpenAI."""
+    key = key.strip()
+    if key.startswith("AIza") and len(key) > 30:
+        ok, reason = JarvisBrain.validate_key(key)
+        if not ok:
+            # 404 is commonly "model not available for this endpoint", not a bad key.
+            if "404" not in reason and "not_found" not in reason.lower():
+                raise ValueError(f"Gemini key invalid: {reason[:120]}")
+        keys = get_saved_keys()
+        if key not in keys:
+            keys.insert(0, key)
+            with open(CONFIG_PATH, 'w') as f:
+                for k in keys:
+                    f.write(k + "\n")
+    elif key.startswith("sk-") and len(key) > 20:
+        keys = get_openai_keys()
+        if key not in keys:
+            keys.insert(0, key)
+            with open(OPENAI_CONFIG_PATH, 'w') as f:
+                for k in keys:
+                    f.write(k + "\n")
+    else:
+        raise ValueError("Invalid API key format (expects AIza... or sk-...).")
+
+
+# Initialize Database
+init_db()
+
+# =============================================================================
+# ANIMATED NEON CORE (3D FACE ENGINE)
+# =============================================================================
+class AntigravityCore(ctk.CTkCanvas):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, highlightthickness=0, bg="#02050A", **kwargs)
+        self.state = "idle"
+        self.anim = 0
+        self.scale = 1.0
+        self.raw_img = None
+        self.img = None
+        self._blink_until = 0.0
+        self._next_blink_at = 0.0
+        self._mouth_phase = 0.0
+        self.load_avatar()
+        self.run_anim()
+
+    def load_avatar(self):
+        try:
+            path = FACE_IMAGE_PATH
+            if os.path.exists(path):
+                self.raw_img = Image.open(path).convert("RGBA")
+                self.update_image()
+            else:
+                self.raw_img = None
+                self.img = None
+        except Exception:
+            self.raw_img = None
+            self.img = None
+
+    def update_image(self):
+        if self.raw_img is None:
+            self.img = None
+            return
+        # Pulsing effect based on animation state
+        s = int(220 + 10 * math.sin(self.anim * 3))
+        resized = self.raw_img.resize((s, s), Image.Resampling.LANCZOS)
+        self.img = ImageTk.PhotoImage(resized)
+
+    def set_state(self, state):
+        self.state = state
+
+    def draw(self):
+        self.delete("all")
+        cx, cy = 150, 150
+        
+        # Determine Color based on state
+        color = "#00FF41" # Neon Green (Idle)
+        if self.state == "listening": color = "#00F3FF" # Cyan
+        elif self.state == "thinking": color = "#FFD700" # Gold
+        elif self.state == "speaking": color = "#FF3131" # Red
+
+        # 1. Digital Matrix Rain (Background)
+        import random
+        for _ in range(15):
+            x = random.randint(0, 300)
+            y = (self.anim * 200 + random.randint(0, 300)) % 300
+            char = random.choice("01$#@!%^&*")
+            self.create_text(x, y, text=char, fill="#002200", font=("Courier New", 10))
+
+        # Perspective Scaling (Camera Angle Simulation)
+        persp_y = 0.85 # Skew Y to simulate 30-degree tilt
+        
+        # Outer Pulsing HUD Rings
+        p1 = 120 + 10 * math.sin(self.anim * 2)
+        p2 = 135 + 5 * math.cos(self.anim * 1.5)
+        p3 = 145 + 3 * math.sin(self.anim * 4)
+        
+        # Draw Concentric HUD Rings with Perspective
+        self.create_oval(cx-p1, cy-p1*persp_y, cx+p1, cy+p1*persp_y, outline=color, width=1, dash=(2, 4))
+        self.create_oval(cx-p2, cy-p2*persp_y, cx+p2, cy+p2*persp_y, outline=color, width=2)
+        self.create_oval(cx-p3, cy-p3*persp_y, cx+p3, cy+p3*persp_y, outline=color, width=1)
+
+        # Glitch Effect (Random Lines)
+        if random.random() > 0.95:
+            gy = random.randint(50, 250)
+            self.create_line(cx-150, gy, cx+150, gy, fill=color, width=1)
+
+        # Scanning Beam Effect
+        scan_y = cy - 150 + (self.anim * 100 % 300)
+        if 0 < scan_y < 300:
+            self.create_line(cx-140, scan_y, cx+140, scan_y, fill=color, width=1, dash=(1, 1))
+
+        # Rotating Arcs (3D Skewed)
+        start_ang = (self.anim * 50) % 360
+        self.create_arc(cx-110, cy-110*persp_y, cx+110, cy+110*persp_y, outline=color, width=3, start=start_ang, extent=60, style="arc")
+        self.create_arc(cx-110, cy-110*persp_y, cx+110, cy+110*persp_y, outline=color, width=3, start=start_ang+180, extent=60, style="arc")
+        
+        # Orbital Data Nodes (Particle Effect)
+        for i in range(8):
+            ang = (self.anim * 0.8) + (i * 45 * (math.pi/180))
+            r = 150 + 5 * math.sin(self.anim * 3 + i)
+            x, y = cx + r * math.cos(ang), cy + r * math.sin(ang) * persp_y
+            self.create_oval(x-2, y-2, x+2, y+2, fill=color, outline=color)
+            if i % 2 == 0:
+                self.create_line(cx + (r-30)*math.cos(ang), cy + (r-30)*math.sin(ang)*persp_y, x, y, fill=color, width=1)
+
+        # Draw Face
+        if self.img:
+            # Floating movement
+            off_y = 5 * math.sin(self.anim * 2)
+            self.create_image(cx, cy + off_y, image=self.img)
+            self._draw_face_overlays(cx, cy + off_y, color)
+        else:
+            self.create_text(cx, cy, text="NO_FACE", fill=color, font=("Courier New", 20, "bold"))
+
+    def _draw_face_overlays(self, cx, cy, color):
+        """
+        Simple 2D eye blink + mouth open/close overlay.
+        Works without extra assets (drawn with canvas shapes).
+        """
+        now = time.time()
+
+        # Blink scheduling
+        if self._next_blink_at <= 0.0:
+            self._next_blink_at = now + 2.5 + (2.5 * abs(math.sin(self.anim * 0.37)))
+        if now >= self._next_blink_at:
+            self._blink_until = now + 0.12
+            self._next_blink_at = now + 2.5 + (3.5 * abs(math.sin(self.anim * 0.51)))
+
+        blinking = now < self._blink_until
+
+        # Face feature positions (tuned for 220px-ish avatar)
+        eye_y = cy - 25
+        left_eye_x = cx - 38
+        right_eye_x = cx + 38
+
+        # Make overlay always visible over the avatar art
+        color = "#00F3FF" if self.state != "speaking" else "#FF3131"
+        w = 4
+
+        # Eyes
+        if blinking:
+            self.create_line(left_eye_x - 14, eye_y, left_eye_x + 14, eye_y, fill=color, width=w)
+            self.create_line(right_eye_x - 14, eye_y, right_eye_x + 14, eye_y, fill=color, width=w)
+        else:
+            self.create_oval(left_eye_x - 10, eye_y - 6, left_eye_x + 10, eye_y + 6, outline=color, width=w)
+            self.create_oval(right_eye_x - 10, eye_y - 6, right_eye_x + 10, eye_y + 6, outline=color, width=w)
+            # Pupils (subtle movement)
+            px = 2.5 * math.sin(self.anim * 1.2)
+            py = 1.5 * math.sin(self.anim * 0.9)
+            self.create_oval(left_eye_x - 3 + px, eye_y - 3 + py, left_eye_x + 3 + px, eye_y + 3 + py, fill=color, outline="")
+            self.create_oval(right_eye_x - 3 + px, eye_y - 3 + py, right_eye_x + 3 + px, eye_y + 3 + py, fill=color, outline="")
+
+        # Mouth
+        mouth_y = cy + 45
+        mouth_w = 48
+        if self.state == "speaking":
+            self._mouth_phase += 0.25
+            open_amt = 6 + 8 * (0.5 + 0.5 * math.sin(self._mouth_phase))
+        elif self.state == "listening":
+            open_amt = 3
+        else:
+            open_amt = 1.5
+
+        x1, y1 = cx - mouth_w / 2, mouth_y - open_amt / 2
+        x2, y2 = cx + mouth_w / 2, mouth_y + open_amt / 2
+        self.create_oval(x1, y1, x2, y2, outline=color, width=w)
+        if self.state == "speaking":
+            self.create_line(cx - 10, mouth_y, cx + 10, mouth_y, fill=color, width=w)
+
+    def run_anim(self):
+        try:
+            self.anim += 0.05
+            if self.anim % 0.2 < 0.05: # Update image size periodically for performance
+                self.update_image()
+            self.draw()
+        except Exception as e:
+            pass  # Ignore animation errors
+        finally:
+            # Schedule next animation frame safely
+            try:
+                if not hasattr(self, '_is_destroying') or not self._is_destroying:
+                    self.after(30, self.run_anim)
+            except Exception:
+                pass  # Widget might be destroyed
+
+# =============================================================================
+# JARVIS ANTIGRAVITY PRIME V11
+# =============================================================================
+class JarvisAntigravity(ctk.CTk):
+    def __init__(self, session: dict = None):
+        super().__init__()
+        self._session = session or {}
+        
+        # Destroying flag to prevent after() errors during shutdown
+        self._is_destroying = False
+
+        self.title("ANTIGRAVITY [JARVIS PRIME V11]")
+        self.geometry("1300x850")
+        ctk.set_appearance_mode("dark")
+        
+        self.neon = "#FF3131" # KILL MODE RED
+        self.cyber = "#00F3FF"
+        self.bg_black = "#02050A"
+        
+        # Initialize Engines (Fast Boot Protocol)
+        self.brain = None
+        self.voice = VoiceEngine()
+        self.face3d = None
+        self.v_lock = threading.Lock()
+        self.is_listening = False
+        self.prefer_bangla_voice = False
+        self.agent_mode = False
+        self.streaming_mode = False          # NEW: streaming AI responses
+        self.multi_brain = MultiBrain()      # NEW: multi-brain system
+        self.auto_ctrl = AutoController()    # NEW: auto controller/scheduler
+        self.auto_ctrl.start()
+        
+        # Initialize Auto Background Learner
+        try:
+            from jarvis_auto_background_learner import AutoBackgroundLearner
+            self.auto_bg_learner = AutoBackgroundLearner()
+            print("✅ Auto Background Learner initialized!")
+        except Exception as e:
+            self.auto_bg_learner = None
+            print(f"⚠️ Auto Background Learner not available: {e}")
+        
+        # Initialize Natural Interface
+        try:
+            self.natural_interface = NaturalInterface()
+            self.natural_interface.load_preferences()
+            print("✅ Natural Interface initialized!")
+        except Exception as e:
+            self.natural_interface = None
+            print(f"⚠️ Natural Interface not available: {e}")
+        
+        # Initialize Keyboard Shortcuts
+        try:
+            self.keyboard_shortcuts = KeyboardShortcuts(callback=self._handle_shortcut)
+            self.keyboard_shortcuts.start()
+            print("✅ Keyboard Shortcuts activated!")
+            print("💡 Press Ctrl+H for shortcuts help")
+        except Exception as e:
+            self.keyboard_shortcuts = None
+            print(f"⚠️ Keyboard Shortcuts not available: {e}")
+        
+        # Initialize World AI Chat (Fallback system)
+        try:
+            self.world_ai_chat = WorldAIChat()
+            print("✅ World AI Chat initialized!")
+        except Exception as e:
+            self.world_ai_chat = None
+            print(f"⚠️ World AI Chat not available: {e}")
+        
+        # Initialize Direct AI Chat (Automatic chat - no browser!)
+        try:
+            self.direct_ai_chat = DirectAIChat()
+            print("✅ Direct AI Chat initialized!")
+            print("💡 JARVIS can now chat with AI automatically!")
+        except Exception as e:
+            self.direct_ai_chat = None
+            print(f"⚠️ Direct AI Chat not available: {e}")
+        
+        # Clipboard monitoring control (FIX: infinite loop problem)
+        self._clipboard_stop_event = threading.Event()
+        self._clipboard_enabled = True
+        self._clipboard_thread = None
+        
+        threading.Thread(target=self.async_init_brain, daemon=True).start()
+        self.start_clipboard_watcher()
+        self._init_face3d()
+        
+        # Register cleanup handler for graceful shutdown
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # Layout
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Sidebar
+        self.left_panel = ctk.CTkFrame(self, width=350, corner_radius=0, fg_color="#010306", border_width=1, border_color="#002233")
+        self.left_panel.grid(row=0, column=0, sticky="nsew")
+        
+        # 3D Face Animation Container
+        self.core = AntigravityCore(self.left_panel, width=300, height=300)
+        self.core.pack(pady=40)
+        face_btns = ctk.CTkFrame(self.left_panel, fg_color="transparent")
+        face_btns.pack(pady=(0, 20))
+        ctk.CTkButton(
+            face_btns,
+            text="FACE ON",
+            width=90,
+            fg_color="#003355",
+            hover_color="#005577",
+            command=self.face3d_on,
+        ).pack(side="left", padx=5)
+        ctk.CTkButton(
+            face_btns,
+            text="FACE OFF",
+            width=90,
+            fg_color="#440000",
+            hover_color="#660000",
+            command=self.face3d_off,
+        ).pack(side="left", padx=5)
+
+        # Sidebar Title
+        ctk.CTkLabel(self.left_panel, text="J.A.R.V.I.S.", font=("Courier New", 24, "bold"), text_color=self.neon).pack(pady=20)
+
+        # Scrollable Module Container
+        self.modules = ctk.CTkScrollableFrame(self.left_panel, fg_color="transparent", width=260)
+        self.modules.pack(expand=True, fill="both", padx=10, pady=5)
+
+        def add_module(title, cmd, color="#002233", hcolor="#004466"):
+            btn = ctk.CTkButton(self.modules, text=title, fg_color=color, hover_color=hcolor, 
+                                command=lambda c=cmd: self.process(c), font=("Courier New", 12, "bold"), height=35)
+            btn.pack(pady=5, padx=10, fill="x")
+
+        # --- ALL FUNCTIONS PANEL BUTTON ---
+        ctk.CTkLabel(self.modules, text="[ QUICK ACCESS ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        all_functions_btn = ctk.CTkButton(
+            self.modules,
+            text="🎯 ALL FUNCTIONS PANEL",
+            fg_color="#FF3131",
+            hover_color="#FF5555",
+            command=self.open_all_functions_panel,
+            font=("Courier New", 14, "bold"),
+            height=50
+        )
+        all_functions_btn.pack(pady=10, padx=10, fill="x")
+        
+        # WORLD AI CHAT BUTTON (NEW!)
+        world_ai_btn = ctk.CTkButton(
+            self.modules,
+            text="🌍 WORLD AI CHAT",
+            fg_color="#00AA00",
+            hover_color="#00CC00",
+            command=self.open_world_ai_chat_direct,
+            font=("Courier New", 14, "bold"),
+            height=50
+        )
+        world_ai_btn.pack(pady=10, padx=10, fill="x")
+        
+        # --- MODULE SECTION: AI LEARNING (NEW!) ---
+        ctk.CTkLabel(self.modules, text="[ AI LEARNING ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        
+        # Auto Learner Toggle Button
+        self.auto_learn_btn = ctk.CTkButton(
+            self.modules,
+            text="🤖 AUTO LEARN: OFF",
+            fg_color="#AA0000",
+            hover_color="#CC0000",
+            command=self.toggle_auto_learner,
+            font=("Courier New", 14, "bold"),
+            height=50
+        )
+        self.auto_learn_btn.pack(pady=10, padx=10, fill="x")
+        
+        # Learning Stats
+        self.learning_stats = ctk.CTkLabel(
+            self.modules,
+            text="📊 Learned: 0 topics | Status: Idle",
+            font=("Courier New", 10),
+            text_color="#888888"
+        )
+        self.learning_stats.pack(pady=5, padx=10)
+        
+        # Learning Settings Button
+        learning_settings_btn = ctk.CTkButton(
+            self.modules,
+            text="⚙️ Learning Settings",
+            fg_color="#003344",
+            hover_color="#005566",
+            command=self.open_learning_settings,
+            font=("Courier New", 12, "bold"),
+            height=35
+        )
+        learning_settings_btn.pack(pady=5, padx=10, fill="x")
+
+        # --- MODULE SECTION: CORE ---
+        ctk.CTkLabel(self.modules, text="[ CORE SYSTEMS ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("SYSTEM CLEAN", "clean")
+        add_module("WORKSPACE", "workspace")
+        add_module("SCREENSHOT", "screenshot")
+        add_module("DISK ANALYZE", "disk")
+        add_module("APP CONTROL", "app help", "#003344", "#005566")
+        add_module("AGENT MODE", "agent on", "#004466", "#006688")
+        add_module("WINDOW CTRL", "window", "#004466", "#006688")
+        add_module("SYSTEM DOCTOR", "doctor", "#004400", "#006600")
+        add_module("SELF FIX", "selfcheck", "#004400", "#006600")
+        add_module("🔍 SYSTEM MONITOR", "monitor", "#006666", "#008888")
+
+        # --- MODULE SECTION: NETWORK ---
+        ctk.CTkLabel(self.modules, text="[ NETWORK OPS ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("RECON SCAN", "recon")
+        add_module("WIFI AUDIT", "wifi")
+        add_module("NET USERS", "users")
+        add_module("DEVICES", "devices")
+        add_module("ROUTER SCAN", "router", "#003344", "#005566")
+
+        # --- MODULE SECTION: ELITE ---
+        ctk.CTkLabel(self.modules, text="[ ELITE TOOLS ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("KALI MODE", "kali", "#440066", "#660088")
+        add_module("REMOTE CONSOLE", "remote", "#440066", "#660088")
+        add_module("FLIPPER MODE", "flipper", "#CC5500", "#EE7700")
+        add_module("ALIEN MODE", "alien", "#006600", "#009900")
+        add_module("VIRUS PURGE", "purge", "#660000", "#990000")
+        add_module("FIREWALL", "firewall", "#004466", "#006688")
+        add_module("BROWSER CTRL", "browser", "#004466", "#006688")
+        add_module("WEB AUDIT", "webaudit", "#226600", "#338800")
+
+        # --- MODULE SECTION: UPLINK ---
+        ctk.CTkLabel(self.modules, text="[ UPLINK ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("MOBILE UPLINK", "mobile", "#664400", "#886600")
+        add_module("SHARE SCREEN", "share", "#004466", "#006688")
+        add_module("SEND FILES", "send", "#004466", "#006688")
+
+        # --- MODULE SECTION: GENERATOR ---
+        ctk.CTkLabel(self.modules, text="[ AI GENERATOR ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("[*] GENERATE IMAGE",    "gen image", "#003300", "#005500")
+        add_module("[*] GENERATE VIDEO",    "gen video", "#003300", "#005500")
+        add_module("[*] GENERATE AUDIO",    "gen audio", "#003300", "#005500")
+        add_module("[*] GENERATE 3D MODEL", "gen 3d",    "#003300", "#005500")
+        add_module("[*] GENERATE TEXT",     "gen text",  "#003300", "#005500")
+        add_module("[*] GENERATE FILE",     "gen file",  "#003300", "#005500")
+        add_module("[>] LIST GENERATED",    "gen list",  "#002200", "#004400")
+        add_module("[>] OPEN GEN FOLDER",   "gen folder","#002200", "#004400")
+
+        # --- MODULE SECTION: MULTI-BRAIN ---
+        ctk.CTkLabel(self.modules, text="[ MULTI-BRAIN ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("[AI] BRAIN STATUS",    "brain status",   "#220044", "#440066")
+        add_module("[AI] OLLAMA (LOCAL)",  "brain ollama",   "#220044", "#440066")
+        add_module("[AI] GROQ FAST",       "brain groq",     "#220044", "#440066")
+        add_module("[AI] PARALLEL THINK",  "brain parallel", "#330055", "#550077")
+        add_module("[~] STREAMING MODE",   "stream toggle",  "#004433", "#006655")
+
+        # --- MODULE SECTION: SYSTEM CONTROL ---
+        ctk.CTkLabel(self.modules, text="[ AUTO CONTROL ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("[T] SCHEDULE TASK", "auto schedule", "#003344", "#005566")
+        add_module("[T] LIST TASKS",    "auto list",     "#003344", "#005566")
+        add_module("[W] SUPER HOST",    "superhost",     "#004422", "#006644")
+        add_module("[!] BUG DETECT",    "bugcheck",      "#440000", "#660000")
+        add_module("[+] AUTO FIX BUGS", "bugfix",        "#440000", "#660000")
+
+        # --- MODULE SECTION: LEARNING ---
+        ctk.CTkLabel(self.modules, text="[ AUTO LEARNING ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("🤖 AUTO BG LEARN", "autobg", "#FF3131", "#FF5555")
+        add_module("🔍 SEARCH & LEARN", "searchlearn", "#006644", "#008866")
+        add_module("📚 LEARN 10 WORDS", "learn10", "#004466", "#006688")
+        add_module("📖 LEARN 50 WORDS", "learn50", "#003355", "#005577")
+        add_module("📜 SEARCH HISTORY", "searchhistory", "#332200", "#554400")
+        add_module("📄 LEARN ARTICLE", "learnarticle", "#004488", "#0066AA")
+        add_module("📋 ARTICLE LIST", "articlelist", "#332200", "#554400")
+        
+        # --- MODULE SECTION: TRANSLATOR ---
+        ctk.CTkLabel(self.modules, text="[ TRANSLATOR ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        add_module("🌍 TRANSLATE", "translate", "#004466", "#006688")
+        add_module("🔤 LANGUAGES", "languages", "#003344", "#005566")
+        add_module("📝 TRANS HISTORY", "transhistory", "#332200", "#554400")
+        
+        # --- MODULE SECTION: SYSTEM (NEW!) ---
+        ctk.CTkLabel(self.modules, text="[ SYSTEM ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        
+        # Permissions Button
+        permissions_btn = ctk.CTkButton(
+            self.modules,
+            text="🔐 GRANT PERMISSIONS",
+            fg_color="#440066",
+            hover_color="#660088",
+            command=self.request_permissions,
+            font=("Courier New", 14, "bold"),
+            height=45
+        )
+        permissions_btn.pack(pady=10, padx=10, fill="x")
+        
+        # System Settings Button
+        system_settings_btn = ctk.CTkButton(
+            self.modules,
+            text="⚙️ System Settings",
+            fg_color="#003344",
+            hover_color="#005566",
+            command=self.open_system_settings,
+            font=("Courier New", 12, "bold"),
+            height=35
+        )
+        system_settings_btn.pack(pady=5, padx=10, fill="x")
+        
+        # --- MODULE SECTION: VOICE CONTROL ---
+        ctk.CTkLabel(self.modules, text="[ VOICE CONTROL ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        
+        # Voice Control Panel Button (BIG and PROMINENT!)
+        voice_control_btn = ctk.CTkButton(
+            self.modules,
+            text="🎤 VOICE CONTROL PANEL",
+            fg_color="#FF3131",
+            hover_color="#FF5555",
+            command=self.open_voice_control_panel,
+            font=("Courier New", 14, "bold"),
+            height=50
+        )
+        voice_control_btn.pack(pady=10, padx=10, fill="x")
+        
+        # Bengali Voice Selector Button (NEW!)
+        bangla_voice_btn = ctk.CTkButton(
+            self.modules,
+            text="🇧🇩 BENGALI VOICE SELECTOR",
+            fg_color="#006600",
+            hover_color="#009900",
+            command=self.open_bangla_voice_selector,
+            font=("Courier New", 14, "bold"),
+            height=50
+        )
+        bangla_voice_btn.pack(pady=10, padx=10, fill="x")
+        
+        # Microphone ON/OFF Button (NEW!)
+        self.mic_enabled = True
+        self.mic_button = ctk.CTkButton(
+            self.modules,
+            text="🎤 MIC: ON",
+            fg_color="#00AA00",
+            hover_color="#00CC00",
+            command=self.toggle_microphone,
+            font=("Courier New", 14, "bold"),
+            height=45
+        )
+        self.mic_button.pack(pady=10, padx=10, fill="x")
+        
+        # Quick Voice Actions
+        voice_quick_frame = ctk.CTkFrame(self.modules, fg_color="transparent")
+        voice_quick_frame.pack(pady=5, padx=10, fill="x")
+        
+        ctk.CTkButton(
+            voice_quick_frame,
+            text="🔊 Test",
+            width=60,
+            height=35,
+            fg_color="#004466",
+            hover_color="#006688",
+            command=lambda: self.speak("Hello! I am JARVIS. Voice test successful!")
+        ).pack(side="left", padx=2)
+        
+        ctk.CTkButton(
+            voice_quick_frame,
+            text="🐌 Slow",
+            width=60,
+            height=35,
+            fg_color="#003344",
+            hover_color="#005566",
+            command=lambda: self.set_voice_speed(150)
+        ).pack(side="left", padx=2)
+        
+        ctk.CTkButton(
+            voice_quick_frame,
+            text="⚡ Fast",
+            width=60,
+            height=35,
+            fg_color="#003344",
+            hover_color="#005566",
+            command=lambda: self.set_voice_speed(200)
+        ).pack(side="left", padx=2)
+        
+        ctk.CTkButton(
+            voice_quick_frame,
+            text="🔄 Reset",
+            width=60,
+            height=35,
+            fg_color="#664400",
+            hover_color="#886600",
+            command=lambda: self.set_voice_speed(165)
+        ).pack(side="left", padx=2)
+
+        # --- MODULE SECTION: NEURAL ---
+        ctk.CTkLabel(self.modules, text="[ NEURAL PROTOCOLS ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=5)
+        self.key_entry = ctk.CTkEntry(self.modules, placeholder_text="New API Key...", height=35, fg_color="#000000", border_color="#002233")
+        self.key_entry.pack(pady=5, padx=10, fill="x")
+        
+        btn_frame = ctk.CTkFrame(self.modules, fg_color="transparent")
+        btn_frame.pack(pady=5, padx=10, fill="x")
+        ctk.CTkButton(btn_frame, text="PASTE", width=45, fg_color="#004466", hover_color="#006688", command=self.paste_key).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="SYNC", width=45, fg_color="#002233", hover_color="#004466", command=self.sync_key).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="PING", width=45, fg_color="#003344", hover_color="#005566", command=self.ping_key).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="TEST", width=45, fg_color="#444400", hover_color="#666600", command=self.test_keys).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="MODEL", width=45, fg_color="#440044", hover_color="#660066", command=self.rotate_brain_model).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="RESET", width=45, fg_color="#660000", hover_color="#880000", command=self.async_init_brain).pack(side="left", padx=2)
+        ctk.CTkButton(btn_frame, text="GET KEY", width=45, fg_color="#006644", hover_color="#008866", command=lambda: webbrowser.open("https://aistudio.google.com/app/apikey")).pack(side="left", padx=2)
+
+        # --- MODULE SECTION: ACTIVITY ---
+        ctk.CTkLabel(self.modules, text="[ LIVE ACTIVITY ]", font=("Courier New", 10, "bold"), text_color="#555555").pack(pady=10)
+        self.activity_feed = ctk.CTkTextbox(self.modules, height=150, font=("Courier New", 10), fg_color="#05080F", text_color="#00FF41", border_width=1, border_color="#002233")
+        self.activity_feed.pack(pady=5, padx=10, fill="x")
+
+        # Main Terminal (AI STUDIO DESIGN)
+        self.right_panel = ctk.CTkFrame(self, corner_radius=0, fg_color=self.bg_black)
+        self.right_panel.grid(row=0, column=1, sticky="nsew")
+        
+        # Studio Header
+        self.studio_header = ctk.CTkFrame(self.right_panel, height=80, fg_color="#05080F", border_width=1, border_color="#002233")
+        self.studio_header.pack(fill="x", side="top", padx=20, pady=20)
+        
+        ctk.CTkLabel(self.studio_header, text="JARVIS AI STUDIO", font=("Courier New", 24, "bold"), text_color=self.cyber).pack(side="left", padx=30)
+
+        # User info + logout (right side)
+        user_name = self._session.get("display_name", "")
+        provider  = self._session.get("provider", "")
+        
+        # FIX: Don't show API key as username
+        # Check if display_name looks like an API key
+        if user_name and (user_name.startswith("AIza") or user_name.startswith("sk-")):
+            # It's an API key, not a name - use email or default
+            user_name = self._session.get("email", "").split("@")[0] if self._session.get("email") else "User"
+        
+        if user_name:
+            provider_icon = {"google": "[G]", "microsoft": "[M]", "apple": "[A]", "email": "[E]"}.get(provider, "[U]")
+            ctk.CTkLabel(
+                self.studio_header,
+                text=f"{provider_icon} {user_name}",
+                font=("Courier New", 12, "bold"),
+                text_color="#00FF41",
+            ).pack(side="left", padx=15)
+
+        ctk.CTkButton(
+            self.studio_header, text="LOGOUT", width=70, height=30,
+            fg_color="#330000", hover_color="#550000",
+            font=("Courier New", 11), command=self._do_logout,
+        ).pack(side="left", padx=5)
+
+        # Action Buttons for Copy
+        self.copy_btn = ctk.CTkButton(self.studio_header, text="COPY ALL", width=80, height=30, fg_color="#004466", hover_color="#006688", command=self.copy_terminal)
+        self.copy_btn.pack(side="right", padx=10)
+
+        # Streaming mode toggle
+        self.stream_btn = ctk.CTkButton(
+            self.studio_header, text="STREAM: OFF", width=100, height=30,
+            fg_color="#003322", hover_color="#005544",
+            command=self.toggle_streaming,
+        )
+        self.stream_btn.pack(side="right", padx=5)
+
+        # Model Selector Info
+        self.model_info = ctk.CTkLabel(self.studio_header, text="MODEL: GEMINI-1.5-FLASH | TEMP: 0.7", font=("Courier New", 12), text_color="#555555")
+        self.model_info.pack(side="right", padx=20)
+        
+        # Terminal Area — Consolas has better Unicode coverage than Courier New on Windows
+        self.terminal = ctk.CTkTextbox(self.right_panel, font=("Consolas", 15), text_color=self.neon, fg_color="transparent", border_width=0)
+        self.terminal.pack(fill="both", expand=True, padx=30, pady=(0, 20))
+        self.log("SYSTEM", "AI STUDIO ENVIRONMENT LOADED. READY FOR NEURAL INPUT.")
+        # Enable drag-and-drop on terminal
+        self._setup_drag_drop(self.terminal)
+
+        # Bottom Command Bar
+        self.cmd_zone = ctk.CTkFrame(self.right_panel, height=80, fg_color="#05080F", border_width=1, border_color="#1A1A1A")
+        self.cmd_zone.pack(fill="x", side="bottom", padx=20, pady=(0, 20))
+        
+        # Quick Actions Container
+        self.quick_actions = ctk.CTkFrame(self.cmd_zone, fg_color="transparent")
+        self.quick_actions.pack(fill="x", side="top", padx=10, pady=(5, 0))
+        
+        # File Upload Button
+        self.upload_btn = add_file_upload_button(self.quick_actions, None, self.log)
+        self.upload_btn.configure(width=100, height=35, font=("Courier New", 11, "bold"))
+        self.upload_btn.pack(side="left", padx=5)
+        
+        # Web Search Button
+        self.web_search_btn = ctk.CTkButton(
+            self.quick_actions,
+            text="🔍 SEARCH",
+            width=100,
+            height=35,
+            fg_color="#006644",
+            hover_color="#008866",
+            text_color="white",
+            font=("Courier New", 11, "bold"),
+            command=self._handle_web_search
+        )
+        self.web_search_btn.pack(side="left", padx=5)
+        
+        # MRX Button
+        self.mrx_btn = ctk.CTkButton(
+            self.quick_actions,
+            text="🔥 MRX LEARN",
+            width=110,
+            height=35,
+            fg_color="#FF3131",
+            hover_color="#FF5555",
+            text_color="white",
+            font=("Courier New", 11, "bold"),
+            command=self._handle_mrx_learning
+        )
+        self.mrx_btn.pack(side="left", padx=5)
+
+        # Bug Detect Button
+        self.bug_btn = ctk.CTkButton(
+            self.quick_actions,
+            text="🐛 BUG DETECT",
+            width=110,
+            height=35,
+            fg_color="#440000",
+            hover_color="#660000",
+            text_color="white",
+            font=("Courier New", 11, "bold"),
+            command=lambda: self.process("bugcheck")
+        )
+        self.bug_btn.pack(side="left", padx=5)
+        
+        # Main Input Row
+        self.input_row = ctk.CTkFrame(self.cmd_zone, fg_color="transparent")
+        self.input_row.pack(fill="x", side="top", padx=10, pady=10)
+        
+        self.entry = ctk.CTkEntry(
+            self.input_row, 
+            placeholder_text="Awaiting root command...", 
+            height=50, 
+            fg_color="#0A0F1A", 
+            border_color=self.neon, 
+            text_color=self.neon, 
+            font=("Courier New", 16)
+        )
+        self.entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
+        self.entry.bind("<Return>", lambda e: self.fire_cmd())
+        
+        self.voice_btn = ctk.CTkButton(
+            self.input_row,
+            text="🎤 LISTEN",
+            width=120,
+            height=50,
+            fg_color=self.neon,
+            text_color="black",
+            font=("Courier New", 14, "bold"),
+            command=self.start_mic,
+        )
+        self.voice_btn.pack(side="left")
+        
+        # Premium Status Bar (The missing "Integrated Footer")
+        self.status_bar = ctk.CTkFrame(self.right_panel, height=30, fg_color="#02050A")
+        self.status_bar.pack(fill="x", side="bottom")
+        
+        self.pulse_canvas = ctk.CTkCanvas(self.status_bar, width=20, height=20, bg="#02050A", highlightthickness=0)
+        self.pulse_canvas.pack(side="left", padx=(20, 5), pady=5)
+        self.pulse_dot = self.pulse_canvas.create_oval(5, 5, 15, 15, fill=self.neon, outline="")
+        
+        self.stats_label = ctk.CTkLabel(self.status_bar, text="SYSTEM INITIALIZING...", font=("Courier New", 10, "bold"), text_color="#555555")
+        self.stats_label.pack(side="left", padx=10)
+        
+        self.face3d_status = ctk.CTkLabel(self.status_bar, text="3D: OFF", font=("Courier New", 10, "bold"), text_color="#555555")
+        self.face3d_status.pack(side="left", padx=10)
+        
+        self.link_status = ctk.CTkLabel(self.status_bar, text="LINK: STANDBY", font=("Courier New", 10, "bold"), text_color="#555555")
+        self.link_status.pack(side="left", padx=10)
+        
+        self.clock_label = ctk.CTkLabel(self.status_bar, text="00:00:00", font=("Courier New", 10, "bold"), text_color=self.neon)
+        self.clock_label.pack(side="right", padx=20)
+        
+        # Update upload button with entry reference
+        self.upload_btn.configure(command=lambda: self._handle_file_upload())
+        
+        self.update_telemetry()
+        self._animate_pulse()
+
+    def copy_terminal(self):
+        import pyperclip
+        content = self.terminal.get("1.0", "end").strip()
+        if content:
+            pyperclip.copy(content)
+            self.log("SYSTEM", "Neural data extracted to clipboard.")
+
+    @staticmethod
+    def _sanitize(text: str) -> str:
+        """Replace emoji / non-BMP chars that Consolas can't render on Windows."""
+        _MAP = {
+            "←": "<-", "→": "->", "✓": "[OK]", "✗": "[X]", "●": "*",
+            "⚡": "[!]", "🧠": "[AI]", "🔑": "[KEY]", "🔵": "[G]",
+            "🟦": "[M]", "⬛": "[A]", "✉": "[E]", "👤": "[U]",
+            "⏱": "[T]", "📁": "[DIR]", "📂": "[DIR]", "📋": "[LIST]",
+            "🌐": "[WEB]", "🐛": "[BUG]", "🔧": "[FIX]", "🔄": "[~]",
+            "⚙": "[CFG]", "⬛": "[A]",
+        }
+        for ch, rep in _MAP.items():
+            text = text.replace(ch, rep)
+        # Strip any remaining non-BMP (4-byte) emoji that Consolas can't show
+        result = []
+        for ch in text:
+            if ord(ch) > 0xFFFF:
+                result.append("?")
+            else:
+                result.append(ch)
+        return "".join(result)
+
+    def log(self, sender, msg):
+        t = time.strftime("%H:%M:%S")
+        msg = self._sanitize(str(msg))
+        log_msg = f"[{t}] [{sender}]> {msg}\n"
+        if not hasattr(self, "terminal"):
+            print(log_msg)
+            return
+        self.terminal.insert("end", f"{log_msg}\n")
+        self.terminal.see("end")
+        if hasattr(self, 'activity_feed'):
+            self.activity_feed.insert("1.0", log_msg)
+            content = self.activity_feed.get("1.0", "end").split("\n")
+            if len(content) > 50:
+                self.activity_feed.delete("50.0", "end")
+        self.terminal.see("end")
+
+    def async_init_brain(self):
+        try:
+            # Auto-apply API key from login session
+            session_key = self._session.get("api_key", "")
+            if session_key:
+                auto_apply_key_to_config(session_key, self._session.get("email", ""))
+
+            # Pull all keys saved on server for this account
+            try:
+                from server.auth_client import get_client
+                client = get_client()
+                if client.is_online() and client._token:
+                    server_keys = client.get_keys()
+                    for k in server_keys:
+                        auto_apply_key_to_config(k, self._session.get("email", ""))
+            except Exception:
+                pass
+
+            if not os.path.exists("jarvis_config.txt"):
+                open("jarvis_config.txt", "w").close()
+            with open("jarvis_config.txt", "r") as f:
+                keys = [k.strip() for k in f.read().splitlines()
+                        if k.strip() and not k.strip().startswith("#")]
+
+            if keys:
+                self.brain = JarvisBrain(keys)
+                self.multi_brain.gemini = self.brain
+                if not self.brain.api_keys:
+                    self.after(0, lambda: self.log("WARNING",
+                        "NEURAL UPLINK OFFLINE: No valid Gemini keys. Add one via Neural Protocols."))
+                elif not self.brain.is_connected:
+                    self.after(0, lambda: self.log("ERROR",
+                        f"NEURAL UPLINK FAILED: {self.brain.last_error}"))
+                else:
+                    user = self._session.get("display_name", "")
+                    if "_" in user and any(p in user.lower() for p in ["google", "microsoft", "apple"]):
+                        user = "Boss"
+                    greeting = f"Welcome back, {user}! " if user else ""
+                    self.after(0, lambda: self.log("SYSTEM",
+                        f"{greeting}MULTI-BRAIN ONLINE: {self.multi_brain.status()}"))
+            else:
+                self.brain = JarvisBrain([])
+                self.multi_brain.gemini = self.brain
+                self.after(0, lambda: self.log("WARNING",
+                    "NEURAL UPLINK OFFLINE: No API Key. Paste one in Neural Protocols."))
+        except Exception as e:
+            self.after(0, lambda: self.log("ERROR", f"SYSTEM BOOT FAILURE: {e}"))
+
+    def _init_face3d(self):
+        if not os.path.exists(FACE_GLB_PATH):
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D FACE: MISSING jarvis_face.glb", text_color="#FF3131")
+            return
+        try:
+            self.face3d = Face3D(FACE_GLB_PATH)
+            self.face3d.start()
+            self.log("SYSTEM", "3D FACE ONLINE: jarvis_face.glb")
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D FACE: ON", text_color="#00FF41")
+        except Exception as e:
+            self.face3d = None
+            self.log("ERROR", f"3D FACE FAILED: {e}")
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D FACE: FAILED", text_color="#FF3131")
+
+    def face3d_on(self):
+        try:
+            if not os.path.exists(FACE_GLB_PATH):
+                self.log("ERROR", "3D FACE missing: jarvis_face.glb")
+                if hasattr(self, "face3d_status"):
+                    self.face3d_status.configure(text="3D: MISSING", text_color="#FF3131")
+                return
+            if not self.face3d:
+                self.face3d = Face3D(FACE_GLB_PATH)
+            self.face3d.start()
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D: ONLINE", text_color="#00FF41")
+        except Exception as e:
+            self.log("ERROR", f"3D FACE FAILED: {e}")
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D: FAILED", text_color="#FF3131")
+
+    def face3d_off(self):
+        try:
+            if self.face3d:
+                self.face3d.stop()
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D: OFF", text_color="#555555")
+        except Exception:
+            if hasattr(self, "face3d_status"):
+                self.face3d_status.configure(text="3D: OFF", text_color="#555555")
+    
+    def speak(self, text: str):
+        """Speak text using voice engine - FIX: Added missing method"""
+        try:
+            if hasattr(self, 'voice') and self.voice:
+                with self.v_lock:
+                    self.voice.speak(text)
+        except Exception as e:
+            print(f"⚠️ Speech error: {e}")
+    
+    def set_voice_speed(self, speed):
+        """Set voice speed"""
+        try:
+            if hasattr(self, 'voice') and self.voice:
+                self.voice.rate = speed
+                self.log("SYSTEM", f"🎤 Voice speed set to: {speed}")
+                self.speak(f"Voice speed set to {speed}")
+                print(f"✅ Voice speed set to: {speed}")
+        except Exception as e:
+            self.log("ERROR", f"Could not set voice speed: {e}")
+            print(f"⚠️ Voice speed error: {e}")
+    
+    def open_voice_control_panel(self):
+        """Open advanced voice control panel"""
+        try:
+            open_voice_control_panel(self, self.voice, self.speak)
+            self.log("SYSTEM", "🎤 Voice Control Panel opened!")
+        except Exception as e:
+            self.log("ERROR", f"Failed to open Voice Control Panel: {e}")
+            print(f"⚠️ Voice Control Panel error: {e}")
+    
+    def open_bangla_voice_selector(self):
+        """Open Bengali voice selector"""
+        try:
+            from jarvis_bangla_voice_selector import open_bangla_voice_selector
+            open_bangla_voice_selector(self)
+            self.log("SYSTEM", "🇧🇩 Bengali Voice Selector opened!")
+        except Exception as e:
+            self.log("ERROR", f"Failed to open Bengali Voice Selector: {e}")
+            print(f"⚠️ Bengali Voice Selector error: {e}")
+
+    def open_all_functions_panel(self):
+        """Open the All Functions Panel with all JARVIS commands"""
+        try:
+            open_all_functions_panel(self, self.process)
+            self.log("SYSTEM", "All Functions Panel opened - 200+ functions available!")
+        except Exception as e:
+            self.log("ERROR", f"Failed to open All Functions Panel: {e}")
+
+    def update_telemetry(self):
+        try:
+            cpu, ram = psutil.cpu_percent(), psutil.virtual_memory().percent
+            status = "ONLINE" if (self.brain and self.brain.is_connected) else "OFFLINE"
+            self.stats_label.configure(text=f"CPU: {cpu}% | RAM: {ram}%")
+            
+            # Update Clock
+            current_time = time.strftime("%H:%M:%S")
+            self.clock_label.configure(text=current_time)
+            
+            if hasattr(self, "link_status"):
+                if status == "ONLINE":
+                    self.link_status.configure(text="LINK: ONLINE", text_color="#00FF41")
+                else:
+                    # Distinguish common causes
+                    reason = ""
+                    if self.brain and getattr(self.brain, "last_error", ""):
+                        le = str(self.brain.last_error)
+                        if "RESOURCE_EXHAUSTED" in le or "429" in le:
+                            reason = " (QUOTA)"
+                        elif "expired" in le.lower() or "invalid" in le.lower():
+                            reason = " (KEY)"
+                        elif "not_found" in le.lower() or "404" in le:
+                            reason = " (MODEL)"
+                    self.link_status.configure(text=f"LINK: OFFLINE{reason}", text_color="#FF3131")
+        except Exception:
+            pass  # Ignore telemetry errors
+        finally:
+            # Schedule next update safely
+            try:
+                if not self._is_destroying:
+                    self.after(1000, self.update_telemetry)
+            except Exception:
+                pass  # Widget might be destroyed
+
+    def _animate_pulse(self):
+        """Blinking pulse animation for status bar"""
+        try:
+            current_color = self.pulse_canvas.itemcget(self.pulse_dot, "fill")
+            new_color = self.neon if current_color == "#111111" else "#111111"
+            self.pulse_canvas.itemconfig(self.pulse_dot, fill=new_color)
+        except Exception:
+            pass  # Ignore animation errors
+        finally:
+            # Schedule next animation safely
+            try:
+                if not self._is_destroying:
+                    self.after(800, self._animate_pulse)
+            except Exception:
+                pass  # Widget might be destroyed
+
+    def paste_key(self):
+        """Paste API key from clipboard - FIX: Don't show full key"""
+        import pyperclip
+        k = pyperclip.paste().strip()
+        if k:
+            self.key_entry.delete(0, "end")
+            self.key_entry.insert(0, k)
+            
+            # FIX: Show masked key instead of full key
+            masked_key = f"{k[:8]}****{k[-4:]}" if len(k) > 12 else "****"
+            self.log("SYSTEM", f"📋 API KEY PASTED: {masked_key}")
+            self.log("SYSTEM", "💡 Click SYNC to activate this key")
+
+    def rotate_brain_model(self):
+        if self.brain:
+            self.brain.rotate_model()
+            model = self.brain.models[self.brain.model_idx]
+            self.log("SYSTEM", f"Neural Model rotated to: {model}")
+            self.model_info.configure(text=f"MODEL: {model.upper()} | TEMP: 0.7")
+
+    def test_keys(self):
+        if not self.brain: return
+        self.log("SYSTEM", f"INITIATING NEURAL POOL DIAGNOSTICS... ({len(self.brain.api_keys)} KEYS)")
+        
+        popup = ctk.CTkToplevel(self)
+        popup.title("ADVANCED API DIAGNOSTICS")
+        popup.geometry("400x500")
+        popup.attributes("-topmost", True)
+        
+        scroll = ctk.CTkScrollableFrame(popup, fg_color="transparent")
+        scroll.pack(expand=True, fill="both", padx=10, pady=10)
+        
+        for i, k in enumerate(self.brain.api_keys):
+            status = "CHECKING..."
+            color = "#FFD700"
+            frame = ctk.CTkFrame(scroll, fg_color="#05080F", border_width=1, border_color="#002233")
+            frame.pack(pady=5, fill="x")
+            
+            ctk.CTkLabel(frame, text=f"NODE_{i+1}: {k[:10]}***", font=("Courier New", 12)).pack(side="left", padx=10)
+            
+            # Action Buttons
+            ctk.CTkButton(frame, text="DELETE", width=60, height=20, fg_color="#440000", command=lambda idx=i: self.delete_key_idx(idx)).pack(side="right", padx=5)
+            ctk.CTkButton(frame, text="ACTIVATE", width=60, height=20, fg_color="#004400", command=lambda idx=i: self.activate_key_idx(idx)).pack(side="right", padx=5)
+            status_lbl = ctk.CTkLabel(frame, text=status, text_color=color, font=("Courier New", 10, "bold"))
+            status_lbl.pack(side="right", padx=10)
+
+            def _run_check(idx=i, key=k, lbl=status_lbl):
+                ok, reason = JarvisBrain.validate_key(key, model=self.brain.models[0])
+                def _update():
+                    if ok:
+                        st = "ACTIVE" if idx == self.brain.key_idx else "HEALTHY"
+                        lbl.configure(text=st, text_color="#00FF41" if idx == self.brain.key_idx else "#555555")
+                    else:
+                        lbl.configure(text="INVALID", text_color="#FF3131")
+                self.after(0, _update)
+            threading.Thread(target=_run_check, daemon=True).start()
+
+    def delete_key_idx(self, idx):
+        if len(self.brain.api_keys) <= 1:
+            self.log("ERROR", "Cannot delete last neural node. System requires at least one uplink.")
+            return
+        removed = self.brain.api_keys.pop(idx)
+        self.brain.key_idx = 0
+        self.save_pool_to_config()
+        self.log("SYSTEM", f"Node {removed[:5]}*** purged from neural pool.")
+        self.test_keys() # Refresh
+
+    def activate_key_idx(self, idx):
+        self.brain.key_idx = idx
+        self.log("SYSTEM", f"Manually switched to Neural Node {idx + 1}.")
+        self.test_keys() # Refresh
+
+    def save_pool_to_config(self):
+        with open("jarvis_config.txt", "w") as f:
+            f.write("\n".join(self.brain.api_keys))
+
+    def show_mobile_qr(self):
+        # Start Server in background if not already
+        if not hasattr(self, 'mobile_active'):
+            threading.Thread(target=start_server, daemon=True).start()
+            self.mobile_active = True
+            self.log("SYSTEM", "MOBILE SERVER ONLINE. Screen sharing active.")
+
+        ip = get_ip()
+        url = f"http://{ip}:5000"
+        qr_api = f"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={url}&bgcolor=02050A&color=00F3FF"
+
+        # Create Popup Window
+        popup = ctk.CTkToplevel(self)
+        popup.title("ANTIGRAVITY MOBILE UPLINK")
+        popup.geometry("380x560")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text="MOBILE REMOTE UPLINK", font=("Courier New", 18, "bold"), text_color="#00F3FF").pack(pady=15)
+        ctk.CTkLabel(popup, text="Scan QR with your phone to control this PC", font=("Courier New", 10), text_color="#555555").pack()
+
+        # Load QR via Web API
+        try:
+            import requests
+            from io import BytesIO
+            response = requests.get(qr_api, timeout=5)
+            qr_img = Image.open(BytesIO(response.content))
+            self.qr_photo = ImageTk.PhotoImage(qr_img)
+            ctk.CTkLabel(popup, image=self.qr_photo, text="").pack(pady=15)
+        except Exception as e:
+
+            print(f"⚠️ Error: {e}")
+            ctk.CTkLabel(popup, text=f"URL: {url}", font=("Courier New", 12), text_color="#00FF41", wraplength=300).pack(pady=30)
+
+        # URL display
+        url_frame = ctk.CTkFrame(popup, fg_color="#05080F", border_width=1, border_color="#002233")
+        url_frame.pack(fill="x", padx=20, pady=5)
+        ctk.CTkLabel(url_frame, text=url, font=("Courier New", 14, "bold"), text_color="#00FF41").pack(pady=10)
+
+        # Feature list
+        ctk.CTkLabel(popup, text="[OK] Live Screen View  [OK] Mouse Control\n[OK] Keyboard Input  [OK] Volume & Lock",
+                     font=("Courier New", 10), text_color="#444444").pack(pady=5)
+
+        # Open in browser button
+        ctk.CTkButton(popup, text="OPEN IN BROWSER", fg_color="#004466", hover_color="#006688",
+                      command=lambda: webbrowser.open(url)).pack(pady=10)
+
+        ctk.CTkLabel(popup, text=f"Make sure phone is on same WiFi", font=("Courier New", 9), text_color="#333333").pack()
+
+
+    def show_custom_qr(self, data):
+        qr_api = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={data}"
+        
+        # Create Popup Window
+        popup = ctk.CTkToplevel(self)
+        popup.title("JARVIS DATA UPLINK")
+        popup.geometry("300x400")
+        popup.attributes("-topmost", True)
+        
+        lbl = ctk.CTkLabel(popup, text="DATA SYNC", font=("Courier New", 16, "bold"))
+        lbl.pack(pady=20)
+        
+        try:
+            import requests
+            from io import BytesIO
+            response = requests.get(qr_api)
+            qr_img = Image.open(BytesIO(response.content))
+            self.qr_custom_photo = ImageTk.PhotoImage(qr_img)
+            ctk.CTkLabel(popup, image=self.qr_custom_photo, text="").pack(pady=10)
+        except Exception as e:
+
+            print(f"⚠️ Error: {e}")
+            ctk.CTkLabel(popup, text=f"DATA: {data}", wraplength=250).pack(pady=10)
+            
+        ctk.CTkLabel(popup, text="SCAN TO RECEIVE DATA", font=("Courier New", 10)).pack(pady=10)
+
+    def clipboard_watcher(self):
+        """Monitor clipboard for Gemini API keys with graceful shutdown"""
+        import pyperclip
+        last_clip = ""
+        last_applied = ""
+        last_applied_at = 0.0
+        
+        print("✅ Clipboard watcher thread started")
+        
+        while not self._clipboard_stop_event.is_set():  # ← Check stop event
+            try:
+                # Check if monitoring is enabled
+                if not self._clipboard_enabled:
+                    time.sleep(2)
+                    continue
+                
+                # Check clipboard
+                curr = pyperclip.paste().strip()
+                if curr != last_clip:
+                    # Detect Gemini API Key Pattern
+                    if curr.startswith("AIzaSy") and len(curr) == 39:
+                        now = time.time()
+                        if curr != last_applied or (now - last_applied_at) > 10:
+                            last_applied = curr
+                            last_applied_at = now
+                            self.after(0, lambda k=curr: self.auto_apply_key(k))  # ← Fix lambda closure
+                    last_clip = curr
+                    
+            except Exception as e:
+                # Log errors instead of silent pass
+                print(f"⚠️ Clipboard watcher error: {e}")
+                # Continue running despite errors
+                
+            time.sleep(2)
+        
+        print("✅ Clipboard watcher stopped cleanly")
+
+    def start_clipboard_watcher(self):
+        """Start clipboard monitoring in a daemon thread"""
+        if self._clipboard_thread and self._clipboard_thread.is_alive():
+            return  # Already running
+        
+        self._clipboard_thread = threading.Thread(
+            target=self.clipboard_watcher,
+            daemon=True,  # Daemon thread exits with main application
+            name="ClipboardWatcher"
+        )
+        self._clipboard_thread.start()
+        print("✅ Clipboard monitoring started")
+
+    def stop_clipboard_watcher(self):
+        """Stop the clipboard watcher thread gracefully"""
+        if not self._clipboard_thread or not self._clipboard_thread.is_alive():
+            return  # Not running
+        
+        print("⏹️ Stopping clipboard watcher...")
+        self._clipboard_stop_event.set()
+        
+        # Wait for thread to stop (max 3 seconds)
+        self._clipboard_thread.join(timeout=3.0)
+        
+        if self._clipboard_thread.is_alive():
+            print("⚠️ Clipboard watcher did not stop in time")
+        else:
+            print("✅ Clipboard watcher stopped successfully")
+
+    def on_closing(self):
+        """Handle application closing with proper cleanup"""
+        print("🛑 Shutting down Jarvis...")
+        
+        # Set destroying flag to stop all animations
+        self._is_destroying = True
+        
+        # Save natural interface preferences
+        if hasattr(self, 'natural_interface') and self.natural_interface:
+            try:
+                self.natural_interface.save_preferences()
+                print("✅ Natural Interface preferences saved")
+            except Exception as e:
+                print(f"⚠️ Could not save preferences: {e}")
+        
+        # Stop keyboard shortcuts
+        if hasattr(self, 'keyboard_shortcuts') and self.keyboard_shortcuts:
+            try:
+                self.keyboard_shortcuts.stop()
+                print("✅ Keyboard Shortcuts deactivated")
+            except Exception as e:
+                print(f"⚠️ Could not stop shortcuts: {e}")
+        
+        # Stop clipboard watcher
+        self.stop_clipboard_watcher()
+        
+        # Stop auto controller
+        if hasattr(self, 'auto_ctrl'):
+            self.auto_ctrl.stop()
+        
+        # Stop auto background learner
+        if hasattr(self, 'auto_bg_learner') and self.auto_bg_learner:
+            try:
+                if self.auto_bg_learner.is_running:
+                    self.auto_bg_learner.stop()
+                    print("✅ Auto Background Learner stopped")
+            except Exception as e:
+                print(f"⚠️ Could not stop auto learner: {e}")
+        
+        # Destroy window
+        self.destroy()
+
+    def auto_apply_key(self, k):
+        """Auto-apply API key from clipboard - FIX: Don't show full key"""
+        try:
+            save_new_key(k)
+            self.brain = JarvisBrain(get_saved_keys())  # Full pool
+            
+            # FIX: Show masked key instead of full key
+            masked_key = f"{k[:8]}****{k[-4:]}" if len(k) > 12 else "****"
+            self.log("SYSTEM", "🔍 NEURAL PROTOCOL DETECTED IN CLIPBOARD")
+            self.log("SYSTEM", f"✅ AUTO-APPLYING KEY: {masked_key}")
+            self.log("SYSTEM", f"📊 UPLINK STABLE: {len(self.brain.api_keys)} KEY(S) IN POOL")
+        except Exception as e:
+            self.log("ERROR", f"❌ AUTO-APPLY FAILED: {str(e)[:100]}")
+
+    def sync_key(self):
+        """Sync API key from entry field - FIX: Don't show full key"""
+        k = self.key_entry.get().strip()
+        if k:
+            try:
+                # Validate and save key
+                save_new_key(k)
+                
+                # Reinitialize brain with new key pool
+                self.brain = JarvisBrain(get_saved_keys())
+                
+                # FIX: Show masked key instead of full key
+                masked_key = f"{k[:8]}****{k[-4:]}" if len(k) > 12 else "****"
+                self.log("SYSTEM", f"✅ API KEY SYNCED: {masked_key}")
+                self.log("SYSTEM", f"📊 NEURAL POOL: {len(self.brain.api_keys)} KEY(S) ACTIVE")
+                
+                # Clear entry field
+                self.key_entry.delete(0, "end")
+                
+                # Update link status
+                self.link_status.configure(text="LINK: SYNCING...", text_color="#FFD700")
+                
+            except Exception as e:
+                self.log("ERROR", f"❌ KEY REJECTED: {str(e)[:100]}")
+                # Don't show the key in error message
+
+    def ping_key(self):
+        k = self.key_entry.get().strip()
+        if not k:
+            self.log("ERROR", "No key in input.")
+            return
+
+        self.log("SYSTEM", "PING: Testing key with Gemini...")
+
+        def _run():
+            ok, reason = JarvisBrain.validate_key(
+                k,
+                model=(self.brain.models[0] if self.brain else None),
+            )
+            if ok:
+                self.after(0, lambda: self.log("SYSTEM", "PING OK: key can access Gemini."))
+            else:
+                self.after(0, lambda: self.log("ERROR", f"PING FAIL: {reason[:220]}"))
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def fire_cmd(self):
+        print("🔍 DEBUG: fire_cmd() called")  # DEBUG
+        q = self.entry.get()
+        print(f"🔍 DEBUG: User input: '{q}'")  # DEBUG
+        if q:
+            print("🔍 DEBUG: Processing input...")  # DEBUG
+            self.entry.delete(0, "end")
+            self.log("ROOT", q)
+            print("🔍 DEBUG: Logged to terminal")  # DEBUG
+            
+            # Process with Natural Interface if available
+            if self.natural_interface:
+                print("🔍 DEBUG: Using Natural Interface")  # DEBUG
+                try:
+                    result = self.natural_interface.process(q)
+                    command = result['command']
+                    confidence = result['confidence']
+                    
+                    # Show understanding
+                    if confidence > 0.8:
+                        self.log("JARVIS", f"✅ {result['response']}")
+                    elif confidence > 0.6:
+                        self.log("JARVIS", f"🤔 {result['response']}")
+                    else:
+                        self.log("JARVIS", f"❓ {result['response']}")
+                        if result['suggestions']:
+                            self.log("JARVIS", f"💡 Suggestions: {', '.join(result['suggestions'][:3])}")
+                    
+                    # Execute command
+                    print(f"🔍 DEBUG: Starting thread for command: {command}")  # DEBUG
+                    threading.Thread(target=self.process, args=(command,), daemon=True).start()
+                    print("🔍 DEBUG: Thread started")  # DEBUG
+                except Exception as e:
+                    print(f"🔍 DEBUG: Natural Interface error: {e}")  # DEBUG
+                    self.log("ERROR", f"Natural Interface error: {e}")
+                    # Fallback to direct processing
+                    print("🔍 DEBUG: Falling back to direct processing")  # DEBUG
+                    threading.Thread(target=self.process, args=(q,), daemon=True).start()
+            else:
+                # Direct processing if natural interface not available
+                print("🔍 DEBUG: Direct processing (no Natural Interface)")  # DEBUG
+                threading.Thread(target=self.process, args=(q,), daemon=True).start()
+                print("🔍 DEBUG: Thread started")  # DEBUG
+    
+    def _handle_shortcut(self, command: str):
+        """Handle keyboard shortcut command"""
+        try:
+            # Special handling for help shortcut
+            if command == 'help' and self.keyboard_shortcuts:
+                self.keyboard_shortcuts.show_help()
+                self.log("SYSTEM", "⌨️ Keyboard shortcuts help displayed in console")
+                return
+            
+            # Log shortcut activation
+            self.log("SYSTEM", f"⌨️ Shortcut activated: {command}")
+            
+            # Process command through normal pipeline
+            threading.Thread(target=self.process, args=(command,), daemon=True).start()
+        except Exception as e:
+            self.log("ERROR", f"Shortcut handler error: {e}")
+
+    def _handle_file_upload(self):
+        """Handle file upload button click"""
+        from tkinter import filedialog
+        
+        file_path = filedialog.askopenfilename(
+            title="Select file to upload",
+            filetypes=[
+                ("All Files", "*.*"),
+                ("Images", "*.png *.jpg *.jpeg *.gif *.bmp *.webp"),
+                ("Documents", "*.pdf *.doc *.docx *.txt *.md"),
+                ("Code", "*.py *.js *.html *.css *.json *.xml"),
+                ("Data", "*.csv *.xlsx *.json"),
+            ]
+        )
+        
+        if file_path:
+            self.log("SYSTEM", f"Uploading file: {file_path}")
+            
+            # Handle upload
+            result = handle_file_upload(file_path)
+            
+            if result['success']:
+                self.log("SYSTEM", 
+                    f"✅ File uploaded: {result['filename']} "
+                    f"({result['file_type']}, {result['file_size']} bytes)")
+                
+                # If it's an image, show preview
+                if result['file_type'] == 'image':
+                    self.log("SYSTEM", f"📷 Image preview: {result['filepath']}")
+                
+                # If text was extracted, show it
+                if result.get('extracted_text') and len(result['extracted_text']) > 0:
+                    preview = result['extracted_text'][:200]
+                    if len(result['extracted_text']) > 200:
+                        preview += "..."
+                    self.log("SYSTEM", f"📄 Content preview: {preview}")
+                
+                # Auto-fill entry with file analysis prompt
+                self.entry.delete(0, "end")
+                self.entry.insert(0, f"Analyze this file: {result['filename']}")
+                
+            else:
+                self.log("ERROR", f"❌ Upload failed: {result.get('error', 'Unknown error')}")
+
+    def _handle_web_search(self):
+        """Handle web search button click - searches what user types in chat box"""
+        query = self.entry.get().strip()
+        
+        if not query:
+            self.log("SYSTEM", "❌ Please type something in the chat box to search!")
+            self.log("SYSTEM", "❌ চ্যাট বক্সে কিছু টাইপ করুন search করার জন্য!")
+            return
+        
+        # Clear entry
+        self.entry.delete(0, "end")
+        
+        # Log what user wants to search
+        self.log("ROOT", f"🔍 WEB SEARCH: {query}")
+        self.log("SYSTEM", "NEURAL REQUEST SENT. AWAITING BRAIN...")
+        
+        # Process in background thread
+        def _search():
+            try:
+                # Import offline brain for intelligent search
+                from jarvis_offline_brain import OfflineBrain
+                offline_brain = OfflineBrain()
+                
+                # Detect search intent and platform
+                query_lower = query.lower()
+                search_query = query
+                platform = "google"  # default
+                
+                # Detect specific platforms
+                if 'youtube' in query_lower or 'video' in query_lower:
+                    platform = "youtube"
+                    search_query = query_lower.replace('youtube', '').replace('video', '').strip()
+                elif 'github' in query_lower or 'code' in query_lower:
+                    platform = "github"
+                    search_query = query_lower.replace('github', '').replace('code', '').strip()
+                elif 'wikipedia' in query_lower or 'wiki' in query_lower:
+                    platform = "wikipedia"
+                    search_query = query_lower.replace('wikipedia', '').replace('wiki', '').strip()
+                elif 'stackoverflow' in query_lower or 'stack overflow' in query_lower:
+                    platform = "stackoverflow"
+                    search_query = query_lower.replace('stackoverflow', '').replace('stack overflow', '').strip()
+                elif 'amazon' in query_lower or 'shopping' in query_lower:
+                    platform = "amazon"
+                    search_query = query_lower.replace('amazon', '').replace('shopping', '').strip()
+                elif 'twitter' in query_lower or 'tweet' in query_lower:
+                    platform = "twitter"
+                    search_query = query_lower.replace('twitter', '').replace('tweet', '').strip()
+                elif 'reddit' in query_lower:
+                    platform = "reddit"
+                    search_query = query_lower.replace('reddit', '').strip()
+                elif 'image' in query_lower or 'picture' in query_lower or 'photo' in query_lower:
+                    platform = "image"
+                    search_query = query_lower.replace('image', '').replace('picture', '').replace('photo', '').strip()
+                elif 'news' in query_lower or 'খবর' in query_lower:
+                    platform = "news"
+                    search_query = query_lower.replace('news', '').replace('খবর', '').strip()
+                elif 'map' in query_lower or 'location' in query_lower or 'place' in query_lower:
+                    platform = "map"
+                    search_query = query_lower.replace('map', '').replace('location', '').replace('place', '').strip()
+                
+                # If no specific platform, use original query
+                if not search_query or len(search_query) < 2:
+                    search_query = query
+                
+                # Execute search using offline brain
+                result = offline_brain.do_search(f"search {platform} {search_query}")
+                
+                # Log result
+                self.after(0, lambda: self.log("JARVIS", f"[WEB SEARCH] {result['response']}"))
+                
+                # Also provide intelligent response about what was searched
+                if platform == "google":
+                    self.after(0, lambda: self.log("JARVIS", 
+                        f"🔍 Searched Google for: '{search_query}'\n"
+                        f"🔍 Google এ খুঁজেছি: '{search_query}'\n"
+                        f"💡 I understand you want to search for information about: {search_query}\n"
+                        f"💡 আমি বুঝেছি আপনি এই বিষয়ে তথ্য খুঁজতে চান: {search_query}"
+                    ))
+                elif platform == "youtube":
+                    self.after(0, lambda: self.log("JARVIS", 
+                        f"🎥 Searched YouTube for videos about: '{search_query}'\n"
+                        f"🎥 YouTube এ ভিডিও খুঁজেছি: '{search_query}'\n"
+                        f"💡 I understand you want to watch videos about: {search_query}\n"
+                        f"💡 আমি বুঝেছি আপনি এই বিষয়ে ভিডিও দেখতে চান: {search_query}"
+                    ))
+                elif platform == "github":
+                    self.after(0, lambda: self.log("JARVIS", 
+                        f"💻 Searched GitHub for code/projects: '{search_query}'\n"
+                        f"💻 GitHub এ কোড/প্রজেক্ট খুঁজেছি: '{search_query}'\n"
+                        f"💡 I understand you want to find code or projects about: {search_query}\n"
+                        f"💡 আমি বুঝেছি আপনি এই বিষয়ে কোড বা প্রজেক্ট খুঁজতে চান: {search_query}"
+                    ))
+                elif platform == "wikipedia":
+                    self.after(0, lambda: self.log("JARVIS", 
+                        f"📚 Searched Wikipedia for information: '{search_query}'\n"
+                        f"📚 Wikipedia তে তথ্য খুঁজেছি: '{search_query}'\n"
+                        f"💡 I understand you want to learn about: {search_query}\n"
+                        f"💡 আমি বুঝেছি আপনি এই বিষয়ে জানতে চান: {search_query}"
+                    ))
+                else:
+                    self.after(0, lambda: self.log("JARVIS", 
+                        f"🔍 Searched {platform.upper()} for: '{search_query}'\n"
+                        f"🔍 {platform.upper()} এ খুঁজেছি: '{search_query}'\n"
+                        f"💡 I understand your search intent: {search_query}\n"
+                        f"💡 আমি আপনার search এর উদ্দেশ্য বুঝেছি: {search_query}"
+                    ))
+                
+                # Close offline brain
+                offline_brain.close()
+                
+            except Exception as e:
+                self.after(0, lambda: self.log("ERROR", f"Web search error: {e}"))
+        
+        # Run search in background
+        threading.Thread(target=_search, daemon=True).start()
+
+    def _handle_mrx_learning(self):
+        """Handle MRX button click - runs ALL 4 learning systems on the topic"""
+        topic = self.entry.get().strip()
+        
+        if not topic:
+            self.log("SYSTEM", "❌ Please type a topic in the chat box to learn!")
+            self.log("SYSTEM", "❌ চ্যাট বক্সে একটি topic টাইপ করুন শিখতে!")
+            self.log("SYSTEM", "💡 Example: Python, AI, JavaScript, etc.")
+            return
+        
+        # Clear entry
+        self.entry.delete(0, "end")
+        
+        # Log MRX activation
+        self.log("ROOT", f"🔥 MRX ACTIVATED: {topic}")
+        self.log("SYSTEM", "🔥 ALL 4 LEARNING SYSTEMS STARTING...")
+        self.log("SYSTEM", "🔥 সব 4টি শেখার সিস্টেম শুরু হচ্ছে...")
+        
+        # Process in background thread
+        def _mrx_learn():
+            try:
+                # Import offline brain
+                from jarvis_offline_brain import OfflineBrain
+                offline_brain = OfflineBrain()
+                
+                # System 1: Internet Learner
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("MRX", "🧠 SYSTEM 1: INTERNET LEARNER"))
+                self.after(0, lambda: self.log("MRX", f"📚 Learning from internet: {topic}"))
+                result1 = offline_brain.process_command(f"learn from internet {topic}")
+                self.after(0, lambda: self.log("JARVIS", result1['response']))
+                time.sleep(2)
+                
+                # System 2: Ultimate Learner
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("MRX", "🚀 SYSTEM 2: ULTIMATE LEARNER (Chrome + Google)"))
+                self.after(0, lambda: self.log("MRX", f"🌐 Learning everything about: {topic}"))
+                result2 = offline_brain.process_command(f"ultimate learn {topic}")
+                self.after(0, lambda: self.log("JARVIS", result2['response']))
+                time.sleep(2)
+                
+                # System 3: Auto Learner
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("MRX", "📖 SYSTEM 3: AUTO LEARNER (Word by Word)"))
+                self.after(0, lambda: self.log("MRX", f"📝 Learning word by word: {topic}"))
+                result3 = offline_brain.process_command(f"auto learn {topic}")
+                self.after(0, lambda: self.log("JARVIS", result3['response']))
+                time.sleep(2)
+                
+                # System 4: Chrome DevTools
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("MRX", "🔧 SYSTEM 4: CHROME DEVTOOLS"))
+                self.after(0, lambda: self.log("MRX", f"🔍 Advanced learning with DevTools: {topic}"))
+                result4 = offline_brain.process_command(f"devtools learn {topic}")
+                self.after(0, lambda: self.log("JARVIS", result4['response']))
+                
+                # Final Summary
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("MRX", "🎉 MRX COMPLETE! ALL 4 SYSTEMS FINISHED!"))
+                self.after(0, lambda: self.log("MRX", "🎉 MRX সম্পূর্ণ! সব 4টি সিস্টেম শেষ!"))
+                self.after(0, lambda: self.log("MRX", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self.after(0, lambda: self.log("JARVIS", 
+                    f"✅ Learned '{topic}' using ALL 4 systems:\n"
+                    f"   1. 🧠 Internet Learner - Quick facts\n"
+                    f"   2. 🚀 Ultimate Learner - Deep learning\n"
+                    f"   3. 📖 Auto Learner - Word by word\n"
+                    f"   4. 🔧 Chrome DevTools - Advanced automation\n\n"
+                    f"✅ '{topic}' সব 4টি সিস্টেম দিয়ে শিখেছি:\n"
+                    f"   1. 🧠 Internet Learner - দ্রুত তথ্য\n"
+                    f"   2. 🚀 Ultimate Learner - গভীর শিক্ষা\n"
+                    f"   3. 📖 Auto Learner - শব্দে শব্দে\n"
+                    f"   4. 🔧 Chrome DevTools - উন্নত automation\n\n"
+                    f"💾 Data saved to:\n"
+                    f"   - Database: jarvis_memory.db\n"
+                    f"   - Text Files: jarvis_learned_files/{topic}_learned.txt\n\n"
+                    f"📊 Check your learning:\n"
+                    f"   - Type: 'learned topics'\n"
+                    f"   - Type: 'learning stats'\n"
+                    f"   - Type: 'search learned {topic}'"
+                ))
+                
+                # Close offline brain
+                offline_brain.close()
+                
+            except Exception as e:
+                self.after(0, lambda: self.log("ERROR", f"MRX error: {e}"))
+                import traceback
+                self.after(0, lambda: self.log("ERROR", traceback.format_exc()))
+        
+        # Run MRX in background
+        threading.Thread(target=_mrx_learn, daemon=True).start()
+
+    def start_mic(self):
+        if self.is_listening:
+            self.log("VOICE", "Already listening. Please wait.")
+            return
+
+        self.is_listening = True
+        self.set_voice_button(True)
+        threading.Thread(target=self.voice_capture, daemon=True).start()
+
+    def set_voice_button(self, listening):
+        if not hasattr(self, "voice_btn"):
+            return
+
+        if listening:
+            self.voice_btn.configure(text="LISTENING", state="disabled", fg_color=self.cyber)
+        else:
+            self.voice_btn.configure(text="LISTEN", state="normal", fg_color=self.neon)
+
+    def voice_capture(self):
+        try:
+            self.core.set_state("listening")
+            if self.face3d:
+                self.face3d.set_state("listening")
+
+            query = self.voice.listen()
+            if query != "none":
+                self.prefer_bangla_voice = (
+                    str(getattr(self.voice, "last_language", "")).lower().startswith("bn")
+                    or self.voice.has_bangla(query)
+                )
+                routed_query = self.normalize_voice_command(query)
+                if routed_query != query:
+                    self.after(0, lambda q=query, r=routed_query: self.log("VOICE", f"{q} -> {r}"))
+                else:
+                    self.after(0, lambda q=query: self.log("VOICE", q))
+                self.process(routed_query)
+            else:
+                err = getattr(self.voice, "last_error", "") or "No voice command detected."
+                self.after(0, lambda msg=err: self.log("VOICE", msg))
+        except Exception as e:
+            err = f"Listening failed: {e}"
+            self.after(0, lambda msg=err: self.log("VOICE", msg))
+        finally:
+            self.is_listening = False
+            self.after(0, lambda: self.set_voice_button(False))
+            self.core.set_state("idle")
+            if self.face3d:
+                self.face3d.set_state("idle")
+
+    def normalize_voice_command(self, query):
+        q = query.strip().lower()
+        aliases = {
+            "clean": ("ক্লিন", "পরিষ্কার", "সাফ"),
+            "workspace": ("ওয়ার্কস্পেস", "কাজ শুরু", "ওয়ার্কস্পেস"),
+            "screenshot": ("স্ক্রিনশট", "স্ক্রিন শট", "ছবি তোলো"),
+            "wifi": ("ওয়াইফাই", "ওয়াইফাই", "ওয়াই ফাই", "ওয়াই ফাই"),
+            "users": ("ইউজার", "ব্যবহারকারী"),
+            "devices": ("ডিভাইস", "যন্ত্র"),
+            "remote": ("রিমোট",),
+            "mobile": ("মোবাইল",),
+            "share": ("শেয়ার", "শেয়ার"),
+            "disk": ("ডিস্ক", "স্টোরেজ"),
+            "battery": ("ব্যাটারি",),
+            "uptime": ("আপটাইম", "কতক্ষণ চলছে"),
+            "browser": ("ব্রাউজার",),
+            "window": ("উইন্ডো",),
+            "app help": ("app control", "application control", "robot control", "advanced robot"),
+            "router": ("রাউটার",),
+            "taskmgr": ("টাস্ক ম্যানেজার", "টাস্কম্যানেজার"),
+        }
+
+        for command, words in aliases.items():
+            if q == command or any(word in q for word in words):
+                return command
+        return query
+
+    def process(self, query):
+        print(f"\n{'='*80}")  # DEBUG
+        print(f"🔍 DEBUG: process() called with query: '{query}'")  # DEBUG
+        print(f"🔍 DEBUG: Brain connected: {self.brain and self.brain.is_connected if self.brain else False}")  # DEBUG
+        print(f"{'='*80}\n")  # DEBUG
+        
+        self.core.set_state("thinking")
+        if self.face3d:
+            self.face3d.set_state("thinking")
+        
+        # Automatic Command Routing (Direct Button vs AI Thought)
+        direct_commands = [
+            "clean", "workspace", "screenshot", "recon", "wifi", "users", "devices",
+            "kali", "remote", "flipper", "alien", "purge", "mobile", "share", "send",
+            "disk", "bt", "ducky", "cipher", "signal", "port", "payload", "find",
+            "connect", "firewall", "browser", "window", "battery", "uptime",
+            "doctor", "router", "webaudit", "webscan", "taskmgr", "app", "agent",
+            "selfcheck", "selffix", "upload", "monitor",
+            # New commands
+            "gen", "brain", "stream", "auto", "superhost", "bugcheck", "bugfix",
+            "bugdetect", "autofix",
+            # Auto Background Learning
+            "autobg",
+            # Search Learning commands
+            "searchlearn", "learn10", "learn50", "searchhistory",
+            # Article Learning commands
+            "learnarticle", "articlelist",
+            # Translator commands
+            "translate", "languages", "transhistory",
+        ]
+        
+        query_root = query.lower().split(" ", 1)[0]
+        print(f"🔍 DEBUG: query_root = '{query_root}'")  # DEBUG
+        
+        # GREETING DETECTION - Respond immediately without AI brain
+        query_lower = query.strip().lower()
+        greeting_keywords = ["hello", "hi", "hey"]
+        # Use word boundary detection to avoid false positives (e.g., "this" contains "hi")
+        import re
+        is_greeting = any(re.search(r'\b' + keyword + r'\b', query_lower) for keyword in greeting_keywords)
+        print(f"🔍 DEBUG: is_greeting = {is_greeting}")  # DEBUG
+        print(f"🔍 DEBUG: query_root in direct_commands = {query_root in direct_commands}")  # DEBUG
+        
+        if is_greeting and query_root not in direct_commands:
+            print("🔍 DEBUG: GREETING DETECTED! Generating response...")  # DEBUG
+            # Generate greeting response
+            user_name = self._session.get("display_name", "")
+            
+            if self.prefer_bangla_voice:
+                if user_name:
+                    res = f"হ্যালো {user_name}! আমি জার্ভিস। আমি কিভাবে সাহায্য করতে পারি?"
+                else:
+                    res = "হ্যালো! আমি জার্ভিস। আমি কিভাবে সাহায্য করতে পারি?"
+            else:
+                if user_name:
+                    res = f"Hello {user_name}! I'm Jarvis. How can I assist you today?"
+                else:
+                    res = "Hello! I'm Jarvis. How can I help you?"
+            
+            print(f"🔍 DEBUG: Generated response: {res}")  # DEBUG
+            
+            # Log and save immediately
+            print("🔍 DEBUG: Logging response...")  # DEBUG
+            self.after(0, lambda: self.log("JARVIS", res))
+            save_chat(query, res)
+            
+            # Speak the response
+            print("🔍 DEBUG: Speaking response...")  # DEBUG
+            self.core.set_state("speaking")
+            if self.face3d:
+                self.face3d.set_state("speaking")
+            with self.v_lock:
+                self.voice.speak(res)
+            self.core.set_state("idle")
+            if self.face3d:
+                self.face3d.set_state("idle")
+            print("🔍 DEBUG: Greeting response complete!")  # DEBUG
+            return
+        
+        if query_root in direct_commands:
+            print(f"🔍 DEBUG: Direct command detected: {query_root}")  # DEBUG
+            res = f"EXECUTE: {query}"
+        elif self.agent_mode:
+            print("🔍 DEBUG: Agent mode active")  # DEBUG
+            res = f"EXECUTE: app agent {query}"
+        else:
+            print(f"🔍 DEBUG: Checking brain connection...")  # DEBUG
+            print(f"🔍 DEBUG: self.brain = {self.brain}")  # DEBUG
+            print(f"🔍 DEBUG: self.brain.is_connected = {self.brain.is_connected if self.brain else 'N/A'}")  # DEBUG
+            
+            if not self.brain or not self.brain.is_connected:
+                print("🔍 DEBUG: Brain NOT connected, using offline brain")  # DEBUG
+                reason = getattr(self.brain, "last_error", "No API key configured") if self.brain else "No API key configured"
+                
+                # AUTO-FIX: Always try offline brain when no API key
+                self.after(0, lambda: self.log("SYSTEM", "Switching to OFFLINE BRAIN (No API key needed)..."))
+                
+                offline_brain_failed = False
+                try:
+                    from jarvis_offline_brain import OfflineBrain
+                    # Create a persistent offline brain instance if not exists to save time
+                    if not hasattr(self, '_offline_brain_instance'):
+                        self._offline_brain_instance = OfflineBrain()
+                    
+                    result = self._offline_brain_instance.process_query(query)
+                    res = result.get('response', 'I am here for you, Boss. My local logic is active.')
+                    
+                    print(f"🔍 DEBUG: Offline brain response: {res[:100]}")  # DEBUG
+                    
+                    # Check if offline brain gave a generic/unhelpful response
+                    generic_responses = [
+                        'ami ekhon offline achi',
+                        'i am here for you',
+                        'my local logic is active',
+                        'ami apnar pashe achi',
+                    ]
+                    
+                    is_generic = any(generic.lower() in res.lower() for generic in generic_responses)
+                    
+                    if is_generic:
+                        # Offline brain gave generic response, try World AI Chat
+                        self.after(0, lambda: self.log("SYSTEM", "⚠️ Offline brain gave generic response. Trying World AI Chat..."))
+                        print("🔍 DEBUG: Generic response detected, activating World AI Chat")  # DEBUG
+                        offline_brain_failed = True
+                    else:
+                        # Offline brain gave good response
+                        self.after(0, lambda r=res: self.log("JARVIS", f"[OFFLINE] {r}"))
+                        self.after(0, lambda r=res: self.speak(r))
+                        save_chat(query, res)
+                        
+                        self.core.set_state("idle")
+                        if self.face3d:
+                            self.face3d.set_state("idle")
+                        print("🔍 DEBUG: Offline brain response complete!")  # DEBUG
+                        return
+                        
+                except Exception as e:
+                    print(f"🔍 DEBUG: Offline brain error: {e}")  # DEBUG
+                    self.after(0, lambda: self.log("WARNING", f"Offline brain error: {e}"))
+                    offline_brain_failed = True
+                
+                # If offline brain failed or gave generic response, try Direct AI Chat first!
+                if offline_brain_failed:
+                    
+                    # FIRST: Try Direct AI Chat (Automatic - JARVIS chats by itself!)
+                    if self.direct_ai_chat:
+                        print("🔍 DEBUG: Trying Direct AI Chat (automatic)...")  # DEBUG
+                        self.after(0, lambda: self.log("SYSTEM", "🤖 JARVIS automatically chatting with AI..."))
+                        
+                        try:
+                            result = self.direct_ai_chat.chat_with_ai(query, 'auto')
+                            
+                            if result['success']:
+                                res = result['response']
+                                
+                                # Log and speak
+                                self.after(0, lambda r=res, ai=result['ai']: self.log("JARVIS", f"[{ai}] {r}"))
+                                self.after(0, lambda r=res: self.speak(r))
+                                save_chat(query, res)
+                                
+                                # Learn from response
+                                self.after(0, lambda: self.log("SYSTEM", "🤖 Learning from AI response..."))
+                                
+                                # Prepare learning systems
+                                learning_systems = {}
+                                
+                                if hasattr(self, 'auto_bg_learner') and self.auto_bg_learner:
+                                    learning_systems['auto_learner'] = self.auto_bg_learner
+                                
+                                if hasattr(self, '_offline_brain_instance'):
+                                    if hasattr(self._offline_brain_instance, 'auto_learner'):
+                                        learning_systems['auto_learner'] = self._offline_brain_instance.auto_learner
+                                    if hasattr(self._offline_brain_instance, 'tree_auto_learner'):
+                                        learning_systems['tree_learner'] = self._offline_brain_instance.tree_auto_learner
+                                    if hasattr(self._offline_brain_instance, 'ultimate_learner'):
+                                        learning_systems['ultimate_learner'] = self._offline_brain_instance.ultimate_learner
+                                
+                                # Learn from response
+                                if learning_systems and self.world_ai_chat:
+                                    learn_result = self.world_ai_chat.learn_from_response(query, res, learning_systems)
+                                    if learn_result['success'] and learn_result['learned_from']:
+                                        self.after(0, lambda systems=learn_result['learned_from']: self.log("SYSTEM", f"✅ Learned using: {', '.join(systems)}"))
+                                    if learn_result['errors']:
+                                        self.after(0, lambda errors=learn_result['errors']: self.log("WARNING", f"⚠️ Learning errors: {', '.join(errors)}"))
+                                
+                                self.core.set_state("idle")
+                                if self.face3d:
+                                    self.face3d.set_state("idle")
+                                print("🔍 DEBUG: Direct AI Chat response complete!")  # DEBUG
+                                return
+                            else:
+                                # Direct AI Chat failed
+                                self.after(0, lambda msg=result['response']: self.log("WARNING", f"⚠️ Direct AI failed: {msg}"))
+                                print(f"🔍 DEBUG: Direct AI Chat failed: {result['response']}")  # DEBUG
+                        
+                        except Exception as direct_ai_error:
+                            print(f"🔍 DEBUG: Direct AI Chat error: {direct_ai_error}")  # DEBUG
+                            self.after(0, lambda err=str(direct_ai_error): self.log("WARNING", f"⚠️ Direct AI error: {err}"))
+                    
+                    # Final fallback message (NO MORE MANUAL WORLD AI CHAT!)
+                    if self.prefer_bangla_voice:
+                        res = f"দুঃখিত, এই মুহূর্তে AI services available নেই। অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন। অথবা Neural Protocols থেকে API key add করুন।"
+                    else:
+                        res = f"Sorry, AI services are temporarily unavailable. Please try again later or add an API key from Neural Protocols."
+                    self.after(0, lambda: self.log("JARVIS", res))
+                    self.after(0, lambda: self.speak(res))
+                    save_chat(query, res)
+                    self.core.set_state("idle")
+                    if self.face3d:
+                        self.face3d.set_state("idle")
+                    return
+            
+            self.after(0, lambda: self.log("SYSTEM", "NEURAL REQUEST SENT. AWAITING BRAIN..."))
+            history = get_recent_history(3)
+            brain_query = query
+            if self.prefer_bangla_voice:
+                brain_query = (
+                    f"{query}\n\n"
+                    "Reply in Bengali/Bangla. If you need to trigger a PC action, keep the EXECUTE command in English."
+                )
+            # Streaming mode: token-by-token output
+            if self.streaming_mode:
+                self.after(0, lambda: self.terminal.insert("end", f"\n[JARVIS STREAM]> "))
+                res = stream_think(self.brain, brain_query, history, self._stream_to_terminal)
+                self.after(0, lambda: self.terminal.insert("end", "\n"))
+            else:
+                res = self.brain.think(brain_query, history)
+        
+        # AUTO-FIX: Check if quota exceeded and fallback to offline brain
+        if "QUOTA" in str(res).upper() or "LIMIT" in str(res).upper() or "all API keys have hit" in str(res):
+            self.after(0, lambda: self.log("SYSTEM", "🔄 API Limit Reached. Activating Supreme Offline Soul..."))
+            
+            offline_brain_failed = False
+            try:
+                from jarvis_offline_brain import OfflineBrain
+                if not hasattr(self, '_offline_brain_instance'):
+                    self._offline_brain_instance = OfflineBrain()
+                
+                result = self._offline_brain_instance.process_query(query)
+                res = result.get('response', 'I am here for you, Boss. My local logic is active.')
+                
+                # Check if offline brain gave a generic/unhelpful response
+                generic_responses = [
+                    'ami ekhon offline achi',
+                    'i am here for you',
+                    'my local logic is active',
+                    'ami apnar pashe achi',
+                ]
+                
+                is_generic = any(generic.lower() in res.lower() for generic in generic_responses)
+                
+                if is_generic:
+                    # Offline brain gave generic response, try World AI Chat
+                    self.after(0, lambda: self.log("SYSTEM", "⚠️ Offline brain gave generic response. Trying World AI Chat..."))
+                    offline_brain_failed = True
+                else:
+                    # Offline brain gave good response
+                    self.after(0, lambda r=res: self.log("JARVIS", f"[OFFLINE] {r}"))
+                    self.after(0, lambda r=res: self.speak(r))
+                    save_chat(query, res)
+                    
+                    self.core.set_state("idle")
+                    if self.face3d:
+                        self.face3d.set_state("idle")
+                    return
+                    
+            except Exception as e:
+                self.after(0, lambda msg=f"Offline brain error: {e}": self.log("WARNING", msg))
+                offline_brain_failed = True
+            
+            # If offline brain failed or gave generic response, try Direct AI Chat first!
+            if offline_brain_failed:
+                
+                # FIRST: Try Direct AI Chat (Automatic - JARVIS chats by itself!)
+                if self.direct_ai_chat:
+                    self.after(0, lambda: self.log("SYSTEM", "🤖 JARVIS chatting with AI automatically..."))
+                    
+                    try:
+                        result = self.direct_ai_chat.chat_with_ai(query, 'auto')
+                        
+                        if result['success']:
+                            res = result['response']
+                            
+                            # Log and speak
+                            self.after(0, lambda r=res: self.log("JARVIS", f"[{result['ai']}] {r}"))
+                            self.after(0, lambda r=res: self.speak(r))
+                            save_chat(query, res)
+                            
+                            # Learn from response
+                            self.after(0, lambda: self.log("SYSTEM", "🤖 Learning from AI response..."))
+                            
+                            # Prepare learning systems
+                            learning_systems = {}
+                            
+                            if hasattr(self, 'auto_bg_learner') and self.auto_bg_learner:
+                                learning_systems['auto_learner'] = self.auto_bg_learner
+                            
+                            if hasattr(self, '_offline_brain_instance'):
+                                if hasattr(self._offline_brain_instance, 'auto_learner'):
+                                    learning_systems['auto_learner'] = self._offline_brain_instance.auto_learner
+                                if hasattr(self._offline_brain_instance, 'tree_auto_learner'):
+                                    learning_systems['tree_learner'] = self._offline_brain_instance.tree_auto_learner
+                                if hasattr(self._offline_brain_instance, 'ultimate_learner'):
+                                    learning_systems['ultimate_learner'] = self._offline_brain_instance.ultimate_learner
+                            
+                            # Learn from response
+                            if learning_systems and self.world_ai_chat:
+                                learn_result = self.world_ai_chat.learn_from_response(query, res, learning_systems)
+                                if learn_result['success'] and learn_result['learned_from']:
+                                    self.after(0, lambda: self.log("SYSTEM", f"✅ Learned using: {', '.join(learn_result['learned_from'])}"))
+                                if learn_result['errors']:
+                                    self.after(0, lambda: self.log("WARNING", f"⚠️ Learning errors: {', '.join(learn_result['errors'])}"))
+                            
+                            self.core.set_state("idle")
+                            if self.face3d:
+                                self.face3d.set_state("idle")
+                            return
+                        else:
+                            # Direct AI Chat failed, try World AI Chat
+                            self.after(0, lambda: self.log("WARNING", f"Direct AI failed, trying manual method..."))
+                    
+                    except Exception as direct_ai_error:
+                        self.after(0, lambda: self.log("WARNING", f"Direct AI error, trying manual method..."))
+                
+                # SECOND: Try World AI Chat (Manual - with browser)
+                if self.world_ai_chat:
+                    self.after(0, lambda: self.log("SYSTEM", "🌍 Opening World AI Chat (API quota exceeded)..."))
+                    
+                    try:
+                        # Let user select which AI to use
+                        selected_ai = self.world_ai_chat.show_ai_selector_dialog(self)
+                        
+                        if selected_ai:
+                            # Chat with selected AI
+                            result = self.world_ai_chat.chat_with_ai(query, selected_ai, self)
+                            
+                            if result['success']:
+                                res = result['response']
+                                
+                                # Log and speak
+                                self.after(0, lambda r=res: self.log("JARVIS", f"[{result['ai']}] {r}"))
+                                self.after(0, lambda r=res: self.speak(r))
+                                save_chat(query, res)
+                                
+                                # Learn from response
+                                self.after(0, lambda: self.log("SYSTEM", "🤖 Learning from AI response..."))
+                                
+                                # Prepare learning systems
+                                learning_systems = {}
+                                
+                                if hasattr(self, 'auto_bg_learner') and self.auto_bg_learner:
+                                    learning_systems['auto_learner'] = self.auto_bg_learner
+                                
+                                if hasattr(self, '_offline_brain_instance'):
+                                    if hasattr(self._offline_brain_instance, 'auto_learner'):
+                                        learning_systems['auto_learner'] = self._offline_brain_instance.auto_learner
+                                    if hasattr(self._offline_brain_instance, 'tree_auto_learner'):
+                                        learning_systems['tree_learner'] = self._offline_brain_instance.tree_auto_learner
+                                    if hasattr(self._offline_brain_instance, 'ultimate_learner'):
+                                        learning_systems['ultimate_learner'] = self._offline_brain_instance.ultimate_learner
+                                
+                                # Learn from response
+                                if learning_systems:
+                                    learn_result = self.world_ai_chat.learn_from_response(query, res, learning_systems)
+                                    if learn_result['success'] and learn_result['learned_from']:
+                                        self.after(0, lambda: self.log("SYSTEM", f"✅ Learned using: {', '.join(learn_result['learned_from'])}"))
+                                    if learn_result['errors']:
+                                        self.after(0, lambda: self.log("WARNING", f"⚠️ Learning errors: {', '.join(learn_result['errors'])}"))
+                                
+                                self.core.set_state("idle")
+                                if self.face3d:
+                                    self.face3d.set_state("idle")
+                                return
+                    
+                    except Exception as world_ai_error:
+                        self.after(0, lambda: self.log("ERROR", f"World AI Chat error: {world_ai_error}"))
+                
+                # Final fallback
+                res = "My neural link is currently unstable, but my loyalty remains absolute. How can I assist you offline?"
+                self.after(0, lambda r=res: self.speak(r))
+                self.after(0, lambda r=res: self.log("JARVIS", f"[OFFLINE] {r}"))
+                return
+        
+        output_msg = res
+        res_to_speak = res
+        
+        # Log immediately
+        self.after(0, lambda: self.log("JARVIS", output_msg))
+        save_chat(query, output_msg)
+
+        # Handle System Commands (Remote Access)
+        if "EXECUTE:" in res:
+            cmd_parts = res.split("EXECUTE:")
+            explanation = cmd_parts[0].strip()
+            sys_cmd = cmd_parts[1].strip().lower()
+            
+            # Advanced Command Parsing
+            parts = sys_cmd.split(" ", 1)
+            cmd_root = parts[0]
+            cmd_args = parts[1] if len(parts) > 1 else ""
+
+            cmd_res = ""
+            if cmd_root == "clean":
+                cmd_res = f"System purged. {clean_system()} temporary files eliminated."
+            elif cmd_root == "workspace":
+                cmd_res = start_workspace()
+            elif cmd_root == "screenshot":
+                cmd_res = take_screenshot()
+            elif cmd_root == "scan":
+                cmd_res = scan_network()
+            elif cmd_root == "ping":
+                cmd_res = ping_device(cmd_args)
+            elif cmd_root in ["battery", "uptime"]:
+                cmd_res = get_system_stats()
+            elif cmd_root == "copy":
+                cmd_res = copy_to_clipboard(cmd_args)
+            elif cmd_root == "open":
+                url = cmd_args
+                if not url.startswith("http"): url = "https://" + url
+                webbrowser.open(url)
+                cmd_res = f"Uplink established to: {url}"
+            elif cmd_root == "volume":
+                cmd_res = control_volume(cmd_args)
+            elif cmd_root == "processes":
+                cmd_res = get_running_processes()
+            elif cmd_root == "memory":
+                cmd_res = get_memory_info()
+            elif cmd_root == "note":
+                cmd_res = save_note(cmd_args)
+            elif cmd_root in ["taskmgr", "task"]:
+                cmd_res = open_task_manager()
+            elif cmd_root == "lock":
+                cmd_res = lock_computer()
+            elif cmd_root == "shutdown":
+                cmd_res = shutdown_computer()
+            elif cmd_root == "restart":
+                cmd_res = restart_computer()
+            elif cmd_root == "disk":
+                cmd_res = get_disk_info()
+            elif cmd_root == "explorer":
+                cmd_res = open_explorer(cmd_args)
+            elif cmd_root == "net":
+                cmd_res = run_net_command(cmd_args)
+            elif cmd_root == "users":
+                cmd_res = get_network_users()
+            elif cmd_root == "boost":
+                cmd_res = boost_game(cmd_args)
+            elif cmd_root == "android":
+                cmd_res = android_boost()
+            elif cmd_root == "kali":
+                cmd_res = setup_kali_mode()
+            elif cmd_root == "remote":
+                if "setup" in cmd_args or "enable" in cmd_args:
+                    cmd_res = setup_remote_desktop()
+                else:
+                    cmd_res = start_remote_connection(cmd_args)
+            elif cmd_root == "recon":
+                cmd_res = auto_collect_info()
+            elif cmd_root == "scan" or cmd_root == "virus":
+                cmd_res = scan_for_viruses()
+            elif cmd_root == "force" or cmd_root == "kill":
+                cmd_res = force_kill_process(cmd_args)
+            elif cmd_root == "empty" or cmd_root == "bin":
+                cmd_res = empty_recycle_bin()
+            elif cmd_root == "brightness" or cmd_root == "light":
+                cmd_res = set_brightness(cmd_args)
+            elif cmd_root == "media":
+                cmd_res = media_control(cmd_args)
+            elif cmd_root == "deploy" or cmd_root == "bot":
+                # Expecting args like "botname | code"
+                if "|" in cmd_args:
+                    b_name, b_code = cmd_args.split("|", 1)
+                    cmd_res = deploy_bot(b_name.strip(), b_code.strip())
+                else:
+                    cmd_res = "Deployment Error: Requires 'name | code' format."
+            elif cmd_root == "share":
+                cmd_res = create_screen_share()
+            elif cmd_root == "wifi":
+                cmd_res = scan_wifi()
+            elif cmd_root == "send" or cmd_root == "files":
+                cmd_res = share_files()
+            elif cmd_root == "upload":
+                # Show recent uploads
+                recent = get_recent_uploads(10)
+                if recent:
+                    cmd_res = "📁 Recent Uploads:\n\n"
+                    for file_id, filename, file_type, file_size, upload_date in recent:
+                        cmd_res += f"• {filename} ({file_type}, {file_size} bytes) - {upload_date}\n"
+                else:
+                    cmd_res = "No files uploaded yet. Click 📁 UPLOAD button to upload files!"
+            elif cmd_root == "scan" or cmd_root == "port":
+                cmd_res = deep_port_scan(cmd_args)
+            elif cmd_root == "payload":
+                cmd_res = generate_payload(cmd_args if cmd_args else "payload.bat")
+            elif cmd_root == "qr":
+                self.show_custom_qr(cmd_args)
+                cmd_res = f"QR Data Uplink generated for: {cmd_args}"
+            elif cmd_root == "flipper":
+                cmd_res = "FLIPPER ZERO MODE: ACTIVE. Awaiting advanced sub-commands (BT, DUCKY)."
+            elif cmd_root == "bt" or cmd_root == "bluetooth":
+                cmd_res = scan_bluetooth()
+            elif cmd_root == "ducky":
+                cmd_res = ducky_deploy(cmd_args)
+            elif cmd_root == "alien":
+                cmd_res = "ALIEN HACKING MODE: ENGAGED. Scanning for extraterrestrial signals and cryptographic anomalies."
+            elif cmd_root == "cipher":
+                cmd_res = alien_cipher(cmd_args)
+            elif cmd_root == "signal":
+                cmd_res = signal_scan()
+            elif cmd_root == "devices" or cmd_root == "find":
+                if cmd_args:
+                    cmd_res = find_and_connect(cmd_args)
+                else:
+                    cmd_res = "DEVICE MANAGER: Scanning local spectrum for all active nodes...\n" + auto_collect_info()
+            elif cmd_root == "connect":
+                # connect [target] [protocol]
+                parts = cmd_args.split()
+                target = parts[0] if len(parts) > 0 else ""
+                proto = parts[1] if len(parts) > 1 else "ping"
+                cmd_res = manage_device(target, proto)
+            elif cmd_root == "purge" or cmd_root == "badshah":
+                cmd_res = neutralize_badshah()
+            elif cmd_root == "firewall":
+                cmd_res = setup_infinity_firewall()
+            elif cmd_root == "mobile":
+                self.after(0, self.show_mobile_qr)
+                cmd_res = "MOBILE UPLINK: QR console opened."
+            elif cmd_root == "app":
+                cmd_res = app_control(cmd_args)
+            elif cmd_root == "agent":
+                mode = cmd_args.strip().lower()
+                if mode in ["on", "active", "activate", "start", "enable"]:
+                    self.agent_mode = True
+                    cmd_res = "AGENT MODE: ACTIVE. Normal instructions now route through app agent control."
+                elif mode in ["off", "stop", "disable"]:
+                    self.agent_mode = False
+                    cmd_res = "AGENT MODE: OFF. Normal AI chat/command routing restored."
+                elif mode == "status":
+                    cmd_res = f"AGENT MODE: {'ACTIVE' if self.agent_mode else 'OFF'}."
+                elif mode:
+                    self.agent_mode = True
+                    cmd_res = app_control(f"agent {cmd_args}")
+                else:
+                    self.agent_mode = True
+                    cmd_res = "AGENT MODE: ACTIVE. Say 'agent off' to disable."
+            elif cmd_root == "selfcheck":
+                cmd_res = self_check(auto_fix=False)
+            elif cmd_root == "selffix":
+                cmd_res = self_check(auto_fix=True)
+            elif cmd_root == "browser":
+                # browser [action] [target]
+                parts = cmd_args.split()
+                act = parts[0] if len(parts) > 0 else "open"
+                trgt = parts[1] if len(parts) > 1 else None
+                cmd_res = browser_control(act, trgt)
+            elif cmd_root == "window":
+                # window [action] [title]
+                parts = cmd_args.split()
+                act = parts[0] if len(parts) > 0 else "focus"
+                title = parts[1] if len(parts) > 1 else "Chrome"
+                cmd_res = control_window(title, act)
+            elif cmd_root == "monitor":
+                # System Monitor - Show what JARVIS is doing
+                try:
+                    from jarvis_system_monitor import JarvisSystemMonitor
+                    monitor = JarvisSystemMonitor()
+                    monitor.log_activity("USER REQUEST", "System monitor opened")
+                    cmd_res = monitor.get_system_status()
+                except Exception as e:
+                    cmd_res = f"Monitor error: {e}\nTry running: python jarvis_system_monitor.py"
+            elif cmd_root == "doctor":
+                # System Integrity Audit
+                audit = []
+                audit.append("--- JARVIS SYSTEM AUDIT ---")
+                audit.append(f"OS: {sys.platform}")
+                audit.append(f"CPU: {psutil.cpu_percent()}% | RAM: {psutil.virtual_memory().percent}%")
+                audit.append(f"BRAIN: {'CONNECTED' if self.brain and self.brain.is_connected else 'OFFLINE'}")
+                audit.append(f"NEURAL NODES: {len(self.brain.api_keys) if self.brain else 0}")
+                audit.append(f"MOBILE SERVER: {'ACTIVE' if hasattr(self, 'mobile_active') else 'STANDBY'}")
+                cmd_res = "\n".join(audit)
+            elif cmd_root == "router":
+                parts = cmd_args.split()
+                if parts and parts[0] in ["ping", "ports", "rdp", "share"]:
+                    cmd_res = router_connect(parts[1] if len(parts) > 1 else "192.168.1.1", parts[0])
+                else:
+                    cmd_res = scan_router_devices()
+            elif cmd_root == "webaudit" or cmd_root == "webscan":
+                target = cmd_args.strip() if cmd_args.strip() else "https://example.com"
+                if not cmd_args.strip():
+                    cmd_res = "WEB AUDIT: Please specify a target. Usage: webaudit [domain.com]"
+                else:
+                    cmd_res = web_security_audit(target)
+
+            # ── GENERATOR COMMANDS ────────────────────────────────────────
+            elif cmd_root == "gen":
+                sub = cmd_args.split(" ", 1)
+                gen_type = sub[0].lower() if sub else ""
+                gen_prompt = sub[1].strip() if len(sub) > 1 else ""
+                if gen_type == "image":
+                    cmd_res = generate_image(gen_prompt) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("image")) or "Image generator opened.")
+                elif gen_type in ["photo", "pic"]:
+                    cmd_res = generate_photo(gen_prompt) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("photo")) or "Photo generator opened.")
+                elif gen_type == "video":
+                    cmd_res = generate_video(gen_prompt) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("video")) or "Video generator opened.")
+                elif gen_type == "audio":
+                    cmd_res = generate_audio(gen_prompt) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("audio")) or "Audio generator opened.")
+                elif gen_type == "3d":
+                    cmd_res = generate_3d_model(gen_prompt) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("3d")) or "3D generator opened.")
+                elif gen_type == "text":
+                    cmd_res = generate_text(gen_prompt, self.brain) if gen_prompt else (self.after(0, lambda: self.show_generator_dialog("text")) or "Text generator opened.")
+                elif gen_type == "file":
+                    if gen_prompt:
+                        parts2 = gen_prompt.split(" ", 1)
+                        fname = parts2[0]; fcontent = parts2[1] if len(parts2) > 1 else gen_prompt
+                        cmd_res = generate_file(fname, fcontent, self.brain)
+                    else:
+                        self.after(0, lambda: self.show_generator_dialog("file"))
+                        cmd_res = "File generator opened."
+                elif gen_type == "list":
+                    cmd_res = list_generated()
+                elif gen_type == "folder":
+                    os.makedirs(GEN_DIR, exist_ok=True); os.startfile(GEN_DIR)
+                    cmd_res = f"Opened: {GEN_DIR}"
+                else:
+                    self.after(0, self.show_generator_panel)
+                    cmd_res = "Generator panel opened."
+
+            # ── MULTI-BRAIN COMMANDS ──────────────────────────────────────
+            elif cmd_root == "brain":
+                sub = cmd_args.strip().lower()
+                if sub == "status":
+                    cmd_res = self.multi_brain.status()
+                elif sub.startswith("parallel"):
+                    q2 = sub.replace("parallel", "").strip() or query
+                    cmd_res = self.multi_brain.parallel_think(q2)
+                elif sub.startswith("ollama"):
+                    q2 = sub.replace("ollama", "").strip() or "Hello"
+                    from engine.multi_brain import ask_ollama
+                    r = ask_ollama(q2, self.multi_brain.ollama_model)
+                    cmd_res = r if r else "[OLLAMA] Not running. Start with: ollama serve"
+                elif sub.startswith("groq"):
+                    q2 = sub.replace("groq", "").strip() or "Hello"
+                    from engine.multi_brain import ask_groq
+                    r = ask_groq(q2, self.multi_brain.groq_key)
+                    cmd_res = r if r else "[GROQ] No key. Add #GROQ_KEY=your_key to jarvis_config.txt"
+                else:
+                    cmd_res = self.multi_brain.status()
+
+            # ── STREAMING TOGGLE ──────────────────────────────────────────
+            elif cmd_root == "stream":
+                self.toggle_streaming()
+                cmd_res = f"Streaming mode: {'ON' if self.streaming_mode else 'OFF'}"
+
+            # ── AUTO CONTROLLER ───────────────────────────────────────────
+            elif cmd_root == "auto":
+                sub = cmd_args.strip().lower()
+                if sub == "list":
+                    cmd_res = self.auto_ctrl.list_tasks()
+                elif sub.startswith("schedule"):
+                    self.after(0, self.show_schedule_dialog)
+                    cmd_res = "Schedule dialog opened."
+                else:
+                    cmd_res = self.auto_ctrl.list_tasks()
+
+            # ── SUPER HOST ────────────────────────────────────────────────
+            elif cmd_root == "superhost":
+                parts2 = cmd_args.strip().split()
+                directory = parts2[0] if parts2 else None
+                port = int(parts2[1]) if len(parts2) > 1 else 8080
+                cmd_res = start_super_host(directory, port)
+
+            # ── BUG DETECTION ─────────────────────────────────────────────
+            elif cmd_root in ["bugcheck", "bugdetect"]:
+                cmd_res = detect_bugs(auto_fix=False)
+            elif cmd_root in ["bugfix", "autofix"]:
+                cmd_res = detect_bugs(auto_fix=True)
+            
+            # ── AUTO BACKGROUND LEARNING ──────────────────────────────────
+            elif cmd_root == "autobg":
+                # Toggle auto background learning
+                if self.auto_bg_learner:
+                    if self.auto_bg_learner.is_running:
+                        self.auto_bg_learner.stop()
+                        cmd_res = "⏹️ Auto Background Learning STOPPED!\n⏹️ JARVIS will no longer learn automatically."
+                    else:
+                        self.auto_bg_learner.start()
+                        cmd_res = "▶️ Auto Background Learning STARTED!\n🤖 JARVIS will now learn automatically in background!\n🤖 No user input needed - JARVIS learns on its own!\n\n📊 Learning topics from:\n  - Programming (Python, JavaScript, Java, etc.)\n  - Technology (AI, ML, Blockchain, etc.)\n  - Frameworks (React, Django, TensorFlow, etc.)\n  - Databases (MySQL, MongoDB, Redis, etc.)\n  - Science (Physics, Chemistry, Biology, etc.)\n  - And much more!\n\n⏱️ Learning interval: 5-10 minutes per topic\n💾 All data saved to database automatically\n\nClick 'AUTO BG LEARN' again to stop."
+                else:
+                    cmd_res = "❌ Auto Background Learner not available!"
+            
+            # ── SEARCH LEARNING ───────────────────────────────────────────
+            elif cmd_root == "searchlearn":
+                # Start search learning in background
+                def run_search_learn():
+                    learner = SearchLearner()
+                    learner.auto_learn_words(10, delay=2)
+                    learner.close()
+                    self.after(0, lambda: self.log("SYSTEM", "✅ Search learning completed! 10 words learned."))
+                
+                threading.Thread(target=run_search_learn, daemon=True).start()
+                cmd_res = "🔍 Starting search learning... Learning 10 words from search engines."
+            
+            elif cmd_root == "learn10":
+                # Learn 10 words
+                def run_learn10():
+                    learner = SearchLearner()
+                    learner.auto_learn_words(10, delay=2)
+                    learner.close()
+                    self.after(0, lambda: self.log("SYSTEM", "✅ Learned 10 words successfully!"))
+                
+                threading.Thread(target=run_learn10, daemon=True).start()
+                cmd_res = "📚 Learning 10 words... Please wait."
+            
+            elif cmd_root == "learn50":
+                # Learn 50 words
+                def run_learn50():
+                    learner = SearchLearner()
+                    learner.auto_learn_words(50, delay=2)
+                    learner.close()
+                    self.after(0, lambda: self.log("SYSTEM", "✅ Learned 50 words successfully!"))
+                
+                threading.Thread(target=run_learn50, daemon=True).start()
+                cmd_res = "📖 Learning 50 words... This will take a few minutes."
+            
+            elif cmd_root == "searchhistory":
+                # Show search history
+                learner = SearchLearner()
+                try:
+                    learner.cursor.execute("""
+                        SELECT search_term, search_engine, search_date
+                        FROM search_history
+                        ORDER BY search_date DESC
+                        LIMIT 10
+                    """)
+                    history = learner.cursor.fetchall()
+                    
+                    if history:
+                        cmd_res = "📜 Recent Search History:\n\n"
+                        for i, (term, engine, date) in enumerate(history, 1):
+                            cmd_res += f"{i}. {term} ({engine}) - {date}\n"
+                    else:
+                        cmd_res = "No search history yet. Start learning to build history!"
+                    
+                    learner.close()
+                except Exception as e:
+                    cmd_res = f"Error retrieving search history: {e}"
+                    learner.close()
+            
+            elif cmd_root == "learnarticle":
+                # Open article learning dialog
+                self.after(0, lambda: self.show_article_learning_dialog())
+                cmd_res = "📄 Opening article learning dialog..."
+            
+            elif cmd_root == "articlelist":
+                # Show learned articles
+                article_learner = ArticleLearner()
+                try:
+                    article_learner.cursor.execute("""
+                        SELECT title, word_count, learned_date
+                        FROM learned_articles
+                        ORDER BY learned_date DESC
+                        LIMIT 5
+                    """)
+                    articles = article_learner.cursor.fetchall()
+                    
+                    if articles:
+                        cmd_res = "📋 Recently Learned Articles:\n\n"
+                        for i, (title, words, date) in enumerate(articles, 1):
+                            cmd_res += f"{i}. {title}\n"
+                            cmd_res += f"   Words: {words:,} | Date: {date}\n\n"
+                    else:
+                        cmd_res = "No articles learned yet. Click 📄 LEARN ARTICLE to start!"
+                    
+                    article_learner.close()
+                except Exception as e:
+                    cmd_res = f"Error retrieving articles: {e}"
+                    article_learner.close()
+            
+            # ── TRANSLATOR ────────────────────────────────────────────────
+            elif cmd_root == "translate":
+                # Open translation dialog
+                self.after(0, lambda: self.show_translation_dialog())
+                cmd_res = "🌍 Opening translation dialog..."
+            
+            elif cmd_root == "languages":
+                # Show supported languages
+                translator = JarvisTranslator()
+                cmd_res = f"🌍 Supported Languages ({len(translator.languages)}):\n\n"
+                for code, name in sorted(list(translator.languages.items())[:20], key=lambda x: x[1]):
+                    cmd_res += f"{code:5} - {name}\n"
+                cmd_res += f"\n... and {len(translator.languages) - 20} more languages!"
+                translator.close()
+            
+            elif cmd_root == "transhistory":
+                # Show translation history
+                translator = JarvisTranslator()
+                try:
+                    translator.cursor.execute("""
+                        SELECT source_text, source_lang, target_lang, translated_text, translation_date
+                        FROM translation_history
+                        ORDER BY translation_date DESC
+                        LIMIT 5
+                    """)
+                    history = translator.cursor.fetchall()
+                    
+                    if history:
+                        cmd_res = "📝 Recent Translations:\n\n"
+                        for i, (src, src_lang, tgt_lang, trans, date) in enumerate(history, 1):
+                            cmd_res += f"{i}. {translator.languages.get(src_lang, src_lang)} → {translator.languages.get(tgt_lang, tgt_lang)}\n"
+                            cmd_res += f"   Source: {src[:40]}{'...' if len(src) > 40 else ''}\n"
+                            cmd_res += f"   Translation: {trans[:40]}{'...' if len(trans) > 40 else ''}\n\n"
+                    else:
+                        cmd_res = "No translation history yet. Start translating!"
+                    
+                    translator.close()
+                except Exception as e:
+                    cmd_res = f"Error retrieving translation history: {e}"
+                    translator.close()
+            
+            else:
+                try:
+                    subprocess.Popen(sys_cmd, shell=True)
+                    cmd_res = f"Task initiated: {sys_cmd}"
+                except Exception as e:
+                    cmd_res = f"Critical Failure: {e}"
+            
+            output_msg = f"{explanation}\n\n[SYSTEM]: {cmd_res}"
+            res_to_speak = f"{explanation}. {cmd_res}"
+            if self.prefer_bangla_voice and not self.voice.has_bangla(res_to_speak):
+                res_to_speak = f"{cmd_root} কমান্ড সম্পন্ন হয়েছে।"
+        # Speak
+        self.core.set_state("speaking")
+        if self.face3d:
+            self.face3d.set_state("speaking")
+        with self.v_lock:
+            self.voice.speak(res_to_speak)
+        self.core.set_state("idle")
+        if self.face3d:
+            self.face3d.set_state("idle")
+
+    # =========================================================================
+    # STREAMING MODE
+    # =========================================================================
+
+    def toggle_streaming(self):
+        self.streaming_mode = not self.streaming_mode
+        if self.streaming_mode:
+            self.stream_btn.configure(text="STREAM: ON", fg_color="#005544")
+            self.log("SYSTEM", "STREAMING MODE ON -- AI responses appear token by token.")
+        else:
+            self.stream_btn.configure(text="STREAM: OFF", fg_color="#003322")
+            self.log("SYSTEM", "STREAMING MODE OFF.")
+
+    def _stream_to_terminal(self, chunk: str):
+        self.terminal.insert("end", chunk.replace("*", ""))
+        self.terminal.see("end")
+
+    # =========================================================================
+    # DRAG & DROP
+    # =========================================================================
+
+    def _setup_drag_drop(self, widget):
+        try:
+            from tkinterdnd2 import DND_FILES  # type: ignore
+            widget.drop_target_register(DND_FILES)
+            widget.dnd_bind("<<Drop>>", self._on_drop)
+            self.log("SYSTEM", "Drag & Drop: ACTIVE")
+        except Exception:
+            widget.bind("<Control-v>", self._on_paste_path)
+
+    def _on_drop(self, event):
+        raw = event.data.strip()
+        # tkinterdnd2 wraps paths with spaces in braces
+        import re
+        paths = re.findall(r'\{([^}]+)\}|(\S+)', raw)
+        file_list = [p[0] or p[1] for p in paths if p[0] or p[1]]
+        for path in file_list:
+            self._handle_dropped_file(path.strip('"'))
+
+    def _on_paste_path(self, event=None):
+        try:
+            import pyperclip
+            path = pyperclip.paste().strip().strip('"')
+            if os.path.exists(path):
+                self._handle_dropped_file(path)
+        except Exception:
+            pass
+
+    def _handle_dropped_file(self, path: str):
+        if not os.path.exists(path):
+            self.log("DROP", f"Not found: {path}")
+            return
+        ext = os.path.splitext(path)[1].lower()
+        name = os.path.basename(path)
+        self.log("DROP", f"Received: {name}")
+
+        if ext in (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"):
+            self.entry.delete(0, "end")
+            self.entry.insert(0, f"Describe this image: {path}")
+            return
+
+        if ext in (".txt", ".py", ".js", ".ts", ".html", ".css", ".json",
+                   ".md", ".csv", ".xml", ".yaml", ".yml", ".ini", ".cfg", ".log"):
+            try:
+                with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read(8000)
+                prompt = f"Analyze this file ({name}):\n\n{content}"
+                threading.Thread(target=self.process, args=(prompt,), daemon=True).start()
+            except Exception as e:
+                self.log("DROP", f"Read error: {e}")
+            return
+
+        if ext == ".pdf":
+            try:
+                import PyPDF2  # type: ignore
+                with open(path, "rb") as f:
+                    reader = PyPDF2.PdfReader(f)
+                    text = "\n".join(p.extract_text() or "" for p in reader.pages[:5])
+                prompt = f"Summarize this PDF ({name}):\n\n{text[:6000]}"
+                threading.Thread(target=self.process, args=(prompt,), daemon=True).start()
+            except ImportError:
+                self.log("DROP", "PDF support: pip install PyPDF2")
+            except Exception as e:
+                self.log("DROP", f"PDF error: {e}")
+            return
+
+        try:
+            os.startfile(path)
+            self.log("DROP", f"Opened: {name}")
+        except Exception as e:
+            self.log("DROP", f"Cannot open: {e}")
+
+    # =========================================================================
+    # GENERATOR PANEL
+    # =========================================================================
+
+    def show_generator_dialog(self, gen_type: str):
+        """Quick single-type generator dialog."""
+        popup = ctk.CTkToplevel(self)
+        popup.title(f"[*] Generate {gen_type.upper()}")
+        popup.geometry("500x300")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text=f"[*] {gen_type.upper()} GENERATOR",
+                     font=("Courier New", 18, "bold"), text_color="#00F3FF").pack(pady=15)
+        ctk.CTkLabel(popup, text="Enter prompt:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20)
+        prompt_entry = ctk.CTkEntry(popup, height=45, font=("Courier New", 13),
+                                    fg_color="#05080F", text_color="#00FF41")
+        prompt_entry.pack(fill="x", padx=20, pady=10)
+
+        def _generate():
+            p = prompt_entry.get().strip()
+            if not p:
+                return
+            popup.destroy()
+            def _run():
+                if gen_type == "image":   r = generate_image(p)
+                elif gen_type == "photo": r = generate_photo(p)
+                elif gen_type == "video": r = generate_video(p)
+                elif gen_type == "audio": r = generate_audio(p)
+                elif gen_type == "3d":    r = generate_3d_model(p)
+                elif gen_type == "text":  r = generate_text(p, self.brain)
+                elif gen_type == "file":
+                    parts2 = p.split(" ", 1)
+                    r = generate_file(parts2[0], parts2[1] if len(parts2) > 1 else p, self.brain)
+                else: r = generate_text(p, self.brain)
+                self.after(0, lambda: self.log("GEN", r))
+            threading.Thread(target=_run, daemon=True).start()
+
+        ctk.CTkButton(popup, text="[*] GENERATE", height=45,
+                      fg_color="#003300", hover_color="#005500",
+                      command=_generate).pack(fill="x", padx=20, pady=10)
+        prompt_entry.bind("<Return>", lambda e: _generate())
+
+    def show_translation_dialog(self):
+        """Show translation dialog"""
+        popup = ctk.CTkToplevel(self)
+        popup.title("🌍 JARVIS TRANSLATOR")
+        popup.geometry("600x500")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text="🌍 UNIVERSAL TRANSLATOR", font=("Courier New", 20, "bold"),
+                     text_color="#00F3FF").pack(pady=15)
+        
+        # Source text
+        ctk.CTkLabel(popup, text="Text to translate:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20, pady=(10,5))
+        source_text = ctk.CTkTextbox(popup, height=100, font=("Courier New", 12),
+                                      fg_color="#05080F", text_color="#00FF41")
+        source_text.pack(fill="x", padx=20, pady=5)
+        
+        # Language selection
+        lang_frame = ctk.CTkFrame(popup, fg_color="transparent")
+        lang_frame.pack(fill="x", padx=20, pady=10)
+        
+        # Target language
+        ctk.CTkLabel(lang_frame, text="To:", font=("Courier New", 12),
+                     text_color="#555555").pack(side="left", padx=5)
+        target_lang = ctk.CTkEntry(lang_frame, width=100, placeholder_text="en",
+                                    fg_color="#05080F", text_color="#00FF41")
+        target_lang.pack(side="left", padx=5)
+        target_lang.insert(0, "bn")
+        
+        # Common languages
+        ctk.CTkLabel(lang_frame, text="Quick:", font=("Courier New", 10),
+                     text_color="#555555").pack(side="left", padx=10)
+        for lang_code, lang_name in [("en", "EN"), ("bn", "BN"), ("hi", "HI"), ("es", "ES"), ("fr", "FR")]:
+            ctk.CTkButton(lang_frame, text=lang_name, width=40, height=25,
+                          fg_color="#004466", hover_color="#006688",
+                          command=lambda lc=lang_code: target_lang.delete(0, "end") or target_lang.insert(0, lc)
+                          ).pack(side="left", padx=2)
+        
+        # Result text
+        ctk.CTkLabel(popup, text="Translation:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20, pady=(10,5))
+        result_text = ctk.CTkTextbox(popup, height=100, font=("Courier New", 12),
+                                      fg_color="#05080F", text_color="#00FF41")
+        result_text.pack(fill="x", padx=20, pady=5)
+        
+        # Status label
+        status_label = ctk.CTkLabel(popup, text="", font=("Courier New", 10),
+                                     text_color="#888888")
+        status_label.pack(pady=5)
+        
+        def _translate():
+            text = source_text.get("1.0", "end-1c").strip()
+            tgt_lang = target_lang.get().strip()
+            
+            if not text:
+                status_label.configure(text="⚠️ Please enter text to translate", text_color="#FF3131")
+                return
+            
+            if not tgt_lang:
+                status_label.configure(text="⚠️ Please enter target language", text_color="#FF3131")
+                return
+            
+            status_label.configure(text="🌍 Translating...", text_color="#FFD700")
+            result_text.delete("1.0", "end")
+            
+            def _run():
+                translator = JarvisTranslator()
+                result = translator.translate(text, tgt_lang, 'auto')
+                translator.close()
+                
+                def _update():
+                    if result['success']:
+                        result_text.insert("1.0", result['translated_text'])
+                        status_label.configure(
+                            text=f"✅ Translated using {result['engine']}", 
+                            text_color="#00FF41"
+                        )
+                        self.log("TRANSLATOR", f"Translated to {tgt_lang}: {result['translated_text'][:50]}...")
+                    else:
+                        status_label.configure(
+                            text=f"❌ Translation failed: {result.get('error', 'Unknown error')}", 
+                            text_color="#FF3131"
+                        )
+                
+                self.after(0, _update)
+            
+            threading.Thread(target=_run, daemon=True).start()
+        
+        # Translate button
+        ctk.CTkButton(popup, text="🌍 TRANSLATE", height=45,
+                      fg_color="#004466", hover_color="#006688",
+                      font=("Courier New", 14, "bold"),
+                      command=_translate).pack(fill="x", padx=20, pady=10)
+        
+        # Help text
+        ctk.CTkLabel(popup, text="Language codes: en=English, bn=Bengali, hi=Hindi, es=Spanish, fr=French, de=German, etc.",
+                     font=("Courier New", 9), text_color="#444444", wraplength=550).pack(pady=5)
+
+    def show_article_learning_dialog(self):
+        """Show article learning dialog"""
+        popup = ctk.CTkToplevel(self)
+        popup.title("📄 JARVIS ARTICLE LEARNER")
+        popup.geometry("600x400")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text="📄 FULL ARTICLE LEARNER", font=("Courier New", 20, "bold"),
+                     text_color="#00F3FF").pack(pady=15)
+        
+        # Topic/URL input
+        ctk.CTkLabel(popup, text="Wikipedia topic or URL:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20, pady=(10,5))
+        topic_entry = ctk.CTkEntry(popup, height=40, font=("Courier New", 13),
+                                    placeholder_text="e.g., Artificial Intelligence or https://...",
+                                    fg_color="#05080F", text_color="#00FF41")
+        topic_entry.pack(fill="x", padx=20, pady=5)
+        
+        # Quick topics
+        quick_frame = ctk.CTkFrame(popup, fg_color="transparent")
+        quick_frame.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkLabel(quick_frame, text="Quick Topics:", font=("Courier New", 10),
+                     text_color="#555555").pack(side="left", padx=5)
+        
+        for topic in ["Artificial Intelligence", "Machine Learning", "Python (programming language)", "Quantum Computing"]:
+            ctk.CTkButton(quick_frame, text=topic[:15]+"...", width=120, height=25,
+                          fg_color="#004466", hover_color="#006688",
+                          command=lambda t=topic: topic_entry.delete(0, "end") or topic_entry.insert(0, t)
+                          ).pack(side="left", padx=2)
+        
+        # Status/Result area
+        result_frame = ctk.CTkFrame(popup, fg_color="#05080F", border_width=1, border_color="#002233")
+        result_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        result_text = ctk.CTkTextbox(result_frame, font=("Courier New", 11),
+                                      fg_color="transparent", text_color="#00FF41")
+        result_text.pack(fill="both", expand=True, padx=10, pady=10)
+        result_text.insert("1.0", "Enter a Wikipedia topic or URL and click LEARN ARTICLE.\n\nJARVIS will fetch the complete article and save it to the knowledge base.")
+        
+        def _learn():
+            topic = topic_entry.get().strip()
+            
+            if not topic:
+                result_text.delete("1.0", "end")
+                result_text.insert("1.0", "⚠️ Please enter a topic or URL")
+                return
+            
+            result_text.delete("1.0", "end")
+            result_text.insert("1.0", f"📚 Learning article: {topic}\n\nPlease wait...")
+            
+            def _run():
+                article_learner = ArticleLearner()
+                success = article_learner.learn_article(topic)
+                article_learner.close()
+                
+                def _update():
+                    if success:
+                        result_text.delete("1.0", "end")
+                        result_text.insert("1.0", f"✅ Article learned successfully!\n\nTopic: {topic}\n\nThe complete article has been saved to the knowledge base.\n\nYou can now ask JARVIS questions about this topic!")
+                        self.log("ARTICLE LEARNER", f"Learned full article: {topic}")
+                    else:
+                        result_text.delete("1.0", "end")
+                        result_text.insert("1.0", f"❌ Failed to learn article: {topic}\n\nPlease check the topic name or URL and try again.")
+                
+                self.after(0, _update)
+            
+            threading.Thread(target=_run, daemon=True).start()
+        
+        # Learn button
+        ctk.CTkButton(popup, text="📄 LEARN ARTICLE", height=45,
+                      fg_color="#004488", hover_color="#0066AA",
+                      font=("Courier New", 14, "bold"),
+                      command=_learn).pack(fill="x", padx=20, pady=10)
+
+    def show_generator_panel(self):
+        """Full generator panel with all types."""
+        popup = ctk.CTkToplevel(self)
+        popup.title("[*] JARVIS AI GENERATOR")
+        popup.geometry("580x480")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text="[*] AI GENERATOR", font=("Courier New", 22, "bold"),
+                     text_color="#00F3FF").pack(pady=15)
+
+        type_var = ctk.StringVar(value="image")
+        type_frame = ctk.CTkFrame(popup, fg_color="#05080F")
+        type_frame.pack(fill="x", padx=20, pady=5)
+        ctk.CTkLabel(type_frame, text="Type:", font=("Courier New", 12),
+                     text_color="#555555").pack(side="left", padx=10)
+        for t in ["image", "photo", "video", "audio", "3d", "text", "file"]:
+            ctk.CTkRadioButton(type_frame, text=t.upper(), variable=type_var, value=t,
+                               font=("Courier New", 11), text_color="#00F3FF").pack(side="left", padx=6)
+
+        ctk.CTkLabel(popup, text="Prompt:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20, pady=(10, 0))
+        prompt_box = ctk.CTkTextbox(popup, height=100, font=("Courier New", 13),
+                                    fg_color="#05080F", text_color="#00FF41")
+        prompt_box.pack(fill="x", padx=20, pady=5)
+
+        result_box = ctk.CTkTextbox(popup, height=120, font=("Courier New", 11),
+                                    fg_color="#05080F", text_color="#00F3FF")
+        result_box.pack(fill="x", padx=20, pady=5)
+
+        def _generate():
+            p = prompt_box.get("1.0", "end").strip()
+            t = type_var.get()
+            if not p:
+                return
+            result_box.delete("1.0", "end")
+            result_box.insert("end", f"Generating {t}...\n")
+            def _run():
+                if t == "image":   r = generate_image(p)
+                elif t == "photo": r = generate_photo(p)
+                elif t == "video": r = generate_video(p)
+                elif t == "audio": r = generate_audio(p)
+                elif t == "3d":    r = generate_3d_model(p)
+                elif t == "text":  r = generate_text(p, self.brain)
+                elif t == "file":
+                    parts2 = p.split(" ", 1)
+                    r = generate_file(parts2[0], parts2[1] if len(parts2) > 1 else p, self.brain)
+                else: r = generate_text(p, self.brain)
+                self.after(0, lambda: result_box.insert("end", r + "\n"))
+                self.after(0, lambda: self.log("GEN", r[:200]))
+            threading.Thread(target=_run, daemon=True).start()
+
+        ctk.CTkButton(popup, text="[*] GENERATE", height=45,
+                      fg_color="#003300", hover_color="#005500",
+                      command=_generate).pack(fill="x", padx=20, pady=10)
+
+    # =========================================================================
+    # SCHEDULE DIALOG
+    # =========================================================================
+
+    def show_schedule_dialog(self):
+        popup = ctk.CTkToplevel(self)
+        popup.title("[T] AUTO SCHEDULE TASK")
+        popup.geometry("480x320")
+        popup.configure(fg_color="#02050A")
+        popup.attributes("-topmost", True)
+
+        ctk.CTkLabel(popup, text="[T] SCHEDULE TASK", font=("Courier New", 18, "bold"),
+                     text_color="#00F3FF").pack(pady=15)
+
+        ctk.CTkLabel(popup, text="Task name:", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20)
+        name_entry = ctk.CTkEntry(popup, height=35, font=("Courier New", 13),
+                                  fg_color="#05080F", text_color="#00FF41")
+        name_entry.pack(fill="x", padx=20, pady=5)
+
+        ctk.CTkLabel(popup, text="Command (e.g. screenshot, clean, recon):",
+                     font=("Courier New", 12), text_color="#555555").pack(anchor="w", padx=20)
+        cmd_entry = ctk.CTkEntry(popup, height=35, font=("Courier New", 13),
+                                 fg_color="#05080F", text_color="#00FF41")
+        cmd_entry.pack(fill="x", padx=20, pady=5)
+
+        ctk.CTkLabel(popup, text="Interval (seconds):", font=("Courier New", 12),
+                     text_color="#555555").pack(anchor="w", padx=20)
+        interval_entry = ctk.CTkEntry(popup, height=35, font=("Courier New", 13),
+                                      fg_color="#05080F", text_color="#00FF41")
+        interval_entry.insert(0, "3600")
+        interval_entry.pack(fill="x", padx=20, pady=5)
+
+        def _schedule():
+            name = name_entry.get().strip() or "task"
+            cmd  = cmd_entry.get().strip()
+            try:
+                interval = float(interval_entry.get().strip())
+            except ValueError:
+                interval = 3600
+            if not cmd:
+                return
+            self.auto_ctrl.add_interval(name, lambda c=cmd: self.process(c), interval)
+            self.log("AUTO", f"Scheduled '{name}' every {interval}s: {cmd}")
+            popup.destroy()
+
+        ctk.CTkButton(popup, text="[T] SCHEDULE", height=40,
+                      fg_color="#003344", hover_color="#005566",
+                      command=_schedule).pack(fill="x", padx=20, pady=10)
+
+    # =========================================================================
+    # LOGOUT
+    # =========================================================================
+
+    def _do_logout(self):
+        logout()
+        self.log("SYSTEM", "Session terminated. Restarting for login...")
+        self.after(1000, lambda: (self.destroy(), _restart_with_login()))
+
+    # =========================================================================
+    # WORLD AI CHAT METHODS
+    # =========================================================================
+
+    def open_world_ai_chat_direct(self):
+        """Open World AI Chat directly"""
+        try:
+            if not self.world_ai_chat:
+                self.log("ERROR", "World AI Chat not available!")
+                return
+            
+            self.log("SYSTEM", "🌍 Opening World AI Chat...")
+            
+            # Show AI selector
+            ai = self.world_ai_chat.show_ai_selector_dialog(self)
+            
+            if not ai:
+                self.log("WARNING", "No AI selected")
+                return
+            
+            # Get query from user
+            query = self._get_query_dialog()
+            
+            if not query:
+                self.log("WARNING", "No query provided")
+                return
+            
+            # Chat with AI
+            result = self.world_ai_chat.chat_with_ai(query, ai, self)
+            
+            if result['success']:
+                self.log("JARVIS", f"[{result['ai']}] {result['response']}")
+                self.speak(result['response'])
+            else:
+                self.log("WARNING", "World AI Chat cancelled or failed")
+        
+        except Exception as e:
+            self.log("ERROR", f"World AI Chat error: {e}")
+            print(f"⚠️ World AI Chat error: {e}")
+
+    def _get_query_dialog(self):
+        """Show dialog to get query from user"""
+        import customtkinter as ctk
+        from tkinter import messagebox
+        
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Enter Query")
+        dialog.geometry("500x300")
+        dialog.configure(fg_color="#02050A")
+        dialog.attributes("-topmost", True)
+        dialog.grab_set()
+        
+        # Center dialog
+        dialog.update_idletasks()
+        width = dialog.winfo_width()
+        height = dialog.winfo_height()
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f'{width}x{height}+{x}+{y}')
+        
+        # Header
+        ctk.CTkLabel(
+            dialog,
+            text="📝 Enter Your Question",
+            font=("Courier New", 20, "bold"),
+            text_color="#00F3FF"
+        ).pack(pady=20)
+        
+        # Text box
+        text_box = ctk.CTkTextbox(
+            dialog,
+            height=100,
+            font=("Courier New", 12),
+            fg_color="#05080F",
+            text_color="#00FF41"
+        )
+        text_box.pack(fill="both", expand=True, padx=20, pady=10)
+        text_box.focus_set()
+        
+        result = {'query': None}
+        
+        def on_submit():
+            query = text_box.get("1.0", "end-1c").strip()
+            if query:
+                result['query'] = query
+                dialog.grab_release()
+                dialog.destroy()
+            else:
+                messagebox.showwarning("Empty Query", "Please enter a question!")
+        
+        def on_cancel():
+            dialog.grab_release()
+            dialog.destroy()
+        
+        # Buttons
+        btn_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=20)
+        
+        ctk.CTkButton(
+            btn_frame,
+            text="✅ SUBMIT",
+            command=on_submit,
+            fg_color="#00AA00",
+            hover_color="#00CC00",
+            font=("Courier New", 14, "bold"),
+            height=45
+        ).pack(side="left", expand=True, fill="x", padx=(0, 10))
+        
+        ctk.CTkButton(
+            btn_frame,
+            text="❌ CANCEL",
+            command=on_cancel,
+            fg_color="#AA0000",
+            hover_color="#CC0000",
+            font=("Courier New", 14, "bold"),
+            height=45
+        ).pack(side="left", expand=True, fill="x", padx=(10, 0))
+        
+        dialog.wait_window()
+        return result['query']
+
+    # =========================================================================
+    # AUTO AI LEARNER METHODS
+    # =========================================================================
+
+    def toggle_auto_learner(self):
+        """Toggle auto AI learner ON/OFF"""
+        try:
+            # Initialize auto learner if not exists
+            if not hasattr(self, 'auto_learner'):
+                from jarvis_auto_ai_learner import AutoAILearner
+                self.auto_learner = AutoAILearner(self)
+                self.log("SYSTEM", "🤖 Auto AI Learner initialized!")
+            
+            # Toggle state
+            if self.auto_learner.is_running:
+                # Stop learning
+                self.auto_learner.stop()
+                self.auto_learn_btn.configure(
+                    text="🤖 AUTO LEARN: OFF",
+                    fg_color="#AA0000",
+                    hover_color="#CC0000"
+                )
+                self.log("SYSTEM", "🤖 Auto AI Learner stopped")
+                self._update_learning_stats()
+            else:
+                # Start learning
+                self.auto_learner.start()
+                self.auto_learn_btn.configure(
+                    text="🤖 AUTO LEARN: ON",
+                    fg_color="#00AA00",
+                    hover_color="#00CC00"
+                )
+                self.log("SYSTEM", "🤖 Auto AI Learner started!")
+                self._start_learning_stats_update()
+        
+        except Exception as e:
+            self.log("ERROR", f"Auto learner error: {e}")
+            print(f"⚠️ Auto learner error: {e}")
+
+    def _update_learning_stats(self):
+        """Update learning statistics display"""
+        try:
+            if hasattr(self, 'auto_learner'):
+                stats = self.auto_learner.get_stats()
+                status = "Learning..." if stats['is_running'] else "Idle"
+                self.learning_stats.configure(
+                    text=f"📊 Learned: {stats['learned_count']} topics | Status: {status}"
+                )
+        except Exception as e:
+            print(f"⚠️ Stats update error: {e}")
+
+    def _start_learning_stats_update(self):
+        """Start periodic stats update"""
+        def update_loop():
+            if hasattr(self, 'auto_learner') and self.auto_learner.is_running:
+                self._update_learning_stats()
+                self.after(5000, update_loop)  # Update every 5 seconds
+        
+        update_loop()
+
+    def open_learning_settings(self):
+        """Open learning settings dialog"""
+        try:
+            self.log("SYSTEM", "⚙️ Opening learning settings...")
+            # TODO: Implement settings dialog
+            from tkinter import messagebox
+            messagebox.showinfo(
+                "Learning Settings",
+                "Learning Settings:\n\n"
+                "• Auto-learning interval: 30-60 seconds\n"
+                "• Topics: 60+ categories\n"
+                "• Learning method: Direct AI Chat\n"
+                "• Storage: Offline Brain knowledge base\n\n"
+                "More settings coming soon!"
+            )
+        except Exception as e:
+            self.log("ERROR", f"Settings error: {e}")
+
+    # =========================================================================
+    # MICROPHONE CONTROL METHODS
+    # =========================================================================
+
+    def toggle_microphone(self):
+        """Toggle microphone ON/OFF"""
+        try:
+            self.mic_enabled = not self.mic_enabled
+            
+            if self.mic_enabled:
+                self.mic_button.configure(
+                    text="🎤 MIC: ON",
+                    fg_color="#00AA00",
+                    hover_color="#00CC00"
+                )
+                self.log("SYSTEM", "🎤 Microphone enabled")
+            else:
+                self.mic_button.configure(
+                    text="🎤 MIC: OFF",
+                    fg_color="#AA0000",
+                    hover_color="#CC0000"
+                )
+                self.log("SYSTEM", "🎤 Microphone disabled")
+        
+        except Exception as e:
+            self.log("ERROR", f"Microphone toggle error: {e}")
+            print(f"⚠️ Microphone error: {e}")
+
+    # =========================================================================
+    # SYSTEM PERMISSIONS METHODS
+    # =========================================================================
+
+    def request_permissions(self):
+        """Request all system permissions"""
+        try:
+            self.log("SYSTEM", "🔐 Requesting permissions...")
+            
+            permissions = {
+                'Microphone': self._request_mic_permission(),
+                'File System': self._request_file_permission(),
+                'Network': self._request_network_permission(),
+            }
+            
+            granted = sum(permissions.values())
+            total = len(permissions)
+            
+            # Show results
+            result_text = "Permission Results:\n\n"
+            for perm, status in permissions.items():
+                icon = "✅" if status else "❌"
+                result_text += f"{icon} {perm}: {'Granted' if status else 'Denied'}\n"
+            
+            result_text += f"\n📊 Total: {granted}/{total} granted"
+            
+            from tkinter import messagebox
+            messagebox.showinfo("Permissions", result_text)
+            
+            self.log("SYSTEM", f"🔐 Permissions: {granted}/{total} granted")
+        
+        except Exception as e:
+            self.log("ERROR", f"Permission request error: {e}")
+            print(f"⚠️ Permission error: {e}")
+
+    def _request_mic_permission(self):
+        """Request microphone permission"""
+        try:
+            import speech_recognition as sr
+            r = sr.Recognizer()
+            with sr.Microphone() as source:
+                r.adjust_for_ambient_noise(source, duration=0.1)
+            return True
+        except:
+            return False
+
+    def _request_file_permission(self):
+        """Request file system permission"""
+        try:
+            import os
+            import tempfile
+            # Try to create a temp file
+            fd, path = tempfile.mkstemp()
+            os.close(fd)
+            os.remove(path)
+            return True
+        except:
+            return False
+
+    def _request_network_permission(self):
+        """Request network permission"""
+        try:
+            import socket
+            # Try to create a socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.close()
+            return True
+        except:
+            return False
+
+    def open_system_settings(self):
+        """Open system settings dialog"""
+        try:
+            self.log("SYSTEM", "⚙️ Opening system settings...")
+            # TODO: Implement settings dialog
+            from tkinter import messagebox
+            messagebox.showinfo(
+                "System Settings",
+                "System Settings:\n\n"
+                "• Microphone: Enabled\n"
+                "• Voice: Enabled\n"
+                "• Auto-learning: Configurable\n"
+                "• Permissions: Manageable\n\n"
+                "More settings coming soon!"
+            )
+        except Exception as e:
+            self.log("ERROR", f"Settings error: {e}")
+
+
+def _restart_with_login():
+    """Re-launch the app with the login screen."""
+    root = ctk.CTk()
+    root.withdraw()
+
+    def _on_login(session):
+        root.destroy()
+        _launch_main(session)
+
+    check_and_login(root, _on_login)
+    root.mainloop()
+
+
+def _launch_main(session: dict):
+    app = JarvisAntigravity(session)
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    # Hidden root window — login window is a Toplevel
+    root = ctk.CTk()
+    root.withdraw()
+
+    def _on_login(session):
+        root.destroy()
+        _launch_main(session)
+
+    check_and_login(root, _on_login)
+    root.mainloop()

@@ -1,0 +1,48 @@
+# JARVIS Multi-AI Learner Requirements
+# জার্ভিস মাল্টি-AI শিক্ষার্থী প্রয়োজনীয়তা
+
+# Basic (Already included in Python)
+# মৌলিক (ইতিমধ্যে Python-এ অন্তর্ভুক্ত)
+sqlite3
+json
+datetime
+
+# For REAL AI Integration (Optional - Get API keys first)
+# প্রকৃত AI ইন্টিগ্রেশনের জন্য (ঐচ্ছিক - প্রথমে API কী নিন)
+
+# OpenAI (ChatGPT)
+openai>=1.0.0
+
+# Anthropic (Claude)
+anthropic>=0.18.0
+
+# Google (Gemini)
+google-generativeai>=0.3.0
+
+# Hugging Face
+transformers>=4.30.0
+huggingface-hub>=0.16.0
+
+# Cohere
+cohere>=4.0.0
+
+# Mistral
+mistralai>=0.0.7
+
+# Additional utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Installation Instructions:
+# ইনস্টলেশন নির্দেশাবলী:
+
+# Basic installation (no API needed):
+# মৌলিক ইনস্টলেশন (API প্রয়োজন নেই):
+# Already works! Script uses simulated responses.
+# ইতিমধ্যে কাজ করে! স্ক্রিপ্ট সিমুলেটেড রেসপন্স ব্যবহার করে।
+
+# For REAL AI integration:
+# প্রকৃত AI ইন্টিগ্রেশনের জন্য:
+# pip install openai anthropic google-generativeai
+# Then add your API keys to .env file
+# তারপর আপনার API কী .env ফাইলে যোগ করুন

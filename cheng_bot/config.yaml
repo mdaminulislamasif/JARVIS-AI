@@ -1,0 +1,46 @@
+# Jarvis-Cheng Bot Integration API Configuration
+
+api:
+  host: "0.0.0.0"
+  port: 8080
+  cors_origins:
+    - "*"
+
+authentication:
+  api_key_file: ".cheng_bot/api_keys.json"
+  jwt_secret: "${JWT_SECRET}"  # Set JWT_SECRET environment variable
+  jwt_expiration_hours: 24
+  rate_limit_per_minute: 100
+
+sessions:
+  timeout_minutes: 30
+  max_concurrent: 100
+
+commands:
+  default_timeout_seconds: 30
+  max_async_timeout_seconds: 300
+  queue_size: 1000
+  worker_pool_size: 10
+
+logging:
+  log_dir: ".cheng_bot/logs"
+  max_size_mb: 100
+  retention_days: 30
+
+security:
+  workspace_root: "."
+  allowed_shell_commands:
+    - "ls"
+    - "cat"
+    - "grep"
+    - "find"
+    - "git"
+    - "npm"
+    - "pip"
+    - "python"
+    - "node"
+    - "pytest"
+    - "jest"
+    - "cargo"
+    - "go"
+  enforce_whitelist: true
