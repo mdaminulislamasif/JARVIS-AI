@@ -67,7 +67,7 @@ Create `jarvis_config.txt` in the project root and add any of your API keys (one
 You can also **directly paste any API key into the chat interface** or **input an API console URL** (like Google AI Studio or OpenAI API key page), and JARVIS will automatically detect, extract, and configure it for you instantly!
 
 ```
-AQ.Ab...          ← Gemini key (Auto-detected)
+AIza...          ← Gemini key (Auto-detected)
 sk-ant-...       ← Claude/Anthropic key (Auto-detected)
 sk-proj-...      ← OpenAI key (Auto-detected)
 gsk_...          ← Groq key (Auto-detected)
